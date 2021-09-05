@@ -11,6 +11,7 @@ public class Board : MonoBehaviour
     
     public GameObject normalTilePrefab;
     public GameObject obstacleTilePrefab;
+
     public GameObject[] gamePiecePrefabs;
     public StartingTile[] startingTiles;
 
@@ -19,6 +20,8 @@ public class Board : MonoBehaviour
 
     Tile m_clickedTile;
     Tile m_targetTile;
+
+    ParticleManager m_particleManager;
 
     Tile[,] m_allTiles;
     GamePiece[,] m_allGamePiece;
@@ -36,6 +39,7 @@ public class Board : MonoBehaviour
     {
         m_allTiles = new Tile[width, height];
         m_allGamePiece = new GamePiece[width, height];
+        m_particleManager = GameObject.FindGameObjectWithTag("ParticleManager").GetComponent<ParticleManager>();
 
         SettupTile();
         SettupCamera();
@@ -379,40 +383,41 @@ public class Board : MonoBehaviour
         return (combined.Count >= minLengt) ? combined : null;
     }
 
-    void HighlightTileOff(int x, int y)
-    {
-        if (m_allTiles[x, y].tileType != Tile.TileType.Breakable)
-        {
-            SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
-            spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 0);
-        }
-    }
+    //void HighlightTileOff(int x, int y)
+    //{
+    //    if (m_allTiles[x, y].tileType != Tile.TileType.Breakable)
+    //    {
+    //        SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
+    //        spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 0);
+    //    }
+    //}
 
-    void HighlightTileOn(int x, int y, Color color)
-    {
-        if (m_allTiles[x, y].tileType != Tile.TileType.Breakable)
-        {
-            SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
-            spriteRenderer.color = color;
-        }
-    }
+    //void HighlightTileOn(int x, int y, Color color)
+    //{
+    //    if (m_allTiles[x, y].tileType != Tile.TileType.Breakable)
+    //    {
+    //        SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
+    //        spriteRenderer.color = color;
+    //    }
+    //}
 
-    void HighlightMatches()
-    {
-        for (int i = 0; i < width; i++)
-        {
-            for (int j = 0; j< height; j++)
-            {
-                HighlightMatchesAt(i, j);
-            }
-        }
-    }
+    //void HighlightMatches()
+    //{
+    //    for (int i = 0; i < width; i++)
+    //    {
+    //        for (int j = 0; j< height; j++)
+    //        {
+    //            HighlightMatchesAt(i, j);
+    //        }
+    //    }
+    //}
 
     void BreakTileAt(int x, int y)
     {
         Tile tile = m_allTiles[x, y];
         if (tile != null)
         {
+            m_particleManager.BreakTileFXAt(tile.breakableValue, x, y);
             tile.BreakTile();
         }
     }
@@ -434,11 +439,12 @@ public class Board : MonoBehaviour
 
         if (gamePiece != null)
         {
+            m_particleManager.ClearTileFXAt(x, y);
             Destroy(gamePiece.gameObject);
             m_allGamePiece[x, y] = null;
         }
 
-        HighlightTileOff(x, y);
+        //HighlightTileOff(x, y);
     }
 
     void ClearPieceAt(List<GamePiece> gamePieces)
@@ -463,34 +469,34 @@ public class Board : MonoBehaviour
         }
     }
 
-    private void HighlightMatchesAt(int x, int y)
-    {
-        HighlightTileOff(x, y);
+    //private void HighlightMatchesAt(int x, int y)
+    //{
+    //    HighlightTileOff(x, y);
 
-        List<GamePiece> combinedMatches = FindMatchesAt(x, y);
+    //    List<GamePiece> combinedMatches = FindMatchesAt(x, y);
 
-        if (combinedMatches.Count > 0)
-        {
-            foreach (GamePiece piece in combinedMatches)
-            {
-                HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
-            }
-        }
-    }
+    //    if (combinedMatches.Count > 0)
+    //    {
+    //        foreach (GamePiece piece in combinedMatches)
+    //        {
+    //            HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
+    //        }
+    //    }
+    //}
 
-    void HighlightMatches(List<GamePiece> gamePieces)
-    {
-        if (gamePieces.Count > 0)
-        {
-            foreach(GamePiece piece in gamePieces)
-            {
-                if (piece != null)
-                {
-                    HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
-                }
-            }
-        }
-    }
+    //void HighlightMatches(List<GamePiece> gamePieces)
+    //{
+    //    if (gamePieces.Count > 0)
+    //    {
+    //        foreach(GamePiece piece in gamePieces)
+    //        {
+    //            if (piece != null)
+    //            {
+    //                HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
+    //            }
+    //        }
+    //    }
+    //}
 
     private List<GamePiece> FindMatchesAt(int x, int y , int minLenght = 3)
     {
@@ -646,7 +652,8 @@ public class Board : MonoBehaviour
 
         bool isFinished = false;
 
-        HighlightMatches(gamePieces);
+        //HighlightMatches(gamePieces);
+
         yield return new WaitForSeconds(0.25f);
 
         while (!isFinished)

@@ -98,7 +98,7 @@ public class Tile : MonoBehaviour
         if (breakableValue <= 0)
         {
             tileType = TileType.Normal;
-            //m_spriteRenderer.color = normalColor;
+            m_spriteRenderer.color = normalColor;
         }
     }
 }
