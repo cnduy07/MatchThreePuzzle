@@ -533,17 +533,18 @@ MonoBehaviour:
   - {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
   - {fileID: 2225309596347560764, guid: 83423ae9db91b4715a566f7feb3de1b8, type: 3}
   - {fileID: 5569378416907267135, guid: 245522961a60947ec80a31ba461138db, type: 3}
-  startingTiles:
-  - prefab: {fileID: 5143601701473670146, guid: 60f63e3f333414db6b8b3b60b7be0aca, type: 3}
-    x: 2
-    y: 3
+  startingTiles: []
+  startingPieces:
+  - prefab: {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
+    x: 0
+    y: 1
     z: 0
-  - prefab: {fileID: 3106129040985573527, guid: 59cca7f60ae19402fac96ca4ff21578b, type: 3}
-    x: 3
-    y: 3
+  - prefab: {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
+    x: 0
+    y: 2
     z: 0
-  - prefab: {fileID: 5143601701473670146, guid: 60f63e3f333414db6b8b3b60b7be0aca, type: 3}
-    x: 4
+  - prefab: {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
+    x: 1
     y: 3
     z: 0
 --- !u!4 &1956019994
