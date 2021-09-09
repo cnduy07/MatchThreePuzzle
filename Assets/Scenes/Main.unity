@@ -152,9 +152,9 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 9e745d4a895f1450c83ccf03124cae06, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  clearFXPrefab: {fileID: 7089711844177135535, guid: 6c2c0ea47040a4d36b295c19e711e9a1, type: 3}
-  breakFXPrefab: {fileID: 5670189149232152026, guid: 24072b1b3d2cf4225b7bb5875f1b6bc0, type: 3}
-  doubleBreakFXPrefab: {fileID: 1491952885582335646, guid: 7e4573d6b3fe24921aa36a44a87ea325, type: 3}
+  clearFXPrefab: {fileID: 2125001601949757827, guid: 6c2c0ea47040a4d36b295c19e711e9a1, type: 3}
+  breakFXPrefab: {fileID: 190318883576567031, guid: 24072b1b3d2cf4225b7bb5875f1b6bc0, type: 3}
+  doubleBreakFXPrefab: {fileID: 4993084620454013356, guid: 7e4573d6b3fe24921aa36a44a87ea325, type: 3}
 --- !u!4 &7733254
 Transform:
   m_ObjectHideFlags: 0
@@ -535,16 +535,16 @@ MonoBehaviour:
   - {fileID: 5569378416907267135, guid: 245522961a60947ec80a31ba461138db, type: 3}
   startingTiles: []
   startingPieces:
-  - prefab: {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
-    x: 0
+  - prefab: {fileID: 8039281263287691616, guid: 51d79c0c3a04249c1b95780b435e0c48, type: 3}
+    x: 1
     y: 1
     z: 0
-  - prefab: {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
-    x: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 1
     y: 2
     z: 0
-  - prefab: {fileID: 515640164423204900, guid: ea54ef1cf44ca40f78cf2a2e2e833950, type: 3}
-    x: 1
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 2
     y: 3
     z: 0
 --- !u!4 &1956019994

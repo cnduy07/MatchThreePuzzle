@@ -644,7 +644,7 @@ public class Board : MonoBehaviour
         {
             // clear and collapse
             yield return StartCoroutine(ClearAndCollapseRoutine(gamePieces));
-            yield return null;
+            yield return new WaitForSeconds(0.5f);
 
             //refill board
             yield return StartCoroutine(RefillBoardRoutine());
@@ -670,12 +670,16 @@ public class Board : MonoBehaviour
 
         bool isFinished = false;
 
-        //HighlightMatches(gamePieces);
-
         yield return new WaitForSeconds(0.25f);
 
         while (!isFinished)
         {
+            List<GamePiece> bombedPieces = GetBombedPieces(gamePieces);
+            if (bombedPieces.Count > 0)
+            {
+                gamePieces = gamePieces.Union(bombedPieces).ToList();
+            }
+
             ClearPieceAt(gamePieces);
             BreakTileAt(gamePieces);
 
@@ -724,5 +728,86 @@ public class Board : MonoBehaviour
         return true;
     }
 
+    List<GamePiece> GetColumnPieces(int column)
+    {
+        List<GamePiece> gamePieces = new List<GamePiece>();
 
+        for (int i = 0; i < height; i++)
+        {
+            if (m_allGamePiece[column, i] != null)
+            {
+                gamePieces.Add(m_allGamePiece[column, i]);
+            }
+        }
+
+        return gamePieces;
+    }
+
+    List<GamePiece> GetRowPieces(int row)
+    {
+        List<GamePiece> gamePieces = new List<GamePiece>();
+
+        for (int i = 0; i < width; i++)
+        {
+            if (m_allGamePiece[i, row] != null)
+            {
+                gamePieces.Add(m_allGamePiece[i, row]);
+            }
+        }
+
+        return gamePieces;
+    }
+
+
+    List<GamePiece> GetAdjacentPieces(int x, int y, int offset)
+    {
+        List<GamePiece> gamePieces = new List<GamePiece>();
+
+        for (int i = x - offset; i <= x + offset; i++)
+        {
+            for (int j = y - offset; j <= y + offset; j++)
+            {
+                if (m_allGamePiece[i, j] != null && IsWithinBounds(i, j))
+                {
+                    gamePieces.Add(m_allGamePiece[i, j]);
+                }
+            }
+        }
+
+        return gamePieces;
+    }
+
+    List<GamePiece> GetBombedPieces(List<GamePiece> gamePieces)
+    {
+        List<GamePiece> allBombedPieces = new List<GamePiece>();
+
+
+        foreach (GamePiece gamePiece in gamePieces) {
+            if (gamePiece != null)
+            {
+                if (gamePiece.GetComponent<Bomb>() != null)
+                {
+                    List<GamePiece> bombedPieces = new List<GamePiece>();
+                    Bomb bomb = gamePiece.GetComponent<Bomb>();
+
+                    switch (bomb.bombType) {
+                        case BombType.Column:
+                            bombedPieces = bombedPieces.Union(GetColumnPieces(gamePiece.xIndex)).ToList();
+                            break;
+                        case BombType.Row:
+                            bombedPieces = bombedPieces.Union(GetRowPieces(gamePiece.yIndex)).ToList();
+                            break;
+                        case BombType.Adjacent:
+                            bombedPieces = bombedPieces.Union(GetAdjacentPieces(gamePiece.xIndex, gamePiece.yIndex, 1)).ToList();
+                            break;
+                    }
+
+                    allBombedPieces = allBombedPieces.Union(bombedPieces).ToList();
+                    Debug.Log("Bombed: " + allBombedPieces.Count);
+                }
+            }
+        }
+
+        return allBombedPieces;
+    }
 }
