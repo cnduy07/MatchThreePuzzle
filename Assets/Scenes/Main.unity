@@ -527,6 +527,9 @@ MonoBehaviour:
   borderSize: 2
   normalTilePrefab: {fileID: 897779726052984303, guid: d8a51aa769bcd482a9cec7b0053f0727, type: 3}
   obstacleTilePrefab: {fileID: 8291602199668588350, guid: e3087c0452cd74cd9b80ce4cf035a10c, type: 3}
+  rowBombPrefab: {fileID: 7055050336056689149, guid: ac8e6571bc66a42a497ed729a08b4f43, type: 3}
+  columnBombPrefab: {fileID: 1215318866706910055, guid: 2b8e61c4f9ab3408f8db9c00d8303e78, type: 3}
+  adjacentBombPrefab: {fileID: 8039281263287691616, guid: 51d79c0c3a04249c1b95780b435e0c48, type: 3}
   gamePiecePrefabs:
   - {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
   - {fileID: 4037398899771481773, guid: 12c129ac91b4b4a7f895c3b071003d2d, type: 3}
@@ -535,16 +538,24 @@ MonoBehaviour:
   - {fileID: 5569378416907267135, guid: 245522961a60947ec80a31ba461138db, type: 3}
   startingTiles: []
   startingPieces:
-  - prefab: {fileID: 8039281263287691616, guid: 51d79c0c3a04249c1b95780b435e0c48, type: 3}
-    x: 1
-    y: 1
-    z: 0
   - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
     x: 1
-    y: 2
+    y: 3
     z: 0
   - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
     x: 2
+    y: 3
+    z: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 3
+    y: 1
+    z: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 3
+    y: 2
+    z: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 4
     y: 3
     z: 0
 --- !u!4 &1956019994
