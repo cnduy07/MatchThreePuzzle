@@ -321,6 +321,16 @@ public class Board : MonoBehaviour
                 m_clickedTileBomb = DropBomb(clickedPieceMatches, clickedTile.xIndex, clickedTile.yIndex, direction);
                 m_targetTileBomb = DropBomb(targetPieceMatches, targetTile.xIndex, targetTile.yIndex, direction);
 
+                if (m_clickedTileBomb != null && targetPiece != null)
+                {
+                    m_clickedTileBomb.GetComponent<GamePiece>().ChangeColor(targetPiece);
+                }
+
+                if (m_targetTileBomb != null && clickedPiece != null)
+                {
+                    m_targetTileBomb.GetComponent<GamePiece>().ChangeColor(clickedPiece);
+                }
+
                 ClearAndRefillBoard(clickedPieceMatches.Union(targetPieceMatches).ToList());
             }
         }
@@ -712,10 +722,10 @@ public class Board : MonoBehaviour
         while (!isFinished)
         {
             List<GamePiece> bombedPieces = GetBombedPieces(gamePieces);
-            if (bombedPieces.Count > 0)
-            {
-                gamePieces = gamePieces.Union(bombedPieces).ToList();
-            }
+            gamePieces = gamePieces.Union(bombedPieces).ToList();
+
+            bombedPieces = GetBombedPieces(gamePieces);
+            gamePieces = gamePieces.Union(bombedPieces).ToList();
 
             ClearPieceAt(gamePieces);
             BreakTileAt(gamePieces);
@@ -816,9 +826,12 @@ public class Board : MonoBehaviour
         {
             for (int j = y - offset; j <= y + offset; j++)
             {
-                if (m_allGamePieces[i, j] != null && IsWithinBounds(i, j))
+                if (IsWithinBounds(i, j))
                 {
-                    gamePieces.Add(m_allGamePieces[i, j]);
+                    if (m_allGamePieces[i, j] != null)
+                    {
+                        gamePieces.Add(m_allGamePieces[i, j]);
+                    }
                 }
             }
         }
