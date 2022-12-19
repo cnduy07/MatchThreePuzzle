@@ -7,7 +7,8 @@ public enum BombType
     None,
     Row,
     Column,
-    Adjacent
+    Adjacent,
+    Color
 }
 
 public class Bomb : GamePiece

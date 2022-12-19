@@ -14,6 +14,7 @@ public class Board : MonoBehaviour
     public GameObject rowBombPrefab;
     public GameObject columnBombPrefab;
     public GameObject adjacentBombPrefab;
+    public GameObject colorBombPrefab;
 
     public GameObject[] gamePiecePrefabs;
     public StartingGameObject[] startingTiles;
@@ -43,11 +44,21 @@ public class Board : MonoBehaviour
         public int z;
     }
 
+    public int collectibleCount = 0;
+    public int collectibleMax = 3;
+
+    [Range(0, 1)]
+    public float changeForCollectible = 0.1f;
+    public GameObject[] collectiblePrefabs;
+
     void Start()
     {
         m_allTiles = new Tile[width, height];
         m_allGamePieces = new GamePiece[width, height];
         m_particleManager = GameObject.FindGameObjectWithTag("ParticleManager").GetComponent<ParticleManager>();
+
+        List<GamePiece> foundCollectible = FindAllCollectibles();
+        collectibleCount = foundCollectible.Count;
 
         SettupTile();
         SettupStartingPiece();
@@ -107,13 +118,23 @@ public class Board : MonoBehaviour
 
     GameObject GetRandomGamePiecePrefab()
     {
-        int randomIdx = Random.Range(0, gamePiecePrefabs.Length);
-        if (gamePiecePrefabs[randomIdx] == null)
+        return GetRandomObjectPrefab(gamePiecePrefabs);
+    }
+
+    GameObject GetRandomCollectiblePrefab()
+    {
+        return GetRandomObjectPrefab(collectiblePrefabs);
+    }
+
+    GameObject GetRandomObjectPrefab(GameObject[] objectPrefabs)
+    {
+        int randomIdx = Random.Range(0, objectPrefabs.Length);
+        if (objectPrefabs[randomIdx] == null)
         {
-            Debug.LogWarning("BOARD: Invalid gamepiece" + randomIdx + "does not contain valid GamePirce prefab!");
+            Debug.LogWarning("BOARD: Invalid object" + randomIdx + "does not contain valid object prefab");
         }
 
-        return gamePiecePrefabs[randomIdx];
+        return objectPrefabs[randomIdx];
     }
 
     public void PlaceGamePiece(GamePiece gamePiece, int x, int y)
@@ -145,18 +166,26 @@ public class Board : MonoBehaviour
             {
                 if (m_allGamePieces[i, j] == null && m_allTiles[i, j].tileType != Tile.TileType.Obstacle)
                 {
-                    GamePiece gamePiece = FillRandomPieceAt(i, j, yOffset, moveTime);
-                    iteration = 0;
-
-                    while (HasMatchesOnFill(i, j))
+                    GamePiece gamePiece = null;
+                    if (j == height - 1 && CanAddCollectible())
                     {
-                        ClearPieceAt(i, j);
+                        gamePiece = FillRandomCollectibleAt(i, j, yOffset, moveTime);
+                        collectibleCount += 1;
+                    } else
+                    {
                         gamePiece = FillRandomPieceAt(i, j, yOffset, moveTime);
-                        iteration++;
+                        iteration = 0;
 
-                        if (iteration >= maxIterations)
+                        while (HasMatchesOnFill(i, j))
                         {
-                            break;
+                            ClearPieceAt(i, j);
+                            gamePiece = FillRandomPieceAt(i, j, yOffset, moveTime);
+                            iteration++;
+
+                            if (iteration >= maxIterations)
+                            {
+                                break;
+                            }
                         }
                     }
                 }
@@ -190,6 +219,19 @@ public class Board : MonoBehaviour
         {
             MakeNewPiece(randomPiecePrefab, i, j, yOffset, moveTime);
             return randomPiecePrefab.GetComponent<GamePiece>();
+        }
+
+        return null;
+    }
+
+    private GamePiece FillRandomCollectibleAt(int i, int j, int yOffset, float moveTime)
+    {
+        GameObject randomCollectible = Instantiate(GetRandomCollectiblePrefab(), Vector3.zero, Quaternion.identity) as GameObject;
+
+        if (randomCollectible != null && IsWithinBounds(i, j))
+        {
+            MakeNewPiece(randomCollectible, i, j, yOffset, moveTime);
+            return randomCollectible.GetComponent<GamePiece>();
         }
 
         return null;
@@ -307,8 +349,32 @@ public class Board : MonoBehaviour
 
             List<GamePiece> clickedPieceMatches = FindMatchesAt(clickedTile.xIndex, clickedTile.yIndex);
             List<GamePiece> targetPieceMatches = FindMatchesAt(targetTile.xIndex, targetTile.yIndex);
+            List<GamePiece> colorMatches = new List<GamePiece>();
 
-            if (clickedPieceMatches.Count <= 0 && targetPieceMatches.Count <= 0)
+            if (IsColorBomb(clickedPiece) && !IsColorBomb(targetPiece))
+            {
+                clickedPiece.matchValue = targetPiece.matchValue;
+                colorMatches = FindAllMatchValue(targetPiece.matchValue);
+            }
+
+            if (!IsColorBomb(clickedPiece) && IsColorBomb(targetPiece))
+            {
+                targetPiece.matchValue = clickedPiece.matchValue;
+                colorMatches = FindAllMatchValue(clickedPiece.matchValue);
+            }
+
+            if (IsColorBomb(clickedPiece) && IsColorBomb(targetPiece))
+            {
+                foreach (GamePiece gamePiece in m_allGamePieces)
+                {
+                    if (!colorMatches.Contains(gamePiece))
+                    {
+                        colorMatches.Add(gamePiece);
+                    }
+                }
+            }
+
+            if (clickedPieceMatches.Count == 0 && targetPieceMatches.Count == 0 && colorMatches.Count == 0)
             {
                 clickedPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
                 targetPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
@@ -331,7 +397,7 @@ public class Board : MonoBehaviour
                     m_targetTileBomb.GetComponent<GamePiece>().ChangeColor(clickedPiece);
                 }
 
-                ClearAndRefillBoard(clickedPieceMatches.Union(targetPieceMatches).ToList());
+                ClearAndRefillBoard(clickedPieceMatches.Union(targetPieceMatches).ToList().Union(colorMatches).ToList());
             }
         }
     }
@@ -379,7 +445,7 @@ public class Board : MonoBehaviour
 
             nextPiece = m_allGamePieces[nextX, nextY];
 
-            if (nextPiece != null && nextPiece.matchValue == startPiece.matchValue && !matches.Contains(nextPiece))
+            if (nextPiece != null && nextPiece.matchValue == startPiece.matchValue && !matches.Contains(nextPiece) && nextPiece.matchValue != MatchValue.None)
             {
                 matches.Add(nextPiece);
             }
@@ -890,12 +956,19 @@ public class Board : MonoBehaviour
                 Debug.Log("DROP BOMB: Adjacent Bomb");
             } else
             {
-                if (direction.x != 0)
+                if (gamePieces.Count >= 5)
                 {
-                    bomb = MakeNewBomb(rowBombPrefab, x, y);
+                    bomb = MakeNewBomb(colorBombPrefab, x, y);
                 } else
                 {
-                    bomb = MakeNewBomb(columnBombPrefab, x, y);
+                    if (direction.x != 0)
+                    {
+                        bomb = MakeNewBomb(rowBombPrefab, x, y);
+                    }
+                    else
+                    {
+                        bomb = MakeNewBomb(columnBombPrefab, x, y);
+                    }
                 }
             }
         }
@@ -945,5 +1018,71 @@ public class Board : MonoBehaviour
         {
             m_allGamePieces[x, y] = bomb.GetComponent<GamePiece>();
         }
+    }
+
+    List<GamePiece> FindAllMatchValue(MatchValue mValue)
+    {
+        List<GamePiece> foundPieces = new List<GamePiece>();
+
+        foreach (GamePiece gamePiece in m_allGamePieces)
+        {
+            if (gamePiece.matchValue == mValue)
+            {
+                foundPieces.Add(gamePiece);
+            }
+        }
+
+        return foundPieces;
+    }
+
+    bool IsColorBomb(GamePiece gamePiece)
+    {
+        Bomb bomb = gamePiece.GetComponent<Bomb>();
+        if (bomb != null)
+        {
+            if (bomb.bombType == BombType.Color)
+            {
+                return true;
+            }
+        }
+
+        return false;
+    }
+
+    List<GamePiece> FindCollectibleAtRow(int rowId)
+    {
+        List<GamePiece> foundCollectibles = new List<GamePiece>();
+
+        for (int i = 0; i < width; i++)
+        {
+            if (m_allGamePieces[i, rowId] != null)
+            {
+                if (m_allGamePieces[i, rowId].matchValue == MatchValue.None)
+                {
+                    foundCollectibles.Add(m_allGamePieces[i, rowId]);
+                }
+            }
+        }
+
+        return foundCollectibles;
+    }
+
+    List<GamePiece> FindAllCollectibles()
+    {
+        List<GamePiece> foundCollectibles = new List<GamePiece>();
+
+        for (int i = 0; i < height; i++)
+        {
+            List<GamePiece> foundCollectibleAtRow = FindCollectibleAtRow(i);
+            foundCollectibles = foundCollectibles.Union(foundCollectibles).ToList();
+
+        }
+
+        return foundCollectibles;
+    }
+
+    bool CanAddCollectible()
+    {
+        return (collectibleCount < collectibleMax && collectiblePrefabs.Length > 0 && Random.Range(0f, 1f) <= changeForCollectible);
     }
 }

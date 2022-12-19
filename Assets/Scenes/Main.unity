@@ -537,6 +537,7 @@ MonoBehaviour:
   rowBombPrefab: {fileID: 7055050336056689149, guid: ac8e6571bc66a42a497ed729a08b4f43, type: 3}
   columnBombPrefab: {fileID: 1215318866706910055, guid: 2b8e61c4f9ab3408f8db9c00d8303e78, type: 3}
   adjacentBombPrefab: {fileID: 8039281263287691616, guid: 51d79c0c3a04249c1b95780b435e0c48, type: 3}
+  colorBombPrefab: {fileID: 7561221403403181891, guid: 2809ac27f06a6461084246868e3090c7, type: 3}
   gamePiecePrefabs:
   - {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
   - {fileID: 4037398899771481773, guid: 12c129ac91b4b4a7f895c3b071003d2d, type: 3}
@@ -550,21 +551,26 @@ MonoBehaviour:
     y: 3
     z: 0
   - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 1
+    y: 4
+    z: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 1
+    y: 6
+    z: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+    x: 1
+    y: 7
+    z: 0
+  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
     x: 2
-    y: 3
+    y: 5
     z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
-    x: 3
-    y: 1
-    z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
-    x: 3
-    y: 2
-    z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
-    x: 4
-    y: 3
-    z: 0
+  collectibleCount: 0
+  collectibleMax: 3
+  changeForCollectible: 0.5
+  collectiblePrefabs:
+  - {fileID: 1881172974451751028, guid: fb3ebc5216d914961a2676341ddcea59, type: 3}
 --- !u!4 &1956019994
 Transform:
   m_ObjectHideFlags: 0
