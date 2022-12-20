@@ -817,7 +817,7 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(0.25f);
 
             movingPieces = CollapseColumn(gamePieces);
-            while(!Collapsed(gamePieces))
+            while(!Collapsed(movingPieces))
             {
                 yield return null;
             }
@@ -825,6 +825,10 @@ public class Board : MonoBehaviour
             yield return new WaitForSeconds(0.25f);
 
             matches = FindMatchesAt(gamePieces);
+
+            List<GamePiece> collectiblePieces = FindCollectibleAtRow(0);
+            matches = matches.Union(collectiblePieces).ToList();
+            collectibleCount -= collectiblePieces.Count;
 
             if (matches.Count < 1)
             {
@@ -934,9 +938,12 @@ public class Board : MonoBehaviour
                         case BombType.Adjacent:
                             bombedPieces = bombedPieces.Union(GetAdjacentPieces(gamePiece.xIndex, gamePiece.yIndex, 1)).ToList();
                             break;
+                        case BombType.Color:
+                            break;
                     }
 
                     allBombedPieces = allBombedPieces.Union(bombedPieces).ToList();
+                    allBombedPieces = RemoveCollectible(allBombedPieces);
                  }
             }
         }
@@ -1084,5 +1091,25 @@ public class Board : MonoBehaviour
     bool CanAddCollectible()
     {
         return (collectibleCount < collectibleMax && collectiblePrefabs.Length > 0 && Random.Range(0f, 1f) <= changeForCollectible);
+    }
+
+    List<GamePiece> RemoveCollectible(List<GamePiece> bombPieces)
+    {
+        List<GamePiece> allCollectiblePieces = FindAllCollectibles();
+        List<GamePiece> collectiblePieces = new List<GamePiece>();
+
+        foreach(GamePiece piece in allCollectiblePieces)
+        {
+            Collectibles collectible = piece.GetComponent<Collectibles>();
+            if (collectible != null)
+            {
+                if (!collectible.clearedByBomb)
+                {
+                    collectiblePieces.Add(collectible);
+                }
+            }
+        }
+
+        return (bombPieces.Except(collectiblePieces).ToList());
     }
 }
