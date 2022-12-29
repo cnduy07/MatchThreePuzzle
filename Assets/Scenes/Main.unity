@@ -546,31 +546,28 @@ MonoBehaviour:
   - {fileID: 5569378416907267135, guid: 245522961a60947ec80a31ba461138db, type: 3}
   startingTiles: []
   startingPieces:
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+  - prefab: {fileID: 1215318866706910055, guid: 2b8e61c4f9ab3408f8db9c00d8303e78, type: 3}
     x: 1
-    y: 3
+    y: 1
     z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
-    x: 1
-    y: 4
-    z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
-    x: 1
-    y: 6
-    z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
-    x: 1
-    y: 7
-    z: 0
-  - prefab: {fileID: 431946308824865066, guid: 2da0d5dffb64d4eafa4a6ac8352a02d9, type: 3}
+  - prefab: {fileID: 7561221403403181891, guid: 2809ac27f06a6461084246868e3090c7, type: 3}
     x: 2
-    y: 5
+    y: 1
+    z: 0
+  - prefab: {fileID: 7561221403403181891, guid: 2809ac27f06a6461084246868e3090c7, type: 3}
+    x: 3
+    y: 1
+    z: 0
+  - prefab: {fileID: 1215318866706910055, guid: 2b8e61c4f9ab3408f8db9c00d8303e78, type: 3}
+    x: 4
+    y: 1
     z: 0
   collectibleCount: 0
   collectibleMax: 3
   changeForCollectible: 0.5
   collectiblePrefabs:
   - {fileID: 1881172974451751028, guid: fb3ebc5216d914961a2676341ddcea59, type: 3}
+  - {fileID: 1329237703786244740, guid: b9bc4e1630742473b8cb298158afa1c2, type: 3}
 --- !u!4 &1956019994
 Transform:
   m_ObjectHideFlags: 0

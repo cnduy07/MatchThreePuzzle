@@ -799,6 +799,14 @@ public class Board : MonoBehaviour
             bombedPieces = GetBombedPieces(gamePieces);
             gamePieces = gamePieces.Union(bombedPieces).ToList();
 
+            List<GamePiece> collectiblePieces = FindCollectibleAtRow(0, true);
+            List<GamePiece> allCollectiblePieces = FindAllCollectibles();
+            List<GamePiece> blockPieces = gamePieces.Intersect(allCollectiblePieces).ToList();
+            collectiblePieces = collectiblePieces.Union(blockPieces).ToList();
+
+            collectibleCount -= collectiblePieces.Count;
+            gamePieces = gamePieces.Union(collectiblePieces).ToList();
+
             ClearPieceAt(gamePieces, bombedPieces);
             BreakTileAt(gamePieces);
 
@@ -826,9 +834,9 @@ public class Board : MonoBehaviour
 
             matches = FindMatchesAt(gamePieces);
 
-            List<GamePiece> collectiblePieces = FindCollectibleAtRow(0);
+            collectiblePieces = FindCollectibleAtRow(0, true);
+            //collectibleCount -= collectiblePieces.Count;
             matches = matches.Union(collectiblePieces).ToList();
-            collectibleCount -= collectiblePieces.Count;
 
             if (matches.Count < 1)
             {
@@ -919,7 +927,6 @@ public class Board : MonoBehaviour
     {
         List<GamePiece> allBombedPieces = new List<GamePiece>();
 
-
         foreach (GamePiece gamePiece in gamePieces) {
             if (gamePiece != null)
             {
@@ -928,7 +935,8 @@ public class Board : MonoBehaviour
                     List<GamePiece> bombedPieces = new List<GamePiece>();
                     Bomb bomb = gamePiece.GetComponent<Bomb>();
 
-                    switch (bomb.bombType) {
+                    switch (bomb.bombType)
+                    {
                         case BombType.Column:
                             bombedPieces = bombedPieces.Union(GetColumnPieces(gamePiece.xIndex)).ToList();
                             break;
@@ -944,7 +952,7 @@ public class Board : MonoBehaviour
 
                     allBombedPieces = allBombedPieces.Union(bombedPieces).ToList();
                     allBombedPieces = RemoveCollectible(allBombedPieces);
-                 }
+                }
             }
         }
 
@@ -1056,17 +1064,25 @@ public class Board : MonoBehaviour
         return false;
     }
 
-    List<GamePiece> FindCollectibleAtRow(int rowId)
+    List<GamePiece> FindCollectibleAtRow(int rowId, bool isClearedAtBottom = false)
     {
-        List<GamePiece> foundCollectibles = new List<GamePiece>();
+        List<GamePiece> foundCollectibles = new();
 
         for (int i = 0; i < width; i++)
         {
             if (m_allGamePieces[i, rowId] != null)
             {
-                if (m_allGamePieces[i, rowId].matchValue == MatchValue.None)
+                Collectibles collectibleComponent = m_allGamePieces[i, rowId].GetComponent<Collectibles>();
+
+                if (collectibleComponent != null)
                 {
-                    foundCollectibles.Add(m_allGamePieces[i, rowId]);
+                    if (m_allGamePieces[i, rowId].matchValue == MatchValue.None)
+                    {
+                        if ((collectibleComponent.clearedAtBottom && isClearedAtBottom) || !isClearedAtBottom)
+                        {
+                            foundCollectibles.Add(m_allGamePieces[i, rowId]);
+                        }
+                    }
                 }
             }
         }
@@ -1081,8 +1097,7 @@ public class Board : MonoBehaviour
         for (int i = 0; i < height; i++)
         {
             List<GamePiece> foundCollectibleAtRow = FindCollectibleAtRow(i);
-            foundCollectibles = foundCollectibles.Union(foundCollectibles).ToList();
-
+            foundCollectibles = foundCollectibles.Union(foundCollectibleAtRow).ToList();
         }
 
         return foundCollectibles;
@@ -1096,20 +1111,20 @@ public class Board : MonoBehaviour
     List<GamePiece> RemoveCollectible(List<GamePiece> bombPieces)
     {
         List<GamePiece> allCollectiblePieces = FindAllCollectibles();
-        List<GamePiece> collectiblePieces = new List<GamePiece>();
+        List<GamePiece> piecesToRemove = new();
 
         foreach(GamePiece piece in allCollectiblePieces)
         {
-            Collectibles collectible = piece.GetComponent<Collectibles>();
-            if (collectible != null)
+            Collectibles collectibleComponent = piece.GetComponent<Collectibles>();
+            if (collectibleComponent != null)
             {
-                if (!collectible.clearedByBomb)
+                if (!collectibleComponent.clearedByBomb)
                 {
-                    collectiblePieces.Add(collectible);
+                    piecesToRemove.Add(collectibleComponent);
                 }
             }
         }
 
-        return (bombPieces.Except(collectiblePieces).ToList());
+        return bombPieces.Except(piecesToRemove).ToList();
     }
 }
