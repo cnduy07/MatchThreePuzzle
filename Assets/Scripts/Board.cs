@@ -606,8 +606,6 @@ public class Board : MonoBehaviour
                         bonus = 20;
                     }
 
-                    Debug.Log("m_scoreMultiplier: " + m_scoreMultiplier);
-                    Debug.Log("bonus: " + bonus);
                     piece.AddScore(m_scoreMultiplier, bonus);
                 }
             }
@@ -782,6 +780,7 @@ public class Board : MonoBehaviour
 
         do
         {
+            m_scoreMultiplier++;
             // clear and collapse
             yield return StartCoroutine(ClearAndCollapseRoutine(matches));
             yield return null;
@@ -815,7 +814,6 @@ public class Board : MonoBehaviour
 
         while (!isFinished)
         {
-            m_scoreMultiplier++;
             List<GamePiece> bombedPieces = GetBombedPieces(gamePieces);
             gamePieces = gamePieces.Union(bombedPieces).ToList();
 
@@ -867,6 +865,12 @@ public class Board : MonoBehaviour
             }
             else
             {
+                m_scoreMultiplier++;
+                if (SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlayBonusSound();
+                }
+
                 yield return StartCoroutine(ClearAndCollapseRoutine(matches));
             }
         }

@@ -15,6 +15,7 @@ public class GameManager : Singleton<GameManager>
     bool m_isReadyToBegin = false;
     bool m_isGameOver = false;
     bool m_isWinner = false;
+    bool m_isReadyToReplay = false;
 
     public Board m_board;
 
@@ -89,6 +90,15 @@ public class GameManager : Singleton<GameManager>
     {
         while (!m_isGameOver)
         {
+            if (ScoreManager.Instance != null)
+            {
+                if (ScoreManager.Instance.CurrentScore >= scoreGoal)
+                {
+                    m_isGameOver = true;
+                    m_isWinner = true;
+                }
+            }
+
             if (movesLeft == 0)
             {
                 m_isGameOver = true;
@@ -100,10 +110,16 @@ public class GameManager : Singleton<GameManager>
 
     IEnumerator EndGameRoutine()
     {
+        m_isReadyToReplay = false;
+
         if (m_isWinner)
         {
             if (messageWindow != null)
             {
+                if (SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlayWinSound();
+                }
                 messageWindow.ShowMessage(winIcon, "You win", "OK");
                 messageWindow.GetComponent<RectXformMove>().MoveOn();
             }
@@ -111,11 +127,32 @@ public class GameManager : Singleton<GameManager>
         {
             if (messageWindow != null)
             {
+                if (SoundManager.Instance != null)
+                {
+                    SoundManager.Instance.PlayLoseSound();
+                }
                 messageWindow.ShowMessage(loseIcon, "You Lose", "OK");
                 messageWindow.GetComponent<RectXformMove>().MoveOn();
             }
+        }
+
+        yield return new WaitForSeconds(1f);
+
+        if (screenFader != null)
+        {
             screenFader.FadeOn();
         }
-        yield return null;
+
+        while (!m_isReadyToReplay)
+        {
+            yield return null;
+        }
+
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+    }
+
+    public void ReadyToReplay()
+    {
+        m_isReadyToReplay = true;
     }
 }

@@ -102,7 +102,9 @@ MonoBehaviour:
   xIndex: 0
   yIndex: 0
   interpolation: 3
+  scoreValue: 20
   matchValue: 1
+  clearSound: {fileID: 8300000, guid: 3235eb35ca4de45b9901ea9ccbff8d77, type: 3}
   bombType: 2
 --- !u!1 &1354033544154849946
 GameObject:
