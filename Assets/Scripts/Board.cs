@@ -51,12 +51,19 @@ public class Board : MonoBehaviour
     public float changeForCollectible = 0.1f;
     public GameObject[] collectiblePrefabs;
 
+    int m_scoreMultiplier;
+
     void Start()
     {
         m_allTiles = new Tile[width, height];
         m_allGamePieces = new GamePiece[width, height];
         m_particleManager = GameObject.FindGameObjectWithTag("ParticleManager").GetComponent<ParticleManager>();
 
+        SetupBoard();
+    }
+
+    public void SetupBoard()
+    {
         List<GamePiece> foundCollectible = FindAllCollectibles();
         collectibleCount = foundCollectible.Count;
 
@@ -382,6 +389,9 @@ public class Board : MonoBehaviour
             {
                 yield return new WaitForSeconds(swapTime);
 
+                GameManager.Instance.movesLeft--;
+                GameManager.Instance.UpdateMoves();
+
                 Vector2 direction = new Vector2(targetTile.xIndex - clickedTile.xIndex, targetTile.yIndex - clickedTile.yIndex);
 
                 m_clickedTileBomb = DropBomb(clickedPieceMatches, clickedTile.xIndex, clickedTile.yIndex, direction);
@@ -589,6 +599,16 @@ public class Board : MonoBehaviour
                         }
                     }
                     ClearPieceAt(piece.xIndex, piece.yIndex);
+
+                    int bonus = 0;
+                    if (gamePieces.Count > 3)
+                    {
+                        bonus = 20;
+                    }
+
+                    Debug.Log("m_scoreMultiplier: " + m_scoreMultiplier);
+                    Debug.Log("bonus: " + bonus);
+                    piece.AddScore(m_scoreMultiplier, bonus);
                 }
             }
         }
@@ -758,6 +778,8 @@ public class Board : MonoBehaviour
         m_playerInputEnable = false;
         List<GamePiece> matches = gamePieces;
 
+        m_scoreMultiplier = 0;
+
         do
         {
             // clear and collapse
@@ -793,6 +815,7 @@ public class Board : MonoBehaviour
 
         while (!isFinished)
         {
+            m_scoreMultiplier++;
             List<GamePiece> bombedPieces = GetBombedPieces(gamePieces);
             gamePieces = gamePieces.Union(bombedPieces).ToList();
 
@@ -840,7 +863,6 @@ public class Board : MonoBehaviour
 
             if (matches.Count < 1)
             {
-                isFinished = true;
                 break;
             }
             else

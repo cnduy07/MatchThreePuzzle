@@ -36,6 +36,8 @@ public class GamePiece : MonoBehaviour
         SmootherStep
     };
 
+    public int scoreValue = 20;
+
     public MatchValue matchValue;
 
     // Start is called before the first frame update
@@ -128,6 +130,14 @@ public class GamePiece : MonoBehaviour
             }
 
             matchValue = pieceMatched.matchValue;
+        }
+    }
+
+    public void AddScore(int multiplier = 0, int bonus = 0)
+    {
+        if (ScoreManager.Instance != null)
+        {
+            ScoreManager.Instance.AddScore(scoreValue * multiplier + bonus);
         }
     }
 }
