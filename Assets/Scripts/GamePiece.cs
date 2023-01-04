@@ -5,15 +5,15 @@ using UnityEngine;
 
 public enum MatchValue
 {
-    Yellow,
-    Blue,
-    Magenta,
-    Indigo,
-    Green,
-    Teal,
-    Red,
-    Cyan,
-    Wild,
+    First,
+    Second,
+    Third,
+    Fourth,
+    Fifth,
+    Sixth,
+    Seventh,
+    Eighth,
+    Ninth,
     None
 };
 

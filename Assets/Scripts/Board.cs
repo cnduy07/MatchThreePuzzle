@@ -10,10 +10,10 @@ public class Board : MonoBehaviour
     public int borderSize;
     
     public GameObject normalTilePrefab;
-    public GameObject obstacleTilePrefab;
-    public GameObject rowBombPrefab;
-    public GameObject columnBombPrefab;
-    public GameObject adjacentBombPrefab;
+    public GameObject[] obstacleTilePrefabs;
+    public GameObject[] rowBombPrefabs;
+    public GameObject[] columnBombPrefabs;
+    public GameObject[] adjacentBombPrefabs;
     public GameObject colorBombPrefab;
 
     public GameObject[] gamePiecePrefabs;
@@ -513,35 +513,6 @@ public class Board : MonoBehaviour
         return (combined.Count >= minLengt) ? combined : null;
     }
 
-    //void HighlightTileOff(int x, int y)
-    //{
-    //    if (m_allTiles[x, y].tileType != Tile.TileType.Breakable)
-    //    {
-    //        SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
-    //        spriteRenderer.color = new Color(spriteRenderer.color.r, spriteRenderer.color.g, spriteRenderer.color.b, 0);
-    //    }
-    //}
-
-    //void HighlightTileOn(int x, int y, Color color)
-    //{
-    //    if (m_allTiles[x, y].tileType != Tile.TileType.Breakable)
-    //    {
-    //        SpriteRenderer spriteRenderer = m_allTiles[x, y].GetComponent<SpriteRenderer>();
-    //        spriteRenderer.color = color;
-    //    }
-    //}
-
-    //void HighlightMatches()
-    //{
-    //    for (int i = 0; i < width; i++)
-    //    {
-    //        for (int j = 0; j< height; j++)
-    //        {
-    //            HighlightMatchesAt(i, j);
-    //        }
-    //    }
-    //}
-
     void BreakTileAt(int x, int y)
     {
         Tile tile = m_allTiles[x, y];
@@ -576,8 +547,6 @@ public class Board : MonoBehaviour
             m_allGamePieces[x, y] = null;
             Destroy(gamePiece.gameObject);
         }
-
-        //HighlightTileOff(x, y);
     }
 
     void ClearPieceAt(List<GamePiece> gamePieces, List<GamePiece> bombPieces)
@@ -598,6 +567,7 @@ public class Board : MonoBehaviour
                             m_particleManager.ClearTileFXAt(piece.xIndex, piece.yIndex);
                         }
                     }
+
                     ClearPieceAt(piece.xIndex, piece.yIndex);
 
                     int bonus = 0;
@@ -622,35 +592,6 @@ public class Board : MonoBehaviour
             }
         }
     }
-
-    //private void HighlightMatchesAt(int x, int y)
-    //{
-    //    HighlightTileOff(x, y);
-
-    //    List<GamePiece> combinedMatches = FindMatchesAt(x, y);
-
-    //    if (combinedMatches.Count > 0)
-    //    {
-    //        foreach (GamePiece piece in combinedMatches)
-    //        {
-    //            HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
-    //        }
-    //    }
-    //}
-
-    //void HighlightMatches(List<GamePiece> gamePieces)
-    //{
-    //    if (gamePieces.Count > 0)
-    //    {
-    //        foreach(GamePiece piece in gamePieces)
-    //        {
-    //            if (piece != null)
-    //            {
-    //                HighlightTileOn(piece.xIndex, piece.yIndex, piece.GetComponent<SpriteRenderer>().color);
-    //            }
-    //        }
-    //    }
-    //}
 
     private List<GamePiece> FindMatchesAt(int x, int y , int minLenght = 3)
     {
@@ -927,7 +868,6 @@ public class Board : MonoBehaviour
         return gamePieces;
     }
 
-
     List<GamePiece> GetAdjacentPieces(int x, int y, int offset)
     {
         List<GamePiece> gamePieces = new List<GamePiece>();
@@ -989,27 +929,40 @@ public class Board : MonoBehaviour
     {
         GameObject bomb = null;
 
-        if (gamePieces.Count >= 4)
+        MatchValue matchValue = FindMatchValue(gamePieces);
+
+        if (gamePieces.Count >= 5 && matchValue != MatchValue.None)
         {
             if (IsCornerMatches(gamePieces, x, y))
             {
-                bomb = MakeNewBomb(adjacentBombPrefab, x, y);
-                Debug.Log("DROP BOMB: Adjacent Bomb");
-            } else
+                GameObject adjacentBombPrefab = FindGamePieceByMatchValue(adjacentBombPrefabs, matchValue);
+                if (adjacentBombPrefab != null)
+                {
+                    bomb = MakeNewBomb(adjacentBombPrefab, x, y);
+                    Debug.Log("DROP BOMB: Adjacent Bomb");
+                }
+            }
+            else
             {
-                if (gamePieces.Count >= 5)
+                bomb = MakeNewBomb(colorBombPrefab, x, y);
+            }
+        }
+        else if (gamePieces.Count == 4 && matchValue != MatchValue.None)
+        {
+            if (direction.x != 0)
+            {
+                GameObject rowBombPrefab = FindGamePieceByMatchValue(rowBombPrefabs, matchValue);
+                if (rowBombPrefab != null)
                 {
-                    bomb = MakeNewBomb(colorBombPrefab, x, y);
-                } else
+                    bomb = MakeNewBomb(rowBombPrefab, x, y);
+                }
+            }
+            else
+            {
+                GameObject columnBombPrefab = FindGamePieceByMatchValue(columnBombPrefabs, matchValue);
+                if (columnBombPrefab != null)
                 {
-                    if (direction.x != 0)
-                    {
-                        bomb = MakeNewBomb(rowBombPrefab, x, y);
-                    }
-                    else
-                    {
-                        bomb = MakeNewBomb(columnBombPrefab, x, y);
-                    }
+                    bomb = MakeNewBomb(columnBombPrefab, x, y);
                 }
             }
         }
@@ -1152,5 +1105,44 @@ public class Board : MonoBehaviour
         }
 
         return bombPieces.Except(piecesToRemove).ToList();
+    }
+
+    MatchValue FindMatchValue(List<GamePiece> gamePieces)
+    {
+        if (gamePieces != null)
+        {
+            foreach(GamePiece piece in gamePieces)
+            {
+                if (piece != null)
+                {
+                    return piece.matchValue;
+                }
+            }
+        }
+
+        return MatchValue.None;
+    }
+
+    GameObject FindGamePieceByMatchValue(GameObject[] gamePiecePrefabs, MatchValue matchValue)
+    {
+        if (matchValue == MatchValue.None)
+        {
+            return null;
+        }
+
+        foreach(GameObject go in gamePiecePrefabs)
+        {
+            GamePiece piece = go.GetComponent<GamePiece>();
+
+            if (piece != null)
+            {
+                if (piece.matchValue == matchValue)
+                {
+                    return go;
+                }
+            }
+        }
+
+        return null;
     }
 }

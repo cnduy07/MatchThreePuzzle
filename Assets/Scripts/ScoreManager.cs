@@ -1,7 +1,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
-using TMPro;
+using UnityEngine.UI;
 
 public class ScoreManager : Singleton<ScoreManager>
 {
@@ -18,18 +18,12 @@ public class ScoreManager : Singleton<ScoreManager>
     int m_counterValue = 0;
     int m_increment = 5;
 
-    public TextMeshProUGUI scoreText;
+    public Text scoreText;
 
     // Start is called before the first frame update
     void Start()
     {
         UpdateScoreText(m_currentScore);
-    }
-
-    // Update is called once per frame
-    void Update()
-    {
-        
     }
 
     public void UpdateScoreText(int scoreValue)
