@@ -295,8 +295,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d81321d48f01e40c8b9ee2b1515b4c76, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  movesLeft: 25
-  scoreGoal: 50000
+  movesLeft: 100
+  scoreGoal: 500
   screenFader: {fileID: 1893247086}
   levelNameText: {fileID: 211367172}
   movesLeftText: {fileID: 613841056}
@@ -1992,7 +1992,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c031caad376c64c55b72395b0b657ed0, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  width: 6
+  width: 7
   height: 9
   borderSize: 2
   normalTilePrefab: {fileID: 897779726052984303, guid: d8a51aa769bcd482a9cec7b0053f0727, type: 3}
@@ -2034,6 +2034,7 @@ MonoBehaviour:
   collectiblePrefabs:
   - {fileID: 1881172974451751028, guid: fb3ebc5216d914961a2676341ddcea59, type: 3}
   - {fileID: 1329237703786244740, guid: b9bc4e1630742473b8cb298158afa1c2, type: 3}
+  isRefilling: 0
 --- !u!4 &1956019994
 Transform:
   m_ObjectHideFlags: 0

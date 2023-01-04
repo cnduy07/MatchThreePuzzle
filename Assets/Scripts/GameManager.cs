@@ -14,6 +14,14 @@ public class GameManager : Singleton<GameManager>
 
     bool m_isReadyToBegin = false;
     bool m_isGameOver = false;
+    public bool IsGameOver
+    {
+        get
+        {
+            return m_isGameOver;
+        }
+    }
+
     bool m_isWinner = false;
     bool m_isReadyToReplay = false;
 
@@ -104,6 +112,7 @@ public class GameManager : Singleton<GameManager>
                 m_isGameOver = true;
                 m_isWinner = false;
             }
+
             yield return null;
         }
     }
@@ -111,6 +120,16 @@ public class GameManager : Singleton<GameManager>
     IEnumerator EndGameRoutine()
     {
         m_isReadyToReplay = false;
+
+        if (m_board != null)
+        {
+            while (m_board.isRefilling)
+            {
+                yield return null;
+            }
+
+            yield return new WaitForSeconds(0.5f);
+        }
 
         if (m_isWinner)
         {

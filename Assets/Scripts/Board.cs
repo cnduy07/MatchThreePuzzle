@@ -53,6 +53,8 @@ public class Board : MonoBehaviour
 
     int m_scoreMultiplier;
 
+    public bool isRefilling = false;
+
     void Start()
     {
         m_allTiles = new Tile[width, height];
@@ -173,20 +175,19 @@ public class Board : MonoBehaviour
             {
                 if (m_allGamePieces[i, j] == null && m_allTiles[i, j].tileType != Tile.TileType.Obstacle)
                 {
-                    GamePiece gamePiece = null;
                     if (j == height - 1 && CanAddCollectible())
                     {
-                        gamePiece = FillRandomCollectibleAt(i, j, yOffset, moveTime);
+                        FillRandomCollectibleAt(i, j, yOffset, moveTime);
                         collectibleCount += 1;
                     } else
                     {
-                        gamePiece = FillRandomPieceAt(i, j, yOffset, moveTime);
+                        FillRandomPieceAt(i, j, yOffset, moveTime);
                         iteration = 0;
 
                         while (HasMatchesOnFill(i, j))
                         {
                             ClearPieceAt(i, j);
-                            gamePiece = FillRandomPieceAt(i, j, yOffset, moveTime);
+                            FillRandomPieceAt(i, j, yOffset, moveTime);
                             iteration++;
 
                             if (iteration >= maxIterations)
@@ -336,9 +337,12 @@ public class Board : MonoBehaviour
 
     void SwitchTiles(Tile clickedTile, Tile targetTile)
     {
-        if (m_playerInputEnable)
+        if (GameManager.Instance != null)
         {
-            StartCoroutine(SwitchTilesRoutine(clickedTile, targetTile));
+            if (!GameManager.Instance.IsGameOver && m_playerInputEnable)
+            {
+                StartCoroutine(SwitchTilesRoutine(clickedTile, targetTile));
+            }
         }
     }
 
@@ -645,7 +649,7 @@ public class Board : MonoBehaviour
 
     List<GamePiece> CollapseColumn(int column, float collapseTime = 0.1f)
     {
-        List<GamePiece> movingPieces = new List<GamePiece>();
+        List<GamePiece> movingPieces = new();
 
         for (int i = 0; i < height; i++)
         {
@@ -678,7 +682,7 @@ public class Board : MonoBehaviour
     List<GamePiece> CollapseColumn(List<GamePiece> gamePieces)
     {
         List<int> columns = GetColumns(gamePieces);
-        List<GamePiece> movingPieces = new List<GamePiece>();
+        List<GamePiece> movingPieces = new();
 
         if (columns.Count > 0)
         {
@@ -690,15 +694,32 @@ public class Board : MonoBehaviour
         return movingPieces;
     }
 
+    List<GamePiece> CollapseColumn(List<int> columns)
+    {
+        List<GamePiece> movingPieces = new();
+        if (columns.Count > 0)
+        {
+            foreach (int column in columns)
+            {
+                movingPieces = movingPieces.Union(CollapseColumn(column)).ToList();
+            }
+        }
+
+        return movingPieces;
+    }
+
     List<int> GetColumns(List<GamePiece> gamePieces)
     {
-        List<int> columns = new List<int>();
+        List<int> columns = new();
 
         foreach (GamePiece piece in gamePieces)
         {
-            if (!columns.Contains(piece.xIndex))
+            if (piece != null)
             {
-                columns.Add(piece.xIndex);
+                if (!columns.Contains(piece.xIndex))
+                {
+                    columns.Add(piece.xIndex);
+                }
             }
         }
 
@@ -714,6 +735,7 @@ public class Board : MonoBehaviour
 
     IEnumerator ClearAndRefillBoardRoutine(List<GamePiece> gamePieces)
     {
+        isRefilling = true;
         m_playerInputEnable = false;
         List<GamePiece> matches = gamePieces;
 
@@ -736,6 +758,7 @@ public class Board : MonoBehaviour
         } while (matches.Count > 0);
 
         m_playerInputEnable = true;
+        isRefilling = false;
     }
 
     IEnumerator RefillBoardRoutine()
@@ -746,8 +769,8 @@ public class Board : MonoBehaviour
 
     IEnumerator ClearAndCollapseRoutine(List<GamePiece> gamePieces)
     {
-        List<GamePiece> movingPieces = new List<GamePiece>();
-        List<GamePiece> matches = new List<GamePiece>();
+        List<GamePiece> movingPieces = new();
+        List<GamePiece> matches = new();
 
         bool isFinished = false;
 
@@ -769,6 +792,8 @@ public class Board : MonoBehaviour
             collectibleCount -= collectiblePieces.Count;
             gamePieces = gamePieces.Union(collectiblePieces).ToList();
 
+            List<int> columns = GetColumns(gamePieces);
+
             ClearPieceAt(gamePieces, bombedPieces);
             BreakTileAt(gamePieces);
 
@@ -786,7 +811,8 @@ public class Board : MonoBehaviour
 
             yield return new WaitForSeconds(0.25f);
 
-            movingPieces = CollapseColumn(gamePieces);
+            movingPieces = CollapseColumn(columns);
+
             while(!Collapsed(movingPieces))
             {
                 yield return null;
@@ -797,7 +823,6 @@ public class Board : MonoBehaviour
             matches = FindMatchesAt(gamePieces);
 
             collectiblePieces = FindCollectibleAtRow(0, true);
-            //collectibleCount -= collectiblePieces.Count;
             matches = matches.Union(collectiblePieces).ToList();
 
             if (matches.Count < 1)
@@ -840,7 +865,7 @@ public class Board : MonoBehaviour
 
     List<GamePiece> GetColumnPieces(int column)
     {
-        List<GamePiece> gamePieces = new List<GamePiece>();
+        List<GamePiece> gamePieces = new();
 
         for (int i = 0; i < height; i++)
         {
