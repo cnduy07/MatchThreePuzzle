@@ -4,6 +4,16 @@
 
 Unity 2D match-3 puzzle game. The project now has a small menu-to-game scene flow around the original compact prototype gameplay.
 
+## How To Read Progress
+
+Use this file for the current state of the project:
+
+- `Implemented Features` lists behavior and systems that exist in the project now.
+- `Missing / Not Release-Ready Features` lists work that is absent, incomplete, placeholder-only, or still needs target-device verification.
+- Script sections document how the implemented systems work and what risks future agents should keep in mind.
+
+Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use `docs/SCENE_UI_ARCHITECTURE.md` for scene/UI structure and overlay conventions.
+
 ## Important Paths
 
 - `Assets/Scenes/Boot.unity` - first enabled scene; routes into the menu.
@@ -13,7 +23,7 @@ Unity 2D match-3 puzzle game. The project now has a small menu-to-game scene flo
 - `Assets/Scenes/Level 1.unity` - legacy reference gameplay scene, disabled in build settings.
 - `Assets/Scripts/` - all custom C# gameplay and UI flow scripts.
 - `Assets/Scripts/Flow/` - scene names, scene navigation, and scene bootstrap UI.
-- `Assets/Scripts/UI/` - reusable runtime UI shell and UI element factory.
+- `Assets/Scripts/UI/` - reusable runtime UI shell, safe-area root, runtime settings state, and UI element factory.
 - `Assets/Scripts/LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs` - first ScriptableObject level-data foundation.
 - `Assets/Data/Levels/Level_001.asset` - first data-driven copy of the old level setup.
 - `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels.
@@ -76,6 +86,7 @@ Important existing behavior:
 - `SetupBoard()` is guarded so accidental repeated calls do not duplicate board contents.
 - Board-owned mouse/touch input maps screen position to board grid coordinates and calls `ClickedTile`, `DragToTile`, and `ReleaseTile`.
 - `ApplyLevelData()` can configure board dimensions, piece/tile prefab references, starting layout, and collectible settings before setup.
+- `SettupCamera()` reserves top/bottom world-space room for HUD/home-area UI, uses `Screen.safeArea` aspect ratio, and keeps smaller boards from exceeding a 9-world-unit fit height baseline.
 
 Important risks:
 
@@ -158,6 +169,8 @@ Important serialized fields:
 - `winIcon`
 - `loseIcon`
 
+The old serialized UI references (`screenFader`, `levelNameText`, `movesLeftText`, `messageWindow`, `goalIcon`, `winIcon`, and `loseIcon`) are legacy scene wiring from `Assets/Scenes/Level 1.unity`. In the main build flow (`Boot` -> `Menu` -> `Level Select` -> `Game`), `RuntimeUiShell` handles start, pause, win, and lose overlays, and the copied `Game.unity` keeps the legacy `MessageWindow` disabled to avoid duplicate UI.
+
 Important risks:
 
 - Calls `m_board.SetupBoard()` after the start prompt; board setup is now guarded so repeated calls return without duplicating contents.
@@ -190,12 +203,15 @@ First pass of the reusable scene/UI foundation. Responsibilities include:
 - loading `LevelDatabase` from `Resources`
 - runtime-building the current simple menu and level-select UI
 - runtime-building reusable modal and pause overlays for gameplay
+- runtime-building a shared settings overlay opened from both Menu and Pause
+- applying `SafeAreaRoot` to menu, level select, pause button, modal, pause, and settings overlay content
 
 Important risks:
 
 - Current screens are functional runtime UI, not final pixel-art prefabs.
-- Safe-area layout and final iPad/phone polish still need a dedicated pass.
-- Settings, save/progression, stars, locks, and level results are not implemented yet.
+- Final iPad/phone polish still needs device/aspect-ratio verification.
+- Save/progression, stars, locks, and level results are not implemented yet.
+- Settings are in-memory only; Phase 4 save/progression must persist audio and haptics choices.
 
 ### `ScoreManager.cs`
 
@@ -275,9 +291,20 @@ Important risk:
 
 - The static instance can still hold stale references if a persistent singleton is destroyed outside the normal duplicate path.
 
-## Existing Gameplay Features
+## Implemented Features
+
+Scene and level flow:
+
+- Boot -> Menu -> Level Select -> reusable Game scene flow.
+- Runtime-built first-pass Menu and Level Select screens.
+- First-pass `LevelData`, `LevelDatabase`, and `LevelLoader` pipeline.
+- `Level_001` data asset mirrors the old prototype level setup.
+- Retry, level select, and next-level navigation through `SceneFlow`.
+
+Gameplay:
 
 - Normal swap match-3 interaction.
+- Board-owned mouse/touch swipe input.
 - Invalid swaps move back.
 - Cascading matches.
 - Move counter.
@@ -290,14 +317,26 @@ Important risk:
 - Collectibles that can clear at the bottom.
 - Basic particles and sounds.
 
-## Missing Product Features
+Runtime UI:
+
+- Runtime start, pause, win, and lose overlays in the reusable Game scene.
+- Shared settings overlay opened from both Menu and Pause.
+- In-memory audio toggle through `AudioListener.volume`.
+- In-memory haptics toggle stub for a future haptics service.
+- First-pass safe-area-aware layout root for menu, level select, HUD controls, and overlays.
+- First-pass camera/board fit that uses safe-area aspect ratio and reserves top/bottom HUD room.
+
+## Missing / Not Release-Ready Features
 
 - Additional level data assets beyond `Level_001`.
+- Final shared pixel-art UI prefabs replacing runtime placeholder controls.
+- Final phone/iPad visual verification and responsive HUD tuning.
 - Tutorial.
-- Settings menu.
-- Save data.
-- Mobile safe-area handling.
-- Touch-first input system.
+- Save data, progression, level locks, stars, and result recording.
+- Persistent settings data.
+- Real haptics service integration.
+- Additional objective rules beyond score-goal flow.
+- Shared `ThemeData`, `PieceSetData`, sprite atlas, and resource/theme structure.
 - Pixel-art replacement pass.
 - App icon and launch screen.
 - App Store metadata and screenshots.

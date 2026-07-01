@@ -13,13 +13,22 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 - `docs/TECHNICAL_PLAN.md`
 - `docs/IOS_APPSTORE_PLAN.md`
 
+## Documentation Map
+
+- `docs/CODEBASE_OVERVIEW.md` is the fastest progress dashboard. Use its implemented and missing/not-release-ready sections to answer "what works now?" and "what is still open?"
+- `docs/TECHNICAL_PLAN.md` is the roadmap. Use it to decide the next engineering phase and to track remaining work inside each phase.
+- `docs/SCENE_UI_ARCHITECTURE.md` is the scene/UI source of truth. Use it for scene flow, overlays, safe areas, shared prefabs, and resource reuse.
+- `docs/GAME_DESIGN_TARGET.md` is the product design target. Use it for gameplay goals, intended screens, progression, tutorial, and player-facing UX.
+- `docs/PIXEL_ART_DIRECTION.md` is the art workflow and style guide. It is planning-only unless a separate approved artwork workflow provides assets.
+- `docs/IOS_APPSTORE_PLAN.md` is the release checklist. Use it for iPhone/iPad QA, privacy, build settings, metadata, and App Store readiness.
+
 ## Current Project Snapshot
 
 - Unity version: `6000.5.0f1`.
 - Build scene flow: `Assets/Scenes/Boot.unity` -> `Menu.unity` -> `Level Select.unity` -> `Game.unity`.
 - Reference legacy scene: `Assets/Scenes/Level 1.unity`.
-- Core gameplay scripts: `Assets/Scripts/Board.cs`, `GamePiece.cs`, `Tile.cs`, `Bomb.cs`, `Collectibles.cs`.
-- Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `LevelLoader.cs`, `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`.
+- Core gameplay scripts: `Assets/Scripts/Board.cs`, `GamePiece.cs`, `Tile.cs`, `Bomb.cs`, `Collectibles.cs`, `LevelData.cs`, `LevelDatabase.cs`.
+- Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `LevelLoader.cs`, `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`, `MessageWindow.cs`, `ScreenFader.cs`, `RectXformMove.cs`, `Singleton.cs`.
 - Existing gameplay: board fill, swap, match detection, cascades, score, move limit, row bombs, column bombs, adjacent bombs, color bombs, breakable tiles, obstacles, collectibles, basic particles, basic sounds, start/win/lose dialogs.
 - Target platforms: iPhone and iPad.
 - Target store: Apple App Store.
@@ -45,12 +54,13 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 2. `Singleton<T>.Awake()` destroys duplicate objects instead of destroying the existing singleton instance.
 3. Board input now uses a Board-owned mouse/touch screen-to-grid path instead of `Tile.OnMouse*` callbacks.
 
-### Next initiatives - see `docs/TECHNICAL_PLAN.md` phases 2-5
+### Next initiatives - see `docs/TECHNICAL_PLAN.md` Phase 3 (remaining) - Phase 5
 
-1. Save/progression plus shared resource/theme structure.
-2. Pixel-art asset pipeline and replacement pass.
-3. Additional LevelData assets and objective-rule expansion.
-4. Safe-area and responsive board/HUD pass.
+1. Phone/iPad visual verification and final responsive HUD tuning.
+2. Final shared UI prefabs replacing runtime placeholder controls.
+3. Save/progression plus result recording.
+4. Shared resource/theme structure plus additional LevelData and objective-rule expansion.
+5. Pixel-art replacement pass using approved assets from the separate artwork workflow.
 
 ## How To Work
 
@@ -66,13 +76,15 @@ Use this file as the durable project guide for Codex agents. Read the focused do
   - release hardening
 - For C# changes, keep public serialized fields stable unless a migration plan is clear.
 - For Unity asset changes, prefer using Unity Editor when possible. If editing YAML, keep diffs minimal and verify scene/prefab references.
-- For generated art, save source outputs under `Assets/Sprites/PixelArt/` or a clearly named subfolder. Do not overwrite existing sprites until the replacement set is approved.
+- For user-provided or separately approved art, save source outputs under `Assets/Sprites/PixelArt/` or a clearly named subfolder. Do not overwrite existing sprites until the replacement set is approved.
 
 ## PixelLab MCP
 
-PixelLab MCP is available for pixel-art generation when the `mcp__pixellab` tools are exposed in the session.
+PixelLab MCP is disabled for normal agent workflow. Do not call PixelLab tools, image-generation tools, or other artwork-generation tools from this thread.
 
-Recommended first asset generation pass:
+When artwork is needed, use existing placeholder assets, prepare implementation around replaceable asset references, and write TODOs or prompt drafts if useful. Artwork generation belongs in a separate dedicated workflow. Do not generate sprites, UI assets, icons, backgrounds, or any other artwork as part of ordinary implementation work.
+
+Recommended first asset planning list:
 
 - 6 normal match pieces
 - row bomb variants
@@ -89,7 +101,7 @@ Recommended first asset generation pass:
 - gameplay background
 - App Store draft icon and screenshots later
 
-Use PixelLab for fast consistent drafts, then let the user select the strongest direction. Keep human review in the loop for style taste.
+Treat this list as planning scope, not permission to generate assets. Keep human review in the loop for style taste and asset approval.
 
 ## Verification Expectations
 

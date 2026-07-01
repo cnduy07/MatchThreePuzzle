@@ -2,7 +2,7 @@
 
 ## Art Goal
 
-The game should look like a cohesive premium pixel-art mobile puzzle game, not a mixture of generated placeholders. PixelLab can create the first full asset pass, but every generated asset needs review for readability, consistency, and Unity import quality.
+The game should look like a cohesive premium pixel-art mobile puzzle game, not a mixture of generated placeholders. Artwork generation is handled outside ordinary implementation tasks; agents should keep the project ready for approved assets without invoking image-generation tools.
 
 ## Visual Pillars
 
@@ -67,9 +67,18 @@ Recommended starting point:
 
 ## PixelLab Usage
 
-When `mcp__pixellab` tools are available, use PixelLab for draft generation.
+PixelLab is disabled for normal agent workflow. Agents must not call PixelLab tools or any image-generation tools from this thread.
 
-For single match pieces, use `create_map_object`:
+When artwork is needed:
+
+- use existing placeholder assets
+- prepare implementation around replaceable asset references
+- explain which assets are required
+- prepare TODOs or prompt drafts if useful
+
+Do not generate sprites, UI assets, icons, backgrounds, or any other artwork. Artwork generation belongs in a separate dedicated workflow.
+
+For single match-piece prompt drafts:
 
 - transparent background
 - 128x128
@@ -107,19 +116,19 @@ Suggested blockers and collectibles:
 
 ## Style Consistency Rules
 
-- Generate assets in batches with the same descriptive style language.
+- Prepare related asset prompt drafts with the same descriptive style language.
 - Keep outlines consistent in thickness and color.
 - Keep lighting direction consistent.
 - Keep canvas size and padding consistent.
 - Do not mix realistic, vector, painterly, and pixel-art assets.
 - Avoid overly detailed sprites that blur at board size.
 - Avoid sprites identifiable only by color.
-- Treat UI as a shared kit. Do not generate unrelated panel/button styles for different scenes.
+- Treat UI as a shared kit. Do not create unrelated panel/button styles for different scenes.
 - Use ThemeData-style thinking: backgrounds, tiles, pieces, UI, sounds, and palette should feel like one world.
 
 ## UI Asset Set
 
-Generate UI art as a reusable kit, not isolated images:
+Plan UI art as a reusable kit, not isolated images:
 
 - primary button
 - secondary button
@@ -155,17 +164,14 @@ PixelLab test sprite:
 - `Assets/Sprites/PixelArt/Test_RubyGem.png`
 - PixelLab object ID: `8d614ae7-b860-4875-9ef0-fbde1ab9db11`
 
-This proves the MCP integration works. It is a test asset, not final art direction by itself.
+This historical test asset is not final art direction by itself. Do not use it as permission to call PixelLab or generate more artwork in ordinary implementation tasks.
 
 ## Approval Workflow
 
-1. Generate 2-3 candidate styles for one normal piece.
-2. User selects preferred direction.
-3. Generate the full normal piece set in that style.
-4. Generate matching special pieces.
-5. Generate tiles and blockers.
-6. Generate a matching UI kit.
-7. Generate backgrounds.
-8. Import into Unity using consistent settings.
-9. Review in scene at actual phone size.
-10. Iterate only on weak/readability-breaking assets.
+1. Identify the next needed asset or logical asset set.
+2. Use placeholders and keep implementation references replaceable.
+3. Prepare TODOs or prompt drafts and explain why the asset is needed.
+4. Wait for the separate artwork workflow to provide approved assets.
+5. Import approved assets into Unity using consistent settings.
+6. Review in scene at actual phone size.
+7. Iterate only on weak/readability-breaking assets after review.

@@ -4,6 +4,12 @@
 
 Finish the game by stabilizing the existing prototype first, then add product systems around it. Avoid rewriting the whole board unless a specific bug or feature proves the current design cannot support release.
 
+## How To Use This Plan
+
+This file is the roadmap and sequencing guide. For current implemented-versus-missing status, start with `docs/CODEBASE_OVERVIEW.md`. For scene/UI implementation rules, use `docs/SCENE_UI_ARCHITECTURE.md`.
+
+When a phase changes, update the relevant current-status bullets here and keep the overview's implemented/missing feature lists in sync.
+
 ## Phase 1: Stabilize Current Gameplay
 
 Tasks:
@@ -77,6 +83,10 @@ Current status:
 - First-pass `Boot`, `Menu`, `Level Select`, and reusable `Game` scenes exist.
 - `SceneBootstrapper` builds simple menu and level-select screens at runtime.
 - `RuntimeUiShell` handles gameplay start, pause, win, lose, retry, next, and level-select overlays.
+- `SafeAreaRoot` constrains runtime menu, level select, and gameplay overlay content to `Screen.safeArea`.
+- Settings open from both Menu and Pause through the shared `RuntimeUiShell` settings overlay.
+- Settings currently support in-memory audio on/off through `AudioListener.volume` and a haptics toggle stub marked for future haptics/persistence work.
+- `Board.SettupCamera()` now uses safe-area aspect ratio, reserves top/bottom world-space margins for HUD/home-area UI, and uses a 9-world-unit minimum board fit height baseline.
 - The legacy `Level 1` scene remains disabled in build settings as a reference.
 - `GameManager` and `ScoreManager` are scene-local singleton subclasses so retry and level reloads create fresh gameplay state.
 
@@ -93,24 +103,23 @@ Technical requirements:
 
 Remaining Phase 3 work:
 
-- safe-area-aware reusable roots
 - final shared UI prefabs instead of runtime-only placeholder controls
-- settings overlay reused from menu and pause
 - phone and iPad visual verification
+- final responsive HUD tuning after device/aspect-ratio screenshots
 
 ## Camera And Board Fit Open Item
 
-Current code has only a basic board-fit implementation in `Board.SettupCamera()`: it centers the camera on the board, computes vertical and horizontal orthographic sizes from `width`, `height`, `borderSize`, and screen aspect ratio, then chooses the larger size. This fits the board in view, but it does not yet account for gameplay HUD, safe areas, bottom boosters, notches, or iPad max-size capping.
+Current code has an improved first-pass board-fit implementation in `Board.SettupCamera()`: it centers the camera on the board with a slight HUD/home-area offset, computes vertical and horizontal orthographic sizes from `width`, `height`, `borderSize`, reserved top/bottom world-space margins, and `Screen.safeArea` aspect ratio, then chooses the larger size. Smaller boards use a 9-world-unit minimum board fit height baseline so iPad-style layouts do not zoom too aggressively.
 
 Target approach to design during Phase 3:
 
-- Use safe-area-driven scaling, not letterboxing, for normal iPhone and iPad play.
-- Calculate orthographic size from board world bounds plus reserved top/bottom UI world-space margins.
+- Continue tuning safe-area-driven scaling, not letterboxing, for normal iPhone and iPad play.
+- Validate the reserved top/bottom UI world-space margins on real target aspect ratios.
 - Keep the full board visible on small, notched, large iPhone, and iPad layouts.
-- Cap iPad board display size so it does not become comically large; use a starting cap of 9 world units tall for the board area, then tune after device screenshots.
+- Tune the 9-world-unit board fit baseline after device screenshots.
 - Keep the board centered in the available safe gameplay area, not necessarily the full physical screen.
 
-This is an open implementation item. Do not claim the game has final responsive board fitting until this camera/layout system is implemented and verified on target aspect ratios.
+This remains an open tuning item. Do not claim the game has final responsive board fitting until the camera/layout system is verified on target iPhone and iPad aspect ratios.
 
 ## Phase 4: Save Data
 

@@ -45,7 +45,7 @@ public static class RuntimeUiFactory
 
     public static void EnsureEventSystem()
     {
-        EventSystem[] eventSystems = Object.FindObjectsByType<EventSystem>(FindObjectsInactive.Exclude, FindObjectsSortMode.None);
+        EventSystem[] eventSystems = Object.FindObjectsByType<EventSystem>(FindObjectsInactive.Exclude);
         if (eventSystems.Length == 0)
         {
             new GameObject("EventSystem", typeof(EventSystem), typeof(StandaloneInputModule));
@@ -93,6 +93,18 @@ public static class RuntimeUiFactory
 
         Image image = panelObject.GetComponent<Image>();
         image.color = color;
+
+        return rectTransform;
+    }
+
+    public static RectTransform CreateSafeAreaRoot(Transform parent, string name)
+    {
+        GameObject safeAreaObject = new GameObject(name, typeof(RectTransform), typeof(SafeAreaRoot));
+        safeAreaObject.transform.SetParent(parent, false);
+
+        RectTransform rectTransform = safeAreaObject.GetComponent<RectTransform>();
+        Stretch(rectTransform);
+        safeAreaObject.GetComponent<SafeAreaRoot>().ApplySafeArea();
 
         return rectTransform;
     }

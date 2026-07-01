@@ -310,7 +310,7 @@ public class GameManager : Singleton<GameManager>
         {
             m_board.SetPlayerInputEnabled(false);
         }
-        m_uiShell.ShowPauseMenu(ResumeGame, RetryLevel, ReturnToLevelSelect);
+        m_uiShell.ShowPauseMenu(ResumeGame, RetryLevel, OpenSettingsFromPause, ReturnToLevelSelect);
     }
 
     public void ResumeGame()
@@ -338,5 +338,13 @@ public class GameManager : Singleton<GameManager>
     {
         Time.timeScale = 1f;
         SceneFlow.LoadLevelSelect();
+    }
+
+    void OpenSettingsFromPause()
+    {
+        if (m_uiShell != null)
+        {
+            m_uiShell.ShowSettingsOverlay(null);
+        }
     }
 }

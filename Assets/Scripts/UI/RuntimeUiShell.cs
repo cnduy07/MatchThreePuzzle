@@ -8,9 +8,11 @@ public class RuntimeUiShell : MonoBehaviour
 
     Canvas m_canvas;
     RectTransform m_root;
+    RectTransform m_safeAreaRoot;
     RectTransform m_modalLayer;
     RectTransform m_pauseButtonLayer;
     RectTransform m_pauseLayer;
+    RectTransform m_settingsLayer;
     GameObject m_pauseButtonObject;
 
     public static RuntimeUiShell CreateOrFind()
@@ -43,12 +45,15 @@ public class RuntimeUiShell : MonoBehaviour
         m_canvas = RuntimeUiFactory.CreateOverlayCanvas("Runtime UI Canvas", OverlaySortingOrder);
         m_canvas.transform.SetParent(transform, false);
         m_root = m_canvas.GetComponent<RectTransform>();
+        m_safeAreaRoot = RuntimeUiFactory.CreateSafeAreaRoot(m_root, "Safe Area Root");
 
         m_pauseButtonLayer = CreateLayer("Pause Button Layer");
         m_modalLayer = CreateLayer("Modal Layer");
         m_pauseLayer = CreateLayer("Pause Layer");
+        m_settingsLayer = CreateLayer("Settings Layer");
         m_modalLayer.gameObject.SetActive(false);
         m_pauseLayer.gameObject.SetActive(false);
+        m_settingsLayer.gameObject.SetActive(false);
     }
 
     public void CreatePauseButton(Action onClick)
@@ -123,7 +128,7 @@ public class RuntimeUiShell : MonoBehaviour
         m_modalLayer.gameObject.SetActive(false);
     }
 
-    public void ShowPauseMenu(Action resumeAction, Action retryAction, Action levelSelectAction)
+    public void ShowPauseMenu(Action resumeAction, Action retryAction, Action settingsAction, Action levelSelectAction)
     {
         EnsureCanvas();
         ClearChildren(m_pauseLayer);
@@ -141,11 +146,15 @@ public class RuntimeUiShell : MonoBehaviour
         resume.onClick.AddListener(() => resumeAction?.Invoke());
 
         Button retry = RuntimeUiFactory.CreateButton(panel, "Retry Button", "Retry", new Color(0.25f, 0.27f, 0.32f, 1f), Color.white);
-        RuntimeUiFactory.SetCenter(retry.GetComponent<RectTransform>(), new Vector2(0f, -50f), new Vector2(440f, 96f));
+        RuntimeUiFactory.SetCenter(retry.GetComponent<RectTransform>(), new Vector2(0f, -35f), new Vector2(440f, 96f));
         retry.onClick.AddListener(() => retryAction?.Invoke());
 
+        Button settings = RuntimeUiFactory.CreateButton(panel, "Settings Button", "Settings", new Color(0.25f, 0.27f, 0.32f, 1f), Color.white);
+        RuntimeUiFactory.SetCenter(settings.GetComponent<RectTransform>(), new Vector2(0f, -145f), new Vector2(440f, 96f));
+        settings.onClick.AddListener(() => settingsAction?.Invoke());
+
         Button levels = RuntimeUiFactory.CreateButton(panel, "Level Select Button", "Level Select", new Color(0.25f, 0.27f, 0.32f, 1f), Color.white);
-        RuntimeUiFactory.SetCenter(levels.GetComponent<RectTransform>(), new Vector2(0f, -170f), new Vector2(440f, 96f));
+        RuntimeUiFactory.SetCenter(levels.GetComponent<RectTransform>(), new Vector2(0f, -255f), new Vector2(440f, 96f));
         levels.onClick.AddListener(() => levelSelectAction?.Invoke());
     }
 
@@ -160,10 +169,61 @@ public class RuntimeUiShell : MonoBehaviour
         m_pauseLayer.gameObject.SetActive(false);
     }
 
+    public void ShowSettingsOverlay(Action closeAction)
+    {
+        EnsureCanvas();
+        ClearChildren(m_settingsLayer);
+        m_settingsLayer.gameObject.SetActive(true);
+
+        RuntimeUiFactory.CreatePanel(m_settingsLayer, "Dimmer", new Color(0f, 0f, 0f, 0.66f));
+        RectTransform panel = RuntimeUiFactory.CreatePanel(m_settingsLayer, "Settings Panel", new Color(0.08f, 0.09f, 0.12f, 0.98f));
+        RuntimeUiFactory.SetCenter(panel, Vector2.zero, new Vector2(720f, 620f));
+
+        Text titleText = RuntimeUiFactory.CreateText(panel, "Title", "Settings", 62, Color.white, TextAnchor.MiddleCenter);
+        RuntimeUiFactory.SetCenter(titleText.GetComponent<RectTransform>(), new Vector2(0f, 205f), new Vector2(560f, 100f));
+
+        Button audioButton = RuntimeUiFactory.CreateButton(panel, "Audio Toggle", GetAudioLabel(), new Color(0.11f, 0.49f, 0.76f, 1f), Color.white);
+        RuntimeUiFactory.SetCenter(audioButton.GetComponent<RectTransform>(), new Vector2(0f, 55f), new Vector2(500f, 96f));
+
+        Button hapticsButton = RuntimeUiFactory.CreateButton(panel, "Haptics Toggle", GetHapticsLabel(), new Color(0.25f, 0.27f, 0.32f, 1f), Color.white);
+        RuntimeUiFactory.SetCenter(hapticsButton.GetComponent<RectTransform>(), new Vector2(0f, -65f), new Vector2(500f, 96f));
+
+        audioButton.onClick.AddListener(() =>
+        {
+            RuntimeSettingsState.ToggleAudio();
+            SetButtonLabel(audioButton, GetAudioLabel());
+        });
+
+        hapticsButton.onClick.AddListener(() =>
+        {
+            RuntimeSettingsState.ToggleHaptics();
+            SetButtonLabel(hapticsButton, GetHapticsLabel());
+        });
+
+        Button close = RuntimeUiFactory.CreateButton(panel, "Close Button", "Close", new Color(0.24f, 0.26f, 0.31f, 1f), Color.white);
+        RuntimeUiFactory.SetCenter(close.GetComponent<RectTransform>(), new Vector2(0f, -220f), new Vector2(360f, 96f));
+        close.onClick.AddListener(() =>
+        {
+            HideSettingsOverlay();
+            closeAction?.Invoke();
+        });
+    }
+
+    public void HideSettingsOverlay()
+    {
+        if (m_settingsLayer == null)
+        {
+            return;
+        }
+
+        ClearChildren(m_settingsLayer);
+        m_settingsLayer.gameObject.SetActive(false);
+    }
+
     RectTransform CreateLayer(string name)
     {
         GameObject layerObject = new GameObject(name, typeof(RectTransform));
-        layerObject.transform.SetParent(m_root, false);
+        layerObject.transform.SetParent(m_safeAreaRoot, false);
         RectTransform rectTransform = layerObject.GetComponent<RectTransform>();
         RuntimeUiFactory.Stretch(rectTransform);
         return rectTransform;
@@ -174,6 +234,25 @@ public class RuntimeUiShell : MonoBehaviour
         for (int i = parent.childCount - 1; i >= 0; i--)
         {
             Destroy(parent.GetChild(i).gameObject);
+        }
+    }
+
+    string GetAudioLabel()
+    {
+        return RuntimeSettingsState.AudioEnabled ? "Audio: On" : "Audio: Off";
+    }
+
+    string GetHapticsLabel()
+    {
+        return RuntimeSettingsState.HapticsEnabled ? "Haptics: On (TODO)" : "Haptics: Off (TODO)";
+    }
+
+    void SetButtonLabel(Button button, string label)
+    {
+        Text labelText = button.GetComponentInChildren<Text>();
+        if (labelText != null)
+        {
+            labelText.text = label;
         }
     }
 }

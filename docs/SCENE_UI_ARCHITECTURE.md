@@ -26,10 +26,12 @@ Game Scene
   Reusable gameplay scene. Loads the selected LevelData and ThemeData.
 
 Overlay Panels
-  Pause, settings, tutorial, win, lose, rewards, confirmation dialogs.
+  Pause, settings, tutorial, win, lose, rewards, credits/privacy, confirmation dialogs.
 ```
 
 ## Current Implementation Status
+
+This section tracks scene/UI architecture only. For whole-project implemented and missing feature status, use `docs/CODEBASE_OVERVIEW.md`.
 
 Implemented first pass:
 
@@ -38,14 +40,15 @@ Implemented first pass:
 - `SceneBootstrapper` runtime-builds the simple Menu and Level Select screens.
 - `SceneFlow` owns selected level id and scene navigation.
 - `RuntimeUiShell` runtime-builds reusable start, pause, win, and lose overlays.
+- `SafeAreaRoot` constrains menu, level select, and runtime overlay content to `Screen.safeArea`.
+- `RuntimeUiShell` runtime-builds a shared settings overlay opened from both Menu and Pause.
 - `Assets/Data/Levels/Level_001.asset` mirrors the old scene's board setup.
 - `Assets/Resources/LevelDatabase.asset` exposes the level list to menu and gameplay flow.
 
-Still planned:
+Still planned for scene/UI:
 
 - final shared pixel-art UI prefabs for buttons, panels, level cards, and settings rows
-- safe-area-aware layout pass
-- settings overlay reused from menu and pause
+- phone/iPad visual verification and final responsive HUD tuning
 - save/progression, locks, stars, and result recording
 - additional data-driven levels
 
@@ -115,6 +118,7 @@ Reusable panel types:
 - lose panel
 - tutorial panel
 - reward panel
+- credits/privacy panel
 - confirmation dialog
 - loading/fade panel
 
@@ -149,6 +153,7 @@ Build shared prefabs before making many screens:
 - `IconButton`
 - `PanelFrame`
 - `ModalWindow`
+- `CreditsPrivacyPanel`
 - `TopBar`
 - `CurrencyCounter`
 - `LevelCard`
@@ -293,25 +298,25 @@ All scenes must feel like one game:
 - same typography approach
 - same palette family per theme
 
-When PixelLab generates assets, generate related UI pieces as a set. Do not mix unrelated generated styles.
+When artwork is needed, use existing placeholders and prepare required asset lists, TODOs, or prompt drafts. Do not call PixelLab or any image-generation tool from ordinary scene/UI implementation work. Artwork generation belongs in a separate dedicated workflow. Do not mix unrelated generated styles.
 
 ## Feature Integration Order
 
 Recommended order:
 
-1. Stabilize current `Level 1`.
-2. Add Boot scene and persistent managers.
-3. Add Menu scene.
-4. Add Level Select scene.
-5. Convert current gameplay to reusable Game scene.
-6. Add overlay panel manager.
-7. Add Win/Lose overlays with next/retry/level-select actions.
-8. Add LevelData and LevelDatabase.
-9. Convert current level into data.
-10. Add Settings overlay reused from menu and pause.
-11. Add save/progression.
-12. Add pixel-art theme replacement.
-13. Add boosters, richer objectives, and tutorial.
+1. (done) Stabilize current `Level 1`.
+2. (done) Add Boot scene and persistent managers.
+3. (done) Add Menu scene.
+4. (done) Add Level Select scene.
+5. (done) Convert current gameplay to reusable Game scene.
+6. (done) Add overlay panel manager.
+7. (done) Add Win/Lose overlays with next/retry/level-select actions.
+8. (done) Add LevelData and LevelDatabase.
+9. (done) Convert current level into data.
+10. (done) Add Settings overlay reused from menu and pause.
+11. (remaining) Add save/progression.
+12. (remaining) Add pixel-art theme replacement.
+13. (remaining) Add boosters, richer objectives, and tutorial.
 
 ## Definition Of Done For Scene/UI Work
 

@@ -7,6 +7,10 @@ using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
+    const float TopHudWorldMargin = 1.35f;
+    const float BottomHudWorldMargin = 1.15f;
+    const float MinBoardFitHeight = 9f;
+
     public int width;
     public int height;
     public int borderSize;
@@ -383,13 +387,27 @@ public class Board : MonoBehaviour
 
     void SettupCamera()
     {
-        Camera.main.transform.position = new Vector3( ((float)width - 1) / 2f, ((float)height -1) / 2f, -10);
+        Camera boardCamera = Camera.main;
+        if (boardCamera == null)
+        {
+            return;
+        }
 
-        float aspectRatio = (float)Screen.width / (float)Screen.height;
-        float verticalSize = (float)height / 2 + (float)borderSize;
-        float horizontalSize = ((float)width / 2 + (float)borderSize) / aspectRatio;
+        float boardCenterX = ((float)width - 1) / 2f;
+        float boardCenterY = ((float)height - 1) / 2f;
+        float reservedCenterOffset = (TopHudWorldMargin - BottomHudWorldMargin) / 2f;
+        boardCamera.transform.position = new Vector3(boardCenterX, boardCenterY + reservedCenterOffset, -10);
 
-        Camera.main.orthographicSize = (horizontalSize > verticalSize) ? horizontalSize : verticalSize;
+        Rect safeArea = Screen.safeArea;
+        float safeWidth = safeArea.width > 0f ? safeArea.width : Screen.width;
+        float safeHeight = safeArea.height > 0f ? safeArea.height : Screen.height;
+        float aspectRatio = safeHeight > 0f ? safeWidth / safeHeight : (float)Screen.width / Screen.height;
+
+        float fitBoardHeight = Mathf.Max((float)height, MinBoardFitHeight);
+        float verticalSize = (fitBoardHeight + (float)borderSize * 2f + TopHudWorldMargin + BottomHudWorldMargin) / 2f;
+        float horizontalSize = ((float)width / 2f + (float)borderSize) / aspectRatio;
+
+        boardCamera.orthographicSize = (horizontalSize > verticalSize) ? horizontalSize : verticalSize;
     }
 
     GameObject GetRandomGamePiecePrefab()
