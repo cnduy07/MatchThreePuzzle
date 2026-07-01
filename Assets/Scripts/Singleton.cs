@@ -32,9 +32,9 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
             m_instance = this as T;
             transform.parent = null;
             DontDestroyOnLoad(gameObject);
-        } else
+        } else if (m_instance != this)
         {
-            Destroy(m_instance);
+            Destroy(gameObject);
         }
     }
 

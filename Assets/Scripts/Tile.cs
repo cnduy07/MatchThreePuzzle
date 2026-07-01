@@ -49,31 +49,6 @@ public class Tile : MonoBehaviour
         }
     }
 
-    private void OnMouseEnter()
-    {
-        if (m_Board != null)
-        {
-            m_Board.DragToTile(this);
-        }
-    }
-
-    private void OnMouseDown()
-    {
-        if (m_Board != null)
-        {
-            m_Board.ClickedTile(this);
-        }
-    }
-
-    private void OnMouseUp()
-    {
-        if (m_Board != null)
-        {
-            m_Board.ReleaseTile();
-        }
-        
-    }
-
     public void BreakTile()
     {
         if (tileType != TileType.Breakable)

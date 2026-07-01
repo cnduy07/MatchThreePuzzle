@@ -2,6 +2,7 @@ using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public class Board : MonoBehaviour
 {
@@ -34,6 +35,9 @@ public class Board : MonoBehaviour
 
     Tile[,] m_allTiles;
     GamePiece[,] m_allGamePieces;
+    Camera m_mainCamera;
+    bool m_isBoardSetup = false;
+    bool m_isPointerDown = false;
 
     [System.Serializable]
     public class StartingGameObject
@@ -55,17 +59,34 @@ public class Board : MonoBehaviour
 
     public bool isRefilling = false;
 
-    void Start()
+    void Awake()
     {
         m_allTiles = new Tile[width, height];
         m_allGamePieces = new GamePiece[width, height];
-        m_particleManager = GameObject.FindGameObjectWithTag("ParticleManager").GetComponent<ParticleManager>();
+        m_mainCamera = Camera.main;
+    }
 
-        SetupBoard();
+    void Start()
+    {
+        GameObject particleManagerObject = GameObject.FindGameObjectWithTag("ParticleManager");
+        if (particleManagerObject != null)
+        {
+            m_particleManager = particleManagerObject.GetComponent<ParticleManager>();
+        }
+    }
+
+    void Update()
+    {
+        HandleBoardInput();
     }
 
     public void SetupBoard()
     {
+        if (m_isBoardSetup)
+        {
+            return;
+        }
+
         List<GamePiece> foundCollectible = FindAllCollectibles();
         collectibleCount = foundCollectible.Count;
 
@@ -73,6 +94,125 @@ public class Board : MonoBehaviour
         SettupStartingPiece();
         SettupCamera();
         FillBoard(fillYOffset, fillMoveTime);
+        m_isBoardSetup = true;
+    }
+
+    void HandleBoardInput()
+    {
+        if (!m_playerInputEnable || isRefilling)
+        {
+            return;
+        }
+
+        if (Input.touchCount > 0)
+        {
+            HandleTouchInput(Input.GetTouch(0));
+            return;
+        }
+
+        HandleMouseInput();
+    }
+
+    void HandleTouchInput(Touch touch)
+    {
+        if (touch.phase == TouchPhase.Began && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+        {
+            return;
+        }
+
+        switch (touch.phase)
+        {
+            case TouchPhase.Began:
+                BeginBoardPointer(touch.position);
+                break;
+            case TouchPhase.Moved:
+            case TouchPhase.Stationary:
+                DragBoardPointer(touch.position);
+                break;
+            case TouchPhase.Ended:
+            case TouchPhase.Canceled:
+                EndBoardPointer();
+                break;
+        }
+    }
+
+    void HandleMouseInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            {
+                return;
+            }
+
+            BeginBoardPointer(Input.mousePosition);
+        }
+        else if (Input.GetMouseButton(0))
+        {
+            DragBoardPointer(Input.mousePosition);
+        }
+        else if (Input.GetMouseButtonUp(0))
+        {
+            EndBoardPointer();
+        }
+    }
+
+    void BeginBoardPointer(Vector2 screenPosition)
+    {
+        Tile tile = GetTileAtScreenPosition(screenPosition);
+        if (tile != null)
+        {
+            m_isPointerDown = true;
+            ClickedTile(tile);
+        }
+    }
+
+    void DragBoardPointer(Vector2 screenPosition)
+    {
+        if (!m_isPointerDown)
+        {
+            return;
+        }
+
+        Tile tile = GetTileAtScreenPosition(screenPosition);
+        if (tile != null)
+        {
+            DragToTile(tile);
+        }
+    }
+
+    void EndBoardPointer()
+    {
+        if (!m_isPointerDown)
+        {
+            return;
+        }
+
+        ReleaseTile();
+        m_isPointerDown = false;
+    }
+
+    Tile GetTileAtScreenPosition(Vector2 screenPosition)
+    {
+        if (m_mainCamera == null)
+        {
+            m_mainCamera = Camera.main;
+        }
+
+        if (m_mainCamera == null)
+        {
+            return null;
+        }
+
+        Ray ray = m_mainCamera.ScreenPointToRay(screenPosition);
+        RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
+
+        if (hit.collider == null)
+        {
+            return null;
+        }
+
+        return hit.collider.GetComponentInParent<Tile>();
     }
 
     void SettupTile()
