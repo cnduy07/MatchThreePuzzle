@@ -10,7 +10,7 @@ public class Board : MonoBehaviour
     public int width;
     public int height;
     public int borderSize;
-    
+
     public GameObject normalTilePrefab;
     public GameObject[] obstacleTilePrefabs;
     public GameObject[] rowBombPrefabs;
@@ -79,6 +79,17 @@ public class Board : MonoBehaviour
     void Update()
     {
         HandleBoardInput();
+    }
+
+    public void SetPlayerInputEnabled(bool isEnabled)
+    {
+        m_playerInputEnable = isEnabled;
+        if (!m_playerInputEnable)
+        {
+            m_isPointerDown = false;
+            m_clickedTile = null;
+            m_targetTile = null;
+        }
     }
 
     public void SetupBoard()
@@ -366,7 +377,7 @@ public class Board : MonoBehaviour
     }
 
     /*
-     * The orthographicSize is half the size of the vertical viewing volume. 
+     * The orthographicSize is half the size of the vertical viewing volume.
      * The horizontal size of the viewing volume depends on the aspect ratio.
      */
 
@@ -418,7 +429,7 @@ public class Board : MonoBehaviour
 
         gamePiece.transform.position = new Vector3(x, y, 0);
         gamePiece.transform.rotation = Quaternion.identity;
-        
+
         if (IsWithinBounds(x, y)) {
             m_allGamePieces[x, y] = gamePiece;
         }
@@ -692,7 +703,7 @@ public class Board : MonoBehaviour
     }
 
     /*
-     * Vector2 searchDirection: 
+     * Vector2 searchDirection:
      * -> Right: (x,y) = (1,0)
      * -> Left: (x,y) = (-1,0)
      * -> Up: (x,y) = (0,1)
@@ -806,14 +817,14 @@ public class Board : MonoBehaviour
             {
                 m_particleManager.BreakTileFXAt(tile.breakableValue, x, y);
             }
-            
+
             tile.BreakTile();
         }
     }
 
     void BreakTileAt(List<GamePiece> gamePieces)
     {
-        foreach(GamePiece piece in gamePieces) 
+        foreach(GamePiece piece in gamePieces)
         {
             if (piece != null)
             {
@@ -1036,9 +1047,9 @@ public class Board : MonoBehaviour
 
             //refill board
             yield return StartCoroutine(RefillBoardRoutine());
-            
+
             matches = FindAllMatches();
-            
+
             yield return new WaitForSeconds(0.2f);
 
         } while (matches.Count > 0);

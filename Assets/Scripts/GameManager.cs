@@ -6,6 +6,14 @@ using UnityEngine.SceneManagement;
 
 public class GameManager : Singleton<GameManager>
 {
+    protected override bool ShouldPersistAcrossScenes
+    {
+        get
+        {
+            return false;
+        }
+    }
+
     public int movesLeft = 30;
     public int scoreGoal = 10000;
     public ScreenFader screenFader;
@@ -24,7 +32,9 @@ public class GameManager : Singleton<GameManager>
 
     bool m_isWinner = false;
     bool m_isReadyToReplay = false;
+    bool m_isPaused = false;
     string m_levelDisplayName;
+    RuntimeUiShell m_uiShell;
 
     public Board m_board;
 
@@ -37,6 +47,11 @@ public class GameManager : Singleton<GameManager>
     void Start()
     {
         m_board = FindAnyObjectByType<Board>();
+        m_uiShell = RuntimeUiShell.CreateOrFind();
+        if (m_uiShell != null)
+        {
+            HideLegacyMessageWindow();
+        }
 
         if (levelNameText != null)
         {
@@ -83,15 +98,20 @@ public class GameManager : Singleton<GameManager>
 
     IEnumerator StartGameRoutine()
     {
-        if (messageWindow != null)
+        if (m_uiShell != null)
         {
+            yield return StartCoroutine(WaitForRuntimeModal(goalIcon, "Your goal", scoreGoal.ToString(), "Start"));
+        }
+        else if (messageWindow != null)
+        {
+            messageWindow.gameObject.SetActive(true);
             messageWindow.ShowMessage(goalIcon, "Your goal \n" + scoreGoal.ToString(), "start");
             messageWindow.GetComponent<RectXformMove>().MoveOn();
-        }
 
-        while (!m_isReadyToBegin)
-        {
-            yield return null;
+            while (!m_isReadyToBegin)
+            {
+                yield return null;
+            }
         }
 
         if (screenFader != null)
@@ -104,6 +124,10 @@ public class GameManager : Singleton<GameManager>
         if (m_board != null)
         {
             m_board.SetupBoard();
+            if (m_uiShell != null)
+            {
+                m_uiShell.CreatePauseButton(PauseGame);
+            }
         }
     }
 
@@ -111,19 +135,27 @@ public class GameManager : Singleton<GameManager>
     {
         while (!m_isGameOver)
         {
-            if (ScoreManager.Instance != null)
+            if (m_isPaused)
             {
-                if (ScoreManager.Instance.CurrentScore >= scoreGoal)
-                {
-                    m_isGameOver = true;
-                    m_isWinner = true;
-                }
+                yield return null;
+                continue;
             }
 
-            if (movesLeft == 0)
+            if (HasReachedScoreGoal())
             {
                 m_isGameOver = true;
-                m_isWinner = false;
+                m_isWinner = true;
+            }
+            else if (movesLeft <= 0)
+            {
+                if (m_board != null && m_board.isRefilling)
+                {
+                    yield return null;
+                    continue;
+                }
+
+                m_isGameOver = true;
+                m_isWinner = HasReachedScoreGoal();
             }
 
             yield return null;
@@ -136,6 +168,8 @@ public class GameManager : Singleton<GameManager>
 
         if (m_board != null)
         {
+            m_board.SetPlayerInputEnabled(false);
+
             while (m_board.isRefilling)
             {
                 yield return null;
@@ -146,23 +180,71 @@ public class GameManager : Singleton<GameManager>
 
         if (m_isWinner)
         {
-            if (messageWindow != null)
+            if (SoundManager.Instance != null)
             {
-                if (SoundManager.Instance != null)
+                SoundManager.Instance.PlayWinSound();
+            }
+
+            if (m_uiShell != null)
+            {
+                bool nextLevelSelected = false;
+                bool levelSelectSelected = false;
+                m_uiShell.ShowModal(winIcon, "You win", "Score goal reached", "Next", () => nextLevelSelected = true, "Levels", () => levelSelectSelected = true);
+                while (!nextLevelSelected && !levelSelectSelected)
                 {
-                    SoundManager.Instance.PlayWinSound();
+                    yield return null;
                 }
+
+                m_uiShell.HideModal();
+                if (levelSelectSelected || !SceneFlow.TrySelectNextLevel())
+                {
+                    SceneFlow.LoadLevelSelect();
+                }
+                else
+                {
+                    SceneFlow.LoadGame();
+                }
+
+                yield break;
+            }
+            else if (messageWindow != null)
+            {
+                messageWindow.gameObject.SetActive(true);
                 messageWindow.ShowMessage(winIcon, "You win", "OK");
                 messageWindow.GetComponent<RectXformMove>().MoveOn();
             }
         } else
         {
-            if (messageWindow != null)
+            if (SoundManager.Instance != null)
             {
-                if (SoundManager.Instance != null)
+                SoundManager.Instance.PlayLoseSound();
+            }
+
+            if (m_uiShell != null)
+            {
+                bool retrySelected = false;
+                bool levelSelectSelected = false;
+                m_uiShell.ShowModal(loseIcon, "You lose", "No moves left", "Retry", () => retrySelected = true, "Levels", () => levelSelectSelected = true);
+                while (!retrySelected && !levelSelectSelected)
                 {
-                    SoundManager.Instance.PlayLoseSound();
+                    yield return null;
                 }
+
+                m_uiShell.HideModal();
+                if (levelSelectSelected)
+                {
+                    SceneFlow.LoadLevelSelect();
+                }
+                else
+                {
+                    SceneFlow.RetryLevel();
+                }
+
+                yield break;
+            }
+            else if (messageWindow != null)
+            {
+                messageWindow.gameObject.SetActive(true);
                 messageWindow.ShowMessage(loseIcon, "You Lose", "OK");
                 messageWindow.GetComponent<RectXformMove>().MoveOn();
             }
@@ -186,5 +268,75 @@ public class GameManager : Singleton<GameManager>
     public void ReadyToReplay()
     {
         m_isReadyToReplay = true;
+    }
+
+    bool HasReachedScoreGoal()
+    {
+        return ScoreManager.Instance != null && ScoreManager.Instance.CurrentScore >= scoreGoal;
+    }
+
+    void HideLegacyMessageWindow()
+    {
+        if (messageWindow != null)
+        {
+            messageWindow.gameObject.SetActive(false);
+        }
+    }
+
+    IEnumerator WaitForRuntimeModal(Sprite icon, string title, string body, string primaryLabel)
+    {
+        bool isReady = false;
+        m_uiShell.ShowModal(icon, title, body, primaryLabel, () => isReady = true);
+
+        while (!isReady)
+        {
+            yield return null;
+        }
+
+        m_uiShell.HideModal();
+        m_isReadyToBegin = true;
+    }
+
+    public void PauseGame()
+    {
+        if (m_uiShell == null || m_isGameOver || m_isPaused)
+        {
+            return;
+        }
+
+        m_isPaused = true;
+        Time.timeScale = 0f;
+        if (m_board != null)
+        {
+            m_board.SetPlayerInputEnabled(false);
+        }
+        m_uiShell.ShowPauseMenu(ResumeGame, RetryLevel, ReturnToLevelSelect);
+    }
+
+    public void ResumeGame()
+    {
+        if (m_uiShell != null)
+        {
+            m_uiShell.HidePauseMenu();
+        }
+
+        Time.timeScale = 1f;
+        m_isPaused = false;
+        if (m_board != null)
+        {
+            m_board.SetPlayerInputEnabled(true);
+        }
+    }
+
+    public void RetryLevel()
+    {
+        Time.timeScale = 1f;
+        SceneFlow.RetryLevel();
+    }
+
+    public void ReturnToLevelSelect()
+    {
+        Time.timeScale = 1f;
+        SceneFlow.LoadLevelSelect();
     }
 }

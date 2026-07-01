@@ -5,6 +5,14 @@ using UnityEngine.UI;
 
 public class ScoreManager : Singleton<ScoreManager>
 {
+    protected override bool ShouldPersistAcrossScenes
+    {
+        get
+        {
+            return false;
+        }
+    }
+
     int m_currentScore = 0;
 
     public int CurrentScore

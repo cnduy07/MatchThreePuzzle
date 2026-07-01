@@ -29,6 +29,26 @@ Overlay Panels
   Pause, settings, tutorial, win, lose, rewards, confirmation dialogs.
 ```
 
+## Current Implementation Status
+
+Implemented first pass:
+
+- `Assets/Scenes/Boot.unity`, `Menu.unity`, `Level Select.unity`, and `Game.unity` are in build settings.
+- `Assets/Scenes/Level 1.unity` remains as a disabled legacy reference scene.
+- `SceneBootstrapper` runtime-builds the simple Menu and Level Select screens.
+- `SceneFlow` owns selected level id and scene navigation.
+- `RuntimeUiShell` runtime-builds reusable start, pause, win, and lose overlays.
+- `Assets/Data/Levels/Level_001.asset` mirrors the old scene's board setup.
+- `Assets/Resources/LevelDatabase.asset` exposes the level list to menu and gameplay flow.
+
+Still planned:
+
+- final shared pixel-art UI prefabs for buttons, panels, level cards, and settings rows
+- safe-area-aware layout pass
+- settings overlay reused from menu and pause
+- save/progression, locks, stars, and result recording
+- additional data-driven levels
+
 Settings, pause, win, lose, and tutorial should be overlay panels, not separate scenes. They need to open over gameplay or menu without destroying the current context.
 
 ## Scene Responsibilities
@@ -285,10 +305,10 @@ Recommended order:
 4. Add Level Select scene.
 5. Convert current gameplay to reusable Game scene.
 6. Add overlay panel manager.
-7. Add Settings overlay reused from menu and pause.
-8. Add Win/Lose overlays with next/retry/level-select actions.
-9. Add LevelData and LevelDatabase.
-10. Convert current level into data.
+7. Add Win/Lose overlays with next/retry/level-select actions.
+8. Add LevelData and LevelDatabase.
+9. Convert current level into data.
+10. Add Settings overlay reused from menu and pause.
 11. Add save/progression.
 12. Add pixel-art theme replacement.
 13. Add boosters, richer objectives, and tutorial.
@@ -305,4 +325,3 @@ Scene/UI work is done only when:
 - UI style is consistent
 - no duplicate screen-specific logic is introduced unnecessarily
 - docs are updated if flow, data, resources, or UI conventions change
-

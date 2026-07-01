@@ -8,6 +8,12 @@ public class LevelLoader : MonoBehaviour
 
     void Awake()
     {
+        LevelData activeLevelData = SceneFlow.GetSelectedLevelData();
+        if (activeLevelData != null)
+        {
+            levelData = activeLevelData;
+        }
+
         if (levelData == null)
         {
             return;

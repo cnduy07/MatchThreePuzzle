@@ -6,13 +6,21 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
 {
     private static T m_instance;
 
+    protected virtual bool ShouldPersistAcrossScenes
+    {
+        get
+        {
+            return true;
+        }
+    }
+
     public static T Instance
     {
         get
         {
             if (m_instance == null)
             {
-                m_instance = FindObjectOfType<T>();
+                m_instance = FindAnyObjectByType<T>();
 
                 if (m_instance == null)
                 {
@@ -30,8 +38,11 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
         if (m_instance == null)
         {
             m_instance = this as T;
-            transform.parent = null;
-            DontDestroyOnLoad(gameObject);
+            if (ShouldPersistAcrossScenes)
+            {
+                transform.parent = null;
+                DontDestroyOnLoad(gameObject);
+            }
         } else if (m_instance != this)
         {
             Destroy(gameObject);
@@ -41,6 +52,6 @@ public class Singleton<T> : MonoBehaviour where T : MonoBehaviour
     // Start is called before the first frame update
     void Start()
     {
-        
+
     }
 }

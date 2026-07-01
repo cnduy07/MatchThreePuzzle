@@ -16,9 +16,10 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 ## Current Project Snapshot
 
 - Unity version: `6000.5.0f1`.
-- Main scene: `Assets/Scenes/Level 1.unity`.
+- Build scene flow: `Assets/Scenes/Boot.unity` -> `Menu.unity` -> `Level Select.unity` -> `Game.unity`.
+- Reference legacy scene: `Assets/Scenes/Level 1.unity`.
 - Core gameplay scripts: `Assets/Scripts/Board.cs`, `GamePiece.cs`, `Tile.cs`, `Bomb.cs`, `Collectibles.cs`.
-- Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `MessageWindow.cs`, `ScreenFader.cs`, `RectXformMove.cs`.
+- Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `LevelLoader.cs`, `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`.
 - Existing gameplay: board fill, swap, match detection, cascades, score, move limit, row bombs, column bombs, adjacent bombs, color bombs, breakable tiles, obstacles, collectibles, basic particles, basic sounds, start/win/lose dialogs.
 - Target platforms: iPhone and iPad.
 - Target store: Apple App Store.
@@ -46,10 +47,10 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 
 ### Next initiatives - see `docs/TECHNICAL_PLAN.md` phases 2-5
 
-1. Scene flow and reusable UI shell.
-2. Data-driven level model.
-3. Save/progression plus shared resource/theme structure.
-4. Pixel-art asset pipeline and replacement pass.
+1. Save/progression plus shared resource/theme structure.
+2. Pixel-art asset pipeline and replacement pass.
+3. Additional LevelData assets and objective-rule expansion.
+4. Safe-area and responsive board/HUD pass.
 
 ## How To Work
 

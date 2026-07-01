@@ -28,7 +28,9 @@ Current status:
 - Initial `LevelData`, `LevelDatabase`, and `LevelLoader` scripts exist.
 - `Board.ApplyLevelData()` can apply dimensions, prefab references, starting objects, and collectible settings before setup.
 - `GameManager.ApplyLevelData()` can apply move limit, score goal, and display name before the game loop starts.
-- The current `Level 1` scene has not yet been converted to a `LevelData` asset or wired through scene flow.
+- `Assets/Data/Levels/Level_001.asset` mirrors the old `Level 1` board setup.
+- `Assets/Resources/LevelDatabase.asset` contains the first playable level.
+- `Assets/Scenes/Game.unity` is wired with `LevelLoader` and can prefer the selected level from `SceneFlow`.
 
 Phase 2 is the level data model only. It should define the data structures that describe playable levels, then plug into the scene skeleton established in Phase 3. Do not duplicate Phase 3 scene-flow work here.
 
@@ -70,6 +72,14 @@ Build the complete user flow:
 - replay
 - next level
 
+Current status:
+
+- First-pass `Boot`, `Menu`, `Level Select`, and reusable `Game` scenes exist.
+- `SceneBootstrapper` builds simple menu and level-select screens at runtime.
+- `RuntimeUiShell` handles gameplay start, pause, win, lose, retry, next, and level-select overlays.
+- The legacy `Level 1` scene remains disabled in build settings as a reference.
+- `GameManager` and `ScoreManager` are scene-local singleton subclasses so retry and level reloads create fresh gameplay state.
+
 Technical requirements:
 
 - safe-area aware layout
@@ -80,6 +90,13 @@ Technical requirements:
 - touch targets large enough for mobile
 - shared UI prefabs instead of one-off screen controls
 - shared transitions and loading/fade behavior
+
+Remaining Phase 3 work:
+
+- safe-area-aware reusable roots
+- final shared UI prefabs instead of runtime-only placeholder controls
+- settings overlay reused from menu and pause
+- phone and iPad visual verification
 
 ## Camera And Board Fit Open Item
 
