@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.Linq;
 using UnityEngine.EventSystems;
+using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
@@ -97,6 +98,76 @@ public class Board : MonoBehaviour
         m_isBoardSetup = true;
     }
 
+    public void ApplyLevelData(LevelData levelData)
+    {
+        if (levelData == null)
+        {
+            return;
+        }
+
+        if (m_isBoardSetup)
+        {
+            Debug.LogWarning("BOARD: LevelData cannot be applied after the board has been set up");
+            return;
+        }
+
+        width = Mathf.Max(1, levelData.boardWidth);
+        height = Mathf.Max(1, levelData.boardHeight);
+
+        if (levelData.normalTilePrefab != null)
+        {
+            normalTilePrefab = levelData.normalTilePrefab;
+        }
+
+        obstacleTilePrefabs = levelData.obstacleTilePrefabs ?? new GameObject[0];
+        rowBombPrefabs = levelData.rowBombPrefabs ?? new GameObject[0];
+        columnBombPrefabs = levelData.columnBombPrefabs ?? new GameObject[0];
+        adjacentBombPrefabs = levelData.adjacentBombPrefabs ?? new GameObject[0];
+
+        if (levelData.colorBombPrefab != null)
+        {
+            colorBombPrefab = levelData.colorBombPrefab;
+        }
+
+        gamePiecePrefabs = levelData.gamePiecePrefabs ?? new GameObject[0];
+        startingTiles = ConvertStartingObjects(levelData.startingTiles);
+        startingPieces = ConvertStartingObjects(levelData.startingPieces);
+        collectibleMax = Mathf.Max(0, levelData.collectibleMax);
+        changeForCollectible = Mathf.Clamp01(levelData.chanceForCollectible);
+        collectiblePrefabs = levelData.collectiblePrefabs ?? new GameObject[0];
+        collectibleCount = 0;
+
+        m_allTiles = new Tile[width, height];
+        m_allGamePieces = new GamePiece[width, height];
+    }
+
+    StartingGameObject[] ConvertStartingObjects(LevelStartingObject[] levelObjects)
+    {
+        if (levelObjects == null || levelObjects.Length == 0)
+        {
+            return new StartingGameObject[0];
+        }
+
+        StartingGameObject[] convertedObjects = new StartingGameObject[levelObjects.Length];
+        for (int i = 0; i < levelObjects.Length; i++)
+        {
+            LevelStartingObject levelObject = levelObjects[i];
+            convertedObjects[i] = new StartingGameObject();
+
+            if (levelObject == null)
+            {
+                continue;
+            }
+
+            convertedObjects[i].prefab = levelObject.prefab;
+            convertedObjects[i].x = levelObject.x;
+            convertedObjects[i].y = levelObject.y;
+            convertedObjects[i].z = levelObject.z;
+        }
+
+        return convertedObjects;
+    }
+
     void HandleBoardInput()
     {
         if (!m_playerInputEnable || isRefilling)
@@ -115,7 +186,7 @@ public class Board : MonoBehaviour
 
     void HandleTouchInput(Touch touch)
     {
-        if (touch.phase == TouchPhase.Began && EventSystem.current != null && EventSystem.current.IsPointerOverGameObject(touch.fingerId))
+        if (touch.phase == TouchPhase.Began && IsPointerOverBlockingUi(touch.position, touch.fingerId))
         {
             return;
         }
@@ -140,7 +211,7 @@ public class Board : MonoBehaviour
     {
         if (Input.GetMouseButtonDown(0))
         {
-            if (EventSystem.current != null && EventSystem.current.IsPointerOverGameObject())
+            if (IsPointerOverBlockingUi(Input.mousePosition))
             {
                 return;
             }
@@ -155,6 +226,34 @@ public class Board : MonoBehaviour
         {
             EndBoardPointer();
         }
+    }
+
+    bool IsPointerOverBlockingUi(Vector2 screenPosition, int pointerId = -1)
+    {
+        if (EventSystem.current == null)
+        {
+            return false;
+        }
+
+        PointerEventData pointerData = new PointerEventData(EventSystem.current)
+        {
+            position = screenPosition,
+            pointerId = pointerId
+        };
+
+        List<RaycastResult> raycastResults = new List<RaycastResult>();
+        EventSystem.current.RaycastAll(pointerData, raycastResults);
+
+        foreach (RaycastResult result in raycastResults)
+        {
+            Selectable selectable = result.gameObject.GetComponentInParent<Selectable>();
+            if (selectable != null && selectable.IsInteractable())
+            {
+                return true;
+            }
+        }
+
+        return false;
     }
 
     void BeginBoardPointer(Vector2 screenPosition)
@@ -205,14 +304,22 @@ public class Board : MonoBehaviour
         }
 
         Ray ray = m_mainCamera.ScreenPointToRay(screenPosition);
-        RaycastHit2D hit = Physics2D.GetRayIntersection(ray);
-
-        if (hit.collider == null)
+        if (Mathf.Approximately(ray.direction.z, 0f))
         {
             return null;
         }
 
-        return hit.collider.GetComponentInParent<Tile>();
+        float distanceToBoardPlane = -ray.origin.z / ray.direction.z;
+        Vector3 worldPosition = ray.GetPoint(distanceToBoardPlane);
+        int x = Mathf.FloorToInt(worldPosition.x + 0.5f);
+        int y = Mathf.FloorToInt(worldPosition.y + 0.5f);
+
+        if (!IsWithinBounds(x, y))
+        {
+            return null;
+        }
+
+        return m_allTiles[x, y];
     }
 
     void SettupTile()
@@ -236,17 +343,26 @@ public class Board : MonoBehaviour
 
     private void MakeNewTile(GameObject prefab, int x, int y)
     {
-        if (prefab != null && m_allTiles[x, y] == null && IsWithinBounds(x, y))
+        if (prefab == null || !IsWithinBounds(x, y) || m_allTiles[x, y] != null)
         {
-            GameObject tile = Instantiate(prefab, new Vector3(x, y, 0), Quaternion.identity) as GameObject;
-
-            tile.name = "Tile (" + x + " , " + y + ")";
-
-            m_allTiles[x, y] = tile.GetComponent<Tile>();
-            m_allTiles[x, y].Init(x, y, this);
-
-            tile.transform.parent = transform;
+            return;
         }
+
+        GameObject tile = Instantiate(prefab, new Vector3(x, y, 0), Quaternion.identity) as GameObject;
+        Tile tileComponent = tile.GetComponent<Tile>();
+        if (tileComponent == null)
+        {
+            Debug.LogWarning("BOARD: Tile prefab does not contain a Tile component");
+            Destroy(tile);
+            return;
+        }
+
+        tile.name = "Tile (" + x + " , " + y + ")";
+
+        m_allTiles[x, y] = tileComponent;
+        m_allTiles[x, y].Init(x, y, this);
+
+        tile.transform.parent = transform;
     }
 
     /*
@@ -277,6 +393,12 @@ public class Board : MonoBehaviour
 
     GameObject GetRandomObjectPrefab(GameObject[] objectPrefabs)
     {
+        if (objectPrefabs == null || objectPrefabs.Length == 0)
+        {
+            Debug.LogWarning("BOARD: No object prefabs configured");
+            return null;
+        }
+
         int randomIdx = Random.Range(0, objectPrefabs.Length);
         if (objectPrefabs[randomIdx] == null)
         {
@@ -313,7 +435,8 @@ public class Board : MonoBehaviour
         {
             for (int j = 0; j < height; j++)
             {
-                if (m_allGamePieces[i, j] == null && m_allTiles[i, j].tileType != Tile.TileType.Obstacle)
+                Tile tile = m_allTiles[i, j];
+                if (tile != null && m_allGamePieces[i, j] == null && tile.tileType != Tile.TileType.Obstacle)
                 {
                     if (j == height - 1 && CanAddCollectible())
                     {
@@ -361,7 +484,13 @@ public class Board : MonoBehaviour
 
     private GamePiece FillRandomPieceAt(int i, int j, int yOffset, float moveTime)
     {
-        GameObject randomPiecePrefab = Instantiate(GetRandomGamePiecePrefab(), Vector3.zero, Quaternion.identity) as GameObject;
+        GameObject piecePrefab = GetRandomGamePiecePrefab();
+        if (piecePrefab == null)
+        {
+            return null;
+        }
+
+        GameObject randomPiecePrefab = Instantiate(piecePrefab, Vector3.zero, Quaternion.identity) as GameObject;
 
         if (randomPiecePrefab != null && IsWithinBounds(i, j))
         {
@@ -374,7 +503,13 @@ public class Board : MonoBehaviour
 
     private GamePiece FillRandomCollectibleAt(int i, int j, int yOffset, float moveTime)
     {
-        GameObject randomCollectible = Instantiate(GetRandomCollectiblePrefab(), Vector3.zero, Quaternion.identity) as GameObject;
+        GameObject collectiblePrefab = GetRandomCollectiblePrefab();
+        if (collectiblePrefab == null)
+        {
+            return null;
+        }
+
+        GameObject randomCollectible = Instantiate(collectiblePrefab, Vector3.zero, Quaternion.identity) as GameObject;
 
         if (randomCollectible != null && IsWithinBounds(i, j))
         {
@@ -659,6 +794,11 @@ public class Board : MonoBehaviour
 
     void BreakTileAt(int x, int y)
     {
+        if (!IsWithinBounds(x, y))
+        {
+            return;
+        }
+
         Tile tile = m_allTiles[x, y];
         if (tile != null)
         {
@@ -684,6 +824,11 @@ public class Board : MonoBehaviour
 
     void ClearPieceAt(int x, int y)
     {
+        if (!IsWithinBounds(x, y))
+        {
+            return;
+        }
+
         GamePiece gamePiece = m_allGamePieces[x, y];
 
         if (gamePiece != null)
@@ -793,7 +938,8 @@ public class Board : MonoBehaviour
 
         for (int i = 0; i < height; i++)
         {
-            if (m_allGamePieces[column, i] == null && m_allTiles[column, i].tileType != Tile.TileType.Obstacle)
+            Tile tile = m_allTiles[column, i];
+            if (tile != null && m_allGamePieces[column, i] == null && tile.tileType != Tile.TileType.Obstacle)
             {
                 for (int j=i+1; j < height; j++)
                 {
@@ -1185,7 +1331,7 @@ public class Board : MonoBehaviour
 
         foreach (GamePiece gamePiece in m_allGamePieces)
         {
-            if (gamePiece.matchValue == mValue)
+            if (gamePiece != null && gamePiece.matchValue == mValue)
             {
                 foundPieces.Add(gamePiece);
             }
@@ -1196,6 +1342,11 @@ public class Board : MonoBehaviour
 
     bool IsColorBomb(GamePiece gamePiece)
     {
+        if (gamePiece == null)
+        {
+            return false;
+        }
+
         Bomb bomb = gamePiece.GetComponent<Bomb>();
         if (bomb != null)
         {
@@ -1211,6 +1362,10 @@ public class Board : MonoBehaviour
     List<GamePiece> FindCollectibleAtRow(int rowId, bool isClearedAtBottom = false)
     {
         List<GamePiece> foundCollectibles = new();
+        if (rowId < 0 || rowId >= height)
+        {
+            return foundCollectibles;
+        }
 
         for (int i = 0; i < width; i++)
         {
@@ -1249,7 +1404,7 @@ public class Board : MonoBehaviour
 
     bool CanAddCollectible()
     {
-        return (collectibleCount < collectibleMax && collectiblePrefabs.Length > 0 && Random.Range(0f, 1f) <= changeForCollectible);
+        return (collectibleCount < collectibleMax && collectiblePrefabs != null && collectiblePrefabs.Length > 0 && Random.Range(0f, 1f) <= changeForCollectible);
     }
 
     List<GamePiece> RemoveCollectible(List<GamePiece> bombPieces)
@@ -1290,13 +1445,18 @@ public class Board : MonoBehaviour
 
     GameObject FindGamePieceByMatchValue(GameObject[] gamePiecePrefabs, MatchValue matchValue)
     {
-        if (matchValue == MatchValue.None)
+        if (gamePiecePrefabs == null || matchValue == MatchValue.None)
         {
             return null;
         }
 
         foreach(GameObject go in gamePiecePrefabs)
         {
+            if (go == null)
+            {
+                continue;
+            }
+
             GamePiece piece = go.GetComponent<GamePiece>();
 
             if (piece != null)

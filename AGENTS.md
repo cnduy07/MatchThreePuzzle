@@ -42,7 +42,7 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 
 1. Board setup is guarded so `SetupBoard()` initializes a level only once.
 2. `Singleton<T>.Awake()` destroys duplicate objects instead of destroying the existing singleton instance.
-3. Board input now uses a Board-owned mouse/touch raycast path instead of `Tile.OnMouse*` callbacks.
+3. Board input now uses a Board-owned mouse/touch screen-to-grid path instead of `Tile.OnMouse*` callbacks.
 
 ### Next initiatives - see `docs/TECHNICAL_PLAN.md` phases 2-5
 

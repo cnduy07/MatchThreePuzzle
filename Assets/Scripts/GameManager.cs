@@ -24,6 +24,7 @@ public class GameManager : Singleton<GameManager>
 
     bool m_isWinner = false;
     bool m_isReadyToReplay = false;
+    string m_levelDisplayName;
 
     public Board m_board;
 
@@ -35,17 +36,29 @@ public class GameManager : Singleton<GameManager>
     // Start is called before the first frame update
     void Start()
     {
-        m_board = FindObjectOfType<Board>().GetComponent<Board>();
+        m_board = FindAnyObjectByType<Board>();
 
         if (levelNameText != null)
         {
             Scene scene = SceneManager.GetActiveScene();
-            levelNameText.text = scene.name;
+            levelNameText.text = string.IsNullOrEmpty(m_levelDisplayName) ? scene.name : m_levelDisplayName;
         }
 
         UpdateMoves();
 
         StartCoroutine("ExecuteGameLoop");
+    }
+
+    public void ApplyLevelData(LevelData levelData)
+    {
+        if (levelData == null)
+        {
+            return;
+        }
+
+        movesLeft = Mathf.Max(0, levelData.moveLimit);
+        scoreGoal = Mathf.Max(0, levelData.scoreGoal);
+        m_levelDisplayName = string.IsNullOrEmpty(levelData.displayName) ? levelData.name : levelData.displayName;
     }
 
     public void UpdateMoves()

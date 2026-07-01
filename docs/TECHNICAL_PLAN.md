@@ -13,7 +13,7 @@ Tasks:
 - Validate all existing prefabs have required components.
 - Add guardrails around null board cells.
 - Verify normal matches, invalid swaps, cascades, bombs, blockers, collectibles, win, lose, and replay.
-- Verify Board-owned mouse/touch raycast input on iPhone, iPad, and desktop.
+- Verify Board-owned mouse/touch grid-position input on iPhone, iPad, and desktop.
 
 Expected result:
 
@@ -22,6 +22,13 @@ Expected result:
 - No obvious null reference errors during cascades.
 
 ## Phase 2: Level Data
+
+Current status:
+
+- Initial `LevelData`, `LevelDatabase`, and `LevelLoader` scripts exist.
+- `Board.ApplyLevelData()` can apply dimensions, prefab references, starting objects, and collectible settings before setup.
+- `GameManager.ApplyLevelData()` can apply move limit, score goal, and display name before the game loop starts.
+- The current `Level 1` scene has not yet been converted to a `LevelData` asset or wired through scene flow.
 
 Phase 2 is the level data model only. It should define the data structures that describe playable levels, then plug into the scene skeleton established in Phase 3. Do not duplicate Phase 3 scene-flow work here.
 
@@ -192,7 +199,8 @@ Potential optimizations:
 ## Known Technical Risks
 
 - `Board.cs` is doing too much. Keep early fixes small, but consider splitting later into board model, match resolver, level loader, and board view.
-- Current input is Board-owned screen-position raycasting; validate UI blocking and drag behavior as overlays are added.
+- Current input is Board-owned screen-to-grid mapping with selective UI blocking for interactable `Selectable` controls; validate drag behavior, edge-cell selection, and future overlay controls as panels are added.
+- LevelData stores objective type and target count before all objective rules exist, so avoid treating non-score objectives as complete until the resolver/game rules are added.
 - Scene and prefab references can break if YAML is edited carelessly.
 - Existing sprite import settings are mixed.
 - Current sound manager does not manage looping music robustly.

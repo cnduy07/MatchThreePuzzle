@@ -8,6 +8,7 @@ Unity 2D match-3 puzzle game. The current project is a compact prototype with th
 
 - `Assets/Scenes/Level 1.unity` - only enabled gameplay scene.
 - `Assets/Scripts/` - all custom C# gameplay and UI flow scripts.
+- `Assets/Scripts/LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs` - first ScriptableObject level-data foundation.
 - `Assets/Prefabs/Dots/` - normal match-piece prefabs.
 - `Assets/Prefabs/Bombs/` - row, column, adjacent, and color bomb prefabs.
 - `Assets/Prefabs/Tiles/` - normal, breakable, double-breakable, obstacle tile prefabs.
@@ -64,14 +65,15 @@ Important existing behavior:
 - Matches are detected by comparing `GamePiece.matchValue`.
 - Bombs are `GamePiece` objects with an extra `Bomb` component.
 - `SetupBoard()` is guarded so accidental repeated calls do not duplicate board contents.
-- Board-owned mouse/touch input raycasts from screen position to tile colliders and calls `ClickedTile`, `DragToTile`, and `ReleaseTile`.
+- Board-owned mouse/touch input maps screen position to board grid coordinates and calls `ClickedTile`, `DragToTile`, and `ReleaseTile`.
+- `ApplyLevelData()` can configure board dimensions, piece/tile prefab references, starting layout, and collectible settings before setup.
 
 Important risks:
 
 - Many methods assume board arrays and cells are non-null.
 - The class is large and mixes board rules, spawning, scoring, particles, and level concerns.
 - `changeForCollectible` appears to be a code typo for collectible spawn chance. Do not rename it casually; fix the field name together with the future `LevelData` collectible spawn chance model to avoid serialized-data mismatches.
-- Input raycasts ignore UI through `EventSystem.current.IsPointerOverGameObject`; verify this still behaves correctly once new overlays and tutorial panels are added.
+- Input ignores only interactable Unity UI `Selectable` controls on pointer begin. Decorative raycast targets such as transparent faders and background images should not block board swipes.
 
 ### `GamePiece.cs`
 
@@ -102,7 +104,7 @@ Board tile component. Responsibilities include:
 
 Important risks:
 
-- Tile no longer owns pointer input; `Board` raycasts tile colliders for mouse and touch selection.
+- Tile no longer owns pointer input; `Board` maps mouse and touch positions to board grid coordinates for selection.
 - `BreakTileRoutine` uses `breakableValue` as an array index. Guard sprite bounds when changing breakable states.
 
 ### `Bomb.cs`
@@ -150,8 +152,22 @@ Important serialized fields:
 Important risks:
 
 - Calls `m_board.SetupBoard()` after the start prompt; board setup is now guarded so repeated calls return without duplicating contents.
+- `ApplyLevelData()` can configure the move limit, score goal, and display name before the game loop starts.
 - Uses string-based coroutine calls.
 - Current replay reloads the same scene only. No level progression yet.
+
+### `LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs`
+
+First pass of the level-data model. Responsibilities include:
+
+- storing level id, display name, board size, move limit, score goal, objective type, prefab references, starting tiles, starting pieces, and collectible spawn settings
+- grouping levels in a simple `LevelDatabase`
+- applying one selected `LevelData` to the current `Board` and `GameManager` before board setup
+
+Important risks:
+
+- The current gameplay scene is not fully converted to data yet. `LevelLoader` must be added and assigned in scene or future boot/level-select flow before level assets drive gameplay.
+- Objective type and target count are stored but not yet resolved by game rules beyond the existing score goal.
 
 ### `ScoreManager.cs`
 
