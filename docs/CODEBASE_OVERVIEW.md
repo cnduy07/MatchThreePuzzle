@@ -25,7 +25,7 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Scripts/Flow/` - scene names, scene navigation, and scene bootstrap UI.
 - `Assets/Scripts/UI/` - reusable runtime UI shell, safe-area root, runtime settings state, and UI element factory.
 - `Assets/Scripts/LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs` - first ScriptableObject level-data foundation.
-- `Assets/Data/Levels/Level_001.asset` - first data-driven copy of the old level setup.
+- `Assets/Data/Levels/Level_001.asset` - first data-driven playable level based on the old level setup.
 - `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels.
 - `Assets/Prefabs/UI/RuntimeUiShell.prefab` - reusable shell prefab marker for shared modal/pause UI.
 - `Assets/Prefabs/Dots/` - normal match-piece prefabs.
@@ -192,6 +192,7 @@ First pass of the level-data model. Responsibilities include:
 Important risks:
 
 - `Assets/Scenes/Game.unity` has a `LevelLoader` assigned to `Level_001`. `LevelLoader` also prefers the level selected through `SceneFlow`.
+- `Level_001` currently uses a `3000` score goal and matching score objective target. Keep those values aligned until score objectives are resolved through a dedicated objective system.
 - Objective type and target count are stored but not yet resolved by game rules beyond the existing score goal.
 
 ### `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`
@@ -298,7 +299,7 @@ Scene and level flow:
 - Boot -> Menu -> Level Select -> reusable Game scene flow.
 - Runtime-built first-pass Menu and Level Select screens.
 - First-pass `LevelData`, `LevelDatabase`, and `LevelLoader` pipeline.
-- `Level_001` data asset mirrors the old prototype level setup.
+- `Level_001` data asset is the first tuned data-driven version of the old prototype level.
 - Retry, level select, and next-level navigation through `SceneFlow`.
 
 Gameplay:

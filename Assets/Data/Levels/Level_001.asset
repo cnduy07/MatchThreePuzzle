@@ -17,9 +17,9 @@ MonoBehaviour:
   boardWidth: 7
   boardHeight: 9
   moveLimit: 30
-  scoreGoal: 10000
+  scoreGoal: 3000
   objectiveType: 0
-  objectiveTargetCount: 10000
+  objectiveTargetCount: 3000
   normalTilePrefab: {fileID: 897779726052984303, guid: d8a51aa769bcd482a9cec7b0053f0727, type: 3}
   obstacleTilePrefabs: []
   rowBombPrefabs:

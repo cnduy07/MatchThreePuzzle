@@ -42,7 +42,7 @@ Implemented first pass:
 - `RuntimeUiShell` runtime-builds reusable start, pause, win, and lose overlays.
 - `SafeAreaRoot` constrains menu, level select, and runtime overlay content to `Screen.safeArea`.
 - `RuntimeUiShell` runtime-builds a shared settings overlay opened from both Menu and Pause.
-- `Assets/Data/Levels/Level_001.asset` mirrors the old scene's board setup.
+- `Assets/Data/Levels/Level_001.asset` is the first tuned data-driven version of the old scene's board setup.
 - `Assets/Resources/LevelDatabase.asset` exposes the level list to menu and gameplay flow.
 
 Still planned for scene/UI:

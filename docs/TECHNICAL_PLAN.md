@@ -34,7 +34,7 @@ Current status:
 - Initial `LevelData`, `LevelDatabase`, and `LevelLoader` scripts exist.
 - `Board.ApplyLevelData()` can apply dimensions, prefab references, starting objects, and collectible settings before setup.
 - `GameManager.ApplyLevelData()` can apply move limit, score goal, and display name before the game loop starts.
-- `Assets/Data/Levels/Level_001.asset` mirrors the old `Level 1` board setup.
+- `Assets/Data/Levels/Level_001.asset` is the first tuned data-driven version of the old `Level 1` board setup, with a reachable `3000` score target.
 - `Assets/Resources/LevelDatabase.asset` contains the first playable level.
 - `Assets/Scenes/Game.unity` is wired with `LevelLoader` and can prefer the selected level from `SceneFlow`.
 
