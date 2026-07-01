@@ -24,9 +24,10 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Scripts/` - all custom C# gameplay and UI flow scripts.
 - `Assets/Scripts/Flow/` - scene names, scene navigation, and scene bootstrap UI.
 - `Assets/Scripts/UI/` - reusable runtime UI shell, safe-area root, runtime settings state, and UI element factory.
+- `Assets/Scripts/PlayerProgress.cs` - local `PlayerPrefs` JSON save data for progression, best scores, stars, and settings.
 - `Assets/Scripts/LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs` - first ScriptableObject level-data foundation.
-- `Assets/Data/Levels/Level_001.asset` - first data-driven playable level based on the old level setup.
-- `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels.
+- `Assets/Data/Levels/Level_001.asset` through `Level_005.asset` - first data-driven playable level set.
+- `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels used by level select, loading, and next-level flow.
 - `Assets/Prefabs/UI/RuntimeUiShell.prefab` - reusable shell prefab marker for shared modal/pause UI.
 - `Assets/Prefabs/Dots/` - normal match-piece prefabs.
 - `Assets/Prefabs/Bombs/` - row, column, adjacent, and color bomb prefabs.
@@ -181,6 +182,24 @@ Important risks:
 - Uses string-based coroutine calls.
 - Retry reloads the reusable `Game` scene through `SceneFlow`; win can advance to the next level if the database has one, otherwise it returns to level select.
 
+### `PlayerProgress.cs`
+
+First-pass local save/progression service. Responsibilities include:
+
+- loading and saving one JSON blob in `PlayerPrefs`
+- tracking highest unlocked level
+- tracking completed levels
+- tracking best score and best stars per level
+- tracking local coin count placeholder
+- storing audio and haptics settings
+- calculating simple 1-3 star results for score-goal wins
+
+Important risks:
+
+- Save data is local only; no cloud save or migration/versioning beyond the current key.
+- Stars are simple score/moves heuristics and need design tuning after level balancing.
+- Haptics setting is persisted, but there is still no real haptics service.
+
 ### `LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs`
 
 First pass of the level-data model. Responsibilities include:
@@ -188,11 +207,12 @@ First pass of the level-data model. Responsibilities include:
 - storing level id, display name, board size, move limit, score goal, objective type, prefab references, starting tiles, starting pieces, and collectible spawn settings
 - grouping levels in a simple `LevelDatabase`
 - applying one selected `LevelData` to the current `Board` and `GameManager` before board setup
+- finding the next level in database order for progression unlocks and next-level flow
 
 Important risks:
 
 - `Assets/Scenes/Game.unity` has a `LevelLoader` assigned to `Level_001`. `LevelLoader` also prefers the level selected through `SceneFlow`.
-- `Level_001` currently uses a `3000` score goal and matching score objective target. Keep those values aligned until score objectives are resolved through a dedicated objective system.
+- Levels 1-5 currently use score goals and matching score objective targets. Keep those values aligned until score objectives are resolved through a dedicated objective system.
 - Objective type and target count are stored but not yet resolved by game rules beyond the existing score goal.
 
 ### `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`
@@ -203,6 +223,8 @@ First pass of the reusable scene/UI foundation. Responsibilities include:
 - storing the selected level id for the current run
 - loading `LevelDatabase` from `Resources`
 - runtime-building the current simple menu and level-select UI
+- showing locked/unlocked level-select state from `PlayerProgress`
+- showing completed stars and best score on level buttons
 - runtime-building reusable modal and pause overlays for gameplay
 - runtime-building a shared settings overlay opened from both Menu and Pause
 - applying `SafeAreaRoot` to menu, level select, pause button, modal, pause, and settings overlay content
@@ -211,8 +233,8 @@ Important risks:
 
 - Current screens are functional runtime UI, not final pixel-art prefabs.
 - Final iPad/phone polish still needs device/aspect-ratio verification.
-- Save/progression, stars, locks, and level results are not implemented yet.
-- Settings are in-memory only; Phase 4 save/progression must persist audio and haptics choices.
+- Save/progression is first-pass local data only, not cloud-backed.
+- Level-select layout is still runtime placeholder UI and needs final visual treatment.
 
 ### `ScoreManager.cs`
 
@@ -299,8 +321,10 @@ Scene and level flow:
 - Boot -> Menu -> Level Select -> reusable Game scene flow.
 - Runtime-built first-pass Menu and Level Select screens.
 - First-pass `LevelData`, `LevelDatabase`, and `LevelLoader` pipeline.
-- `Level_001` data asset is the first tuned data-driven version of the old prototype level.
+- `Level_001` through `Level_005` are the first playable data-driven level set.
 - Retry, level select, and next-level navigation through `SceneFlow`.
+- Local progression save unlocks the next level on win.
+- Level Select shows locked/unlocked state, stars, and best score.
 
 Gameplay:
 
@@ -322,19 +346,17 @@ Runtime UI:
 
 - Runtime start, pause, win, and lose overlays in the reusable Game scene.
 - Shared settings overlay opened from both Menu and Pause.
-- In-memory audio toggle through `AudioListener.volume`.
-- In-memory haptics toggle stub for a future haptics service.
+- Persistent audio toggle through `AudioListener.volume`.
+- Persistent haptics toggle stub for a future haptics service.
 - First-pass safe-area-aware layout root for menu, level select, HUD controls, and overlays.
 - First-pass camera/board fit that uses safe-area aspect ratio and reserves top/bottom HUD room.
 
 ## Missing / Not Release-Ready Features
 
-- Additional level data assets beyond `Level_001`.
+- More level data beyond the first five levels, with real tuning and varied layouts.
 - Final shared pixel-art UI prefabs replacing runtime placeholder controls.
 - Final phone/iPad visual verification and responsive HUD tuning.
 - Tutorial.
-- Save data, progression, level locks, stars, and result recording.
-- Persistent settings data.
 - Real haptics service integration.
 - Additional objective rules beyond score-goal flow.
 - Shared `ThemeData`, `PieceSetData`, sprite atlas, and resource/theme structure.

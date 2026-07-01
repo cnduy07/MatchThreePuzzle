@@ -8,6 +8,8 @@ public class SceneBootstrapper : MonoBehaviour
 
     void Start()
     {
+        RuntimeSettingsState.EnsureInitialized();
+
         string sceneName = SceneManager.GetActiveScene().name;
         if (sceneName == SceneNames.Boot)
         {
@@ -40,9 +42,11 @@ public class SceneBootstrapper : MonoBehaviour
         Text subtitle = RuntimeUiFactory.CreateText(contentRoot, "Subtitle", "Level goals, bombs, cascades, and collectible drops", 32, new Color(0.78f, 0.84f, 0.9f, 1f), TextAnchor.MiddleCenter);
         RuntimeUiFactory.SetCenter(subtitle.GetComponent<RectTransform>(), new Vector2(0f, 225f), new Vector2(820f, 90f));
 
-        Button play = RuntimeUiFactory.CreateButton(contentRoot, "Play Button", "Play", new Color(0.11f, 0.49f, 0.76f, 1f), Color.white);
+        int highestUnlockedLevel = PlayerProgress.Data.highestUnlockedLevelId;
+        string playLabel = highestUnlockedLevel > 1 ? "Continue Level " + highestUnlockedLevel : "Play";
+        Button play = RuntimeUiFactory.CreateButton(contentRoot, "Play Button", playLabel, new Color(0.11f, 0.49f, 0.76f, 1f), Color.white);
         RuntimeUiFactory.SetCenter(play.GetComponent<RectTransform>(), new Vector2(0f, 35f), new Vector2(500f, 108f));
-        play.onClick.AddListener(() => SceneFlow.StartLevel(1));
+        play.onClick.AddListener(SceneFlow.ContinueFromHighestUnlockedLevel);
 
         Button levels = RuntimeUiFactory.CreateButton(contentRoot, "Levels Button", "Level Select", new Color(0.24f, 0.26f, 0.31f, 1f), Color.white);
         RuntimeUiFactory.SetCenter(levels.GetComponent<RectTransform>(), new Vector2(0f, -105f), new Vector2(500f, 108f));
@@ -83,8 +87,18 @@ public class SceneBootstrapper : MonoBehaviour
                 int column = i % 3;
                 float x = (column - 1) * 245f;
                 float y = 185f - row * 145f;
-                Button levelButton = RuntimeUiFactory.CreateButton(contentRoot, "Level " + level.levelId + " Button", level.displayName, new Color(0.11f, 0.49f, 0.76f, 1f), Color.white);
-                RuntimeUiFactory.SetCenter(levelButton.GetComponent<RectTransform>(), new Vector2(x, y), new Vector2(220f, 110f));
+                bool isUnlocked = PlayerProgress.IsLevelUnlocked(level);
+                bool isComplete = PlayerProgress.IsLevelComplete(level.levelId);
+                Color buttonColor = isUnlocked ? new Color(0.11f, 0.49f, 0.76f, 1f) : new Color(0.2f, 0.21f, 0.24f, 1f);
+                Button levelButton = RuntimeUiFactory.CreateButton(contentRoot, "Level " + level.levelId + " Button", GetLevelButtonLabel(level, isUnlocked, isComplete), buttonColor, Color.white);
+                RuntimeUiFactory.SetCenter(levelButton.GetComponent<RectTransform>(), new Vector2(x, y), new Vector2(220f, 130f));
+                levelButton.interactable = isUnlocked;
+                Text buttonText = levelButton.GetComponentInChildren<Text>();
+                if (buttonText != null)
+                {
+                    buttonText.fontSize = 25;
+                }
+
                 int levelId = level.levelId;
                 levelButton.onClick.AddListener(() => SceneFlow.StartLevel(levelId));
             }
@@ -103,5 +117,19 @@ public class SceneBootstrapper : MonoBehaviour
     void OpenSettings()
     {
         RuntimeUiShell.CreateOrFind().ShowSettingsOverlay(null);
+    }
+
+    string GetLevelButtonLabel(LevelData level, bool isUnlocked, bool isComplete)
+    {
+        if (!isUnlocked)
+        {
+            return level.displayName + "\nLocked";
+        }
+
+        int bestScore = PlayerProgress.GetBestScore(level.levelId);
+        int bestStars = PlayerProgress.GetBestStars(level.levelId);
+        string status = isComplete ? "Stars: " + bestStars + "/3" : "New";
+        string score = bestScore > 0 ? "Best: " + bestScore : "Goal: " + level.scoreGoal;
+        return level.displayName + "\n" + status + "\n" + score;
     }
 }

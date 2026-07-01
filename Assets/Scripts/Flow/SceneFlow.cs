@@ -43,8 +43,33 @@ public static class SceneFlow
 
     public static void StartLevel(int levelId)
     {
+        LevelData level = LevelDatabase != null ? LevelDatabase.GetLevelById(levelId) : null;
+        if (level != null && !PlayerProgress.IsLevelUnlocked(level))
+        {
+            LoadLevelSelect();
+            return;
+        }
+
         s_selectedLevelId = Mathf.Max(1, levelId);
         LoadGame();
+    }
+
+    public static void ContinueFromHighestUnlockedLevel()
+    {
+        LevelDatabase database = LevelDatabase;
+        if (database == null)
+        {
+            StartLevel(PlayerProgress.Data.highestUnlockedLevelId);
+            return;
+        }
+
+        LevelData level = database.GetLevelById(PlayerProgress.Data.highestUnlockedLevelId);
+        if (level == null)
+        {
+            level = database.GetLevelAtIndex(0);
+        }
+
+        StartLevel(level != null ? level.levelId : 1);
     }
 
     public static void RetryLevel()
@@ -77,7 +102,13 @@ public static class SceneFlow
                     return false;
                 }
 
-                s_selectedLevelId = database.levels[nextIndex].levelId;
+                LevelData nextLevel = database.levels[nextIndex];
+                if (!PlayerProgress.IsLevelUnlocked(nextLevel))
+                {
+                    return false;
+                }
+
+                s_selectedLevelId = nextLevel.levelId;
                 return true;
             }
         }

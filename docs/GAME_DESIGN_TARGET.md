@@ -53,6 +53,13 @@ Start with score and collectible goals because the codebase already supports the
 
 ## Level Progression
 
+Current implementation:
+
+- Levels 1-5 exist as data-driven score-goal levels.
+- Winning a level unlocks the next registered level.
+- Level Select shows locked/unlocked state, stars, and best score.
+- Audio and haptics toggle state persist locally.
+
 Recommended progression model:
 
 - 30-50 initial levels for first public test build.

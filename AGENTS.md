@@ -28,8 +28,8 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 - Build scene flow: `Assets/Scenes/Boot.unity` -> `Menu.unity` -> `Level Select.unity` -> `Game.unity`.
 - Reference legacy scene: `Assets/Scenes/Level 1.unity`.
 - Core gameplay scripts: `Assets/Scripts/Board.cs`, `GamePiece.cs`, `Tile.cs`, `Bomb.cs`, `Collectibles.cs`, `LevelData.cs`, `LevelDatabase.cs`.
-- Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `LevelLoader.cs`, `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`, `MessageWindow.cs`, `ScreenFader.cs`, `RectXformMove.cs`, `Singleton.cs`.
-- Existing gameplay: board fill, swap, match detection, cascades, score, move limit, row bombs, column bombs, adjacent bombs, color bombs, breakable tiles, obstacles, collectibles, basic particles, basic sounds, start/win/lose dialogs.
+- Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `LevelLoader.cs`, `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`, `PlayerProgress.cs`, `MessageWindow.cs`, `ScreenFader.cs`, `RectXformMove.cs`, `Singleton.cs`.
+- Existing gameplay: board fill, swap, match detection, cascades, score, move limit, row bombs, column bombs, adjacent bombs, color bombs, breakable tiles, obstacles, collectibles, basic particles, basic sounds, start/win/lose dialogs, first-pass local progression save.
 - Target platforms: iPhone and iPad.
 - Target store: Apple App Store.
 - Target art direction: cohesive pixel-art match-3 puzzle game.
@@ -58,8 +58,8 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 
 1. Phone/iPad visual verification and final responsive HUD tuning.
 2. Final shared UI prefabs replacing runtime placeholder controls.
-3. Save/progression plus result recording.
-4. Shared resource/theme structure plus additional LevelData and objective-rule expansion.
+3. Shared resource/theme structure and final UI prefab library.
+4. Additional LevelData tuning plus objective-rule expansion beyond score goals.
 5. Pixel-art replacement pass using approved assets from the separate artwork workflow.
 
 ## How To Work

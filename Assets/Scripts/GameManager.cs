@@ -34,6 +34,8 @@ public class GameManager : Singleton<GameManager>
     bool m_isReadyToReplay = false;
     bool m_isPaused = false;
     string m_levelDisplayName;
+    LevelData m_activeLevelData;
+    int m_startingMoveLimit;
     RuntimeUiShell m_uiShell;
 
     public Board m_board;
@@ -59,6 +61,11 @@ public class GameManager : Singleton<GameManager>
             levelNameText.text = string.IsNullOrEmpty(m_levelDisplayName) ? scene.name : m_levelDisplayName;
         }
 
+        if (m_startingMoveLimit <= 0)
+        {
+            m_startingMoveLimit = movesLeft;
+        }
+
         UpdateMoves();
 
         StartCoroutine("ExecuteGameLoop");
@@ -72,8 +79,10 @@ public class GameManager : Singleton<GameManager>
         }
 
         movesLeft = Mathf.Max(0, levelData.moveLimit);
+        m_startingMoveLimit = movesLeft;
         scoreGoal = Mathf.Max(0, levelData.scoreGoal);
         m_levelDisplayName = string.IsNullOrEmpty(levelData.displayName) ? levelData.name : levelData.displayName;
+        m_activeLevelData = levelData;
     }
 
     public void UpdateMoves()
@@ -180,6 +189,9 @@ public class GameManager : Singleton<GameManager>
 
         if (m_isWinner)
         {
+            int finalScore = ScoreManager.Instance != null ? ScoreManager.Instance.CurrentScore : 0;
+            int earnedStars = PlayerProgress.RecordLevelWin(m_activeLevelData, finalScore, movesLeft, m_startingMoveLimit, SceneFlow.LevelDatabase);
+
             if (SoundManager.Instance != null)
             {
                 SoundManager.Instance.PlayWinSound();
@@ -189,7 +201,7 @@ public class GameManager : Singleton<GameManager>
             {
                 bool nextLevelSelected = false;
                 bool levelSelectSelected = false;
-                m_uiShell.ShowModal(winIcon, "You win", "Score goal reached", "Next", () => nextLevelSelected = true, "Levels", () => levelSelectSelected = true);
+                m_uiShell.ShowModal(winIcon, "You win", BuildWinMessage(finalScore, earnedStars), "Next", () => nextLevelSelected = true, "Levels", () => levelSelectSelected = true);
                 while (!nextLevelSelected && !levelSelectSelected)
                 {
                     yield return null;
@@ -273,6 +285,12 @@ public class GameManager : Singleton<GameManager>
     bool HasReachedScoreGoal()
     {
         return ScoreManager.Instance != null && ScoreManager.Instance.CurrentScore >= scoreGoal;
+    }
+
+    string BuildWinMessage(int finalScore, int earnedStars)
+    {
+        string stars = earnedStars > 0 ? earnedStars + "/3 stars" : "Complete";
+        return "Score: " + finalScore + "\n" + stars;
     }
 
     void HideLegacyMessageWindow()

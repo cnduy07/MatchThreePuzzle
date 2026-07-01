@@ -35,7 +35,7 @@ Current status:
 - `Board.ApplyLevelData()` can apply dimensions, prefab references, starting objects, and collectible settings before setup.
 - `GameManager.ApplyLevelData()` can apply move limit, score goal, and display name before the game loop starts.
 - `Assets/Data/Levels/Level_001.asset` is the first tuned data-driven version of the old `Level 1` board setup, with a reachable `3000` score target.
-- `Assets/Resources/LevelDatabase.asset` contains the first playable level.
+- `Assets/Data/Levels/Level_001.asset` through `Level_005.asset` are registered in `Assets/Resources/LevelDatabase.asset`.
 - `Assets/Scenes/Game.unity` is wired with `LevelLoader` and can prefer the selected level from `SceneFlow`.
 
 Phase 2 is the level data model only. It should define the data structures that describe playable levels, then plug into the scene skeleton established in Phase 3. Do not duplicate Phase 3 scene-flow work here.
@@ -83,9 +83,10 @@ Current status:
 - First-pass `Boot`, `Menu`, `Level Select`, and reusable `Game` scenes exist.
 - `SceneBootstrapper` builds simple menu and level-select screens at runtime.
 - `RuntimeUiShell` handles gameplay start, pause, win, lose, retry, next, and level-select overlays.
+- Level Select shows locked/unlocked state, completion stars, and best score from local progression data.
 - `SafeAreaRoot` constrains runtime menu, level select, and gameplay overlay content to `Screen.safeArea`.
 - Settings open from both Menu and Pause through the shared `RuntimeUiShell` settings overlay.
-- Settings currently support in-memory audio on/off through `AudioListener.volume` and a haptics toggle stub marked for future haptics/persistence work.
+- Settings persist audio on/off through `AudioListener.volume` and persist a haptics toggle stub for future haptics service work.
 - `Board.SettupCamera()` now uses safe-area aspect ratio, reserves top/bottom world-space margins for HUD/home-area UI, and uses a 9-world-unit minimum board fit height baseline.
 - The legacy `Level 1` scene remains disabled in build settings as a reference.
 - `GameManager` and `ScoreManager` are scene-local singleton subclasses so retry and level reloads create fresh gameplay state.
@@ -123,7 +124,15 @@ This remains an open tuning item. Do not claim the game has final responsive boa
 
 ## Phase 4: Save Data
 
-Start simple:
+Current status:
+
+- `PlayerProgress` stores local JSON save data through `PlayerPrefs`.
+- Save data tracks highest unlocked level, completed levels, best score, best stars, coin count placeholder, audio setting, and haptics setting.
+- Winning a level records the result and unlocks the next registered level.
+- Level Select reads save data to lock/unlock level buttons and show stars/best score.
+- Menu Continue starts the highest unlocked level.
+
+Implemented first-pass fields:
 
 - unlocked level
 - completed levels
@@ -131,7 +140,12 @@ Start simple:
 - coin count
 - audio/haptics settings
 
-Use local save data first. Do not add cloud save until the base product is stable.
+Remaining Phase 4 tuning:
+
+- tune star thresholds after level balancing
+- add explicit save reset/debug tooling for development builds if needed
+- add save migration/versioning if the format changes after more systems are added
+- keep local save only; do not add cloud save until the base product is stable
 
 ## Phase 4.5: Resource And Theme Reuse
 

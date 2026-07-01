@@ -43,14 +43,17 @@ Implemented first pass:
 - `SafeAreaRoot` constrains menu, level select, and runtime overlay content to `Screen.safeArea`.
 - `RuntimeUiShell` runtime-builds a shared settings overlay opened from both Menu and Pause.
 - `Assets/Data/Levels/Level_001.asset` is the first tuned data-driven version of the old scene's board setup.
-- `Assets/Resources/LevelDatabase.asset` exposes the level list to menu and gameplay flow.
+- `Assets/Data/Levels/Level_001.asset` through `Level_005.asset` are registered in `LevelDatabase`.
+- `PlayerProgress` stores local progression and settings data through `PlayerPrefs`.
+- Level Select shows locked/unlocked state, completion stars, and best score.
+- Winning a level records the result and unlocks the next registered level.
+- Settings persist audio and haptics toggle state locally.
 
 Still planned for scene/UI:
 
 - final shared pixel-art UI prefabs for buttons, panels, level cards, and settings rows
 - phone/iPad visual verification and final responsive HUD tuning
-- save/progression, locks, stars, and result recording
-- additional data-driven levels
+- additional data-driven levels beyond the first five
 
 Settings, pause, win, lose, and tutorial should be overlay panels, not separate scenes. They need to open over gameplay or menu without destroying the current context.
 
@@ -314,7 +317,7 @@ Recommended order:
 8. (done) Add LevelData and LevelDatabase.
 9. (done) Convert current level into data.
 10. (done) Add Settings overlay reused from menu and pause.
-11. (remaining) Add save/progression.
+11. (done) Add save/progression.
 12. (remaining) Add pixel-art theme replacement.
 13. (remaining) Add boosters, richer objectives, and tutorial.
 

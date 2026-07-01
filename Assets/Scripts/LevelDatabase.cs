@@ -32,4 +32,34 @@ public class LevelDatabase : ScriptableObject
 
         return levels[index];
     }
+
+    public LevelData GetNextLevel(int levelId)
+    {
+        int index = GetLevelIndex(levelId);
+        if (index < 0)
+        {
+            return null;
+        }
+
+        return GetLevelAtIndex(index + 1);
+    }
+
+    public int GetLevelIndex(int levelId)
+    {
+        if (levels == null)
+        {
+            return -1;
+        }
+
+        for (int i = 0; i < levels.Length; i++)
+        {
+            LevelData level = levels[i];
+            if (level != null && level.levelId == levelId)
+            {
+                return i;
+            }
+        }
+
+        return -1;
+    }
 }

@@ -85,6 +85,8 @@ Do not use screenshots that show features or art not present in the build.
 
 Keep the first release privacy-light if possible.
 
+Current implementation uses local `PlayerPrefs` save data for level progress, best scores/stars, and audio/haptics settings. It does not add analytics, ads, tracking, IAP, accounts, cloud save, or external SDK data collection.
+
 If the game has no analytics, ads, tracking, IAP, account system, or external SDKs, document that clearly for App Store privacy labels.
 
 If any SDK is added, update privacy docs immediately:
