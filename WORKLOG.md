@@ -32,7 +32,7 @@ Started: 2026-07-02
 Closed: in progress
 Notes: Menu-only worktree. Do not edit SceneFlow.cs, SceneBootstrapper.cs, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or level data from this branch.
 
-[ACTIVE] Level map scene polish worktree
+[DONE] Level map scene polish worktree
 
 Branch: codex/levelmapscene
 Domains touched (see docs/OWNERSHIP.md): Level Map Scene Builder
@@ -40,8 +40,8 @@ Agent role: Feature Agent
 Files/scenes expected to change: Assets/Scripts/Flow/LevelMapSceneUiBuilder.cs
 Shared API changes: no
 Started: 2026-07-02
-Closed: in progress
-Notes: Level-map-only worktree. Do not edit SceneFlow.cs, SceneBootstrapper.cs, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or LevelData assets from this branch.
+Closed: 2026-07-02
+Notes: Level-map-only worktree. Runtime Level Select polish completed in LevelMapSceneUiBuilder.cs without editing shared scene flow, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or LevelData assets.
 
 [ACTIVE] Game scene HUD polish worktree
 
