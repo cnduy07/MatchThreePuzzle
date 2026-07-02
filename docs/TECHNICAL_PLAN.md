@@ -261,6 +261,7 @@ Potential optimizations:
 ## Known Technical Risks
 
 - `Board.cs` is doing too much. Keep early fixes small, but consider splitting later into board model, match resolver, level loader, and board view.
+- `Board.cs` is a poor candidate for simultaneous parallel edits because of its size and shared responsibilities. Treat the board model / match resolver / level loader / board view split above as a prerequisite, single-session task before multiple sessions attempt concurrent gameplay-core features.
 - Current input is Board-owned screen-to-grid mapping with selective UI blocking for interactable `Selectable` controls; validate drag behavior, edge-cell selection, and future overlay controls as panels are added.
 - LevelData stores objective type and target count before all objective rules exist, so avoid treating non-score objectives as complete until the resolver/game rules are added.
 - Scene and prefab references can break if YAML is edited carelessly.

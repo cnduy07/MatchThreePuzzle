@@ -25,6 +25,8 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Scripts/` - all custom C# gameplay and UI flow scripts.
 - `Assets/Scripts/Flow/` - scene names, scene navigation, and scene bootstrap UI.
 - `Assets/Scripts/UI/` - reusable runtime UI shell, safe-area root, runtime settings state, and UI element factory.
+- `Assets/Scripts/Editor/Phase45UiPrefabBuilder.cs` - editor-only helper for building placeholder shared UI prefabs.
+- `Assets/Scripts/ParticleManager.cs`, `ParticlePlayer.cs` - particle effect helpers used by board clears, tile breaks, and bomb feedback.
 - `Assets/Scripts/PlayerProgress.cs` - local `PlayerPrefs` JSON save data for progression, best scores, stars, and settings.
 - `Assets/Scripts/LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs` - first ScriptableObject level-data foundation.
 - `Assets/Scripts/ThemeData.cs`, `PieceSetData.cs`, `GameResourceLibrary.cs` - shared theme, piece-set, and resource registry foundation.
@@ -34,7 +36,9 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Resources/GameResourceLibrary.asset` - runtime-loaded default theme and piece-set registry.
 - `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels used by level select, loading, and next-level flow.
 - `Assets/Prefabs/UI/RuntimeUiShell.prefab` - reusable shell prefab marker for shared modal/pause UI.
+- `Assets/Prefabs/UI/SafeAreaRoot.prefab` - shared safe-area root prefab.
 - `Assets/Prefabs/UI/Shared/` - generated placeholder shared UI prefab library for buttons, panels, level cards, rows, counters, and loading overlay.
+- `Assets/Prefabs/UI/Shared/LoseThreatStage.prefab` - placeholder shared stage prefab for the lose-threat presentation.
 - `Assets/Prefabs/Dots/` - normal match-piece prefabs.
 - `Assets/Prefabs/Bombs/` - row, column, adjacent, and color bomb prefabs.
 - `Assets/Prefabs/Tiles/` - normal, breakable, double-breakable, obstacle tile prefabs.
@@ -258,6 +262,13 @@ Important risks:
 - Final iPad/phone polish still needs device/aspect-ratio verification.
 - Save/progression is first-pass local data only, not cloud-backed.
 - Level-select layout is still runtime placeholder UI and needs final visual treatment.
+
+Related helpers:
+
+- `SceneNames.cs` centralizes the scene-name constants used by `SceneFlow` and scene bootstrapping.
+- `RuntimeUiFactory.cs` builds theme-aware runtime UI elements and falls back to generated controls when a shared prefab slot is missing.
+- `RuntimeSettingsState.cs` carries transient settings overlay state between runtime UI panels.
+- `SafeAreaRoot.cs` applies `Screen.safeArea` padding to runtime and shared UI roots.
 
 ### `ScoreManager.cs`
 

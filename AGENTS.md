@@ -21,6 +21,7 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 - `docs/GAME_DESIGN_TARGET.md` is the product design target. Use it for gameplay goals, intended screens, progression, tutorial, and player-facing UX.
 - `docs/PIXEL_ART_DIRECTION.md` is the art workflow and style guide. It is planning-only unless a separate approved artwork workflow provides assets.
 - `docs/IOS_APPSTORE_PLAN.md` is the release checklist. Use it for iPhone/iPad QA, privacy, build settings, metadata, and App Store readiness.
+- `docs/OWNERSHIP.md` and `WORKLOG.md` coordinate parallel Codex sessions by domain, branch, and expected file changes.
 
 ## Current Project Snapshot
 
@@ -48,6 +49,20 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 - Keep mobile performance and touch UX in mind for every gameplay, UI, and art decision.
 - Follow the scene/UI architecture in `docs/SCENE_UI_ARCHITECTURE.md`: small scene set, reusable overlay panels, data-driven levels, shared UI prefabs, and theme/resource reuse.
 - For UI/UX layout and product feel, refer to `Assets/Concept/` before changing menu, level select, gameplay HUD, boosters, win/lose presentation, or visual hierarchy.
+- Check `docs/OWNERSHIP.md` and `WORKLOG.md` before editing files; do not work in a domain another session has marked `ACTIVE`.
+
+## Parallel Session Work Protocol
+
+This repository may be worked on by multiple Codex sessions in parallel, each typically on its own git branch or git worktree.
+
+- Before making any changes, every agent session must read `docs/OWNERSHIP.md` and `WORKLOG.md`.
+- Before starting substantive work, every agent session must append a `WORKLOG.md` entry that names its branch, claimed domains, and expected file or scene changes.
+- When work is finished, merged, or abandoned, update that `WORKLOG.md` entry to `DONE` or `ABANDONED` rather than deleting it.
+- Do not edit files in a domain currently claimed `ACTIVE` by another session in `WORKLOG.md`.
+- Do not edit `Very High` risk domains from `docs/OWNERSHIP.md` without first confirming there is no conflicting `ACTIVE` entry.
+- If a task's scope turns out to span multiple domains or conflicts with an `ACTIVE` entry, stop and flag the conflict to the user rather than proceeding silently.
+- Shared APIs are architecture-owned. Only an Architecture Agent may change public interfaces, public method signatures used across domains, ScriptableObject schemas, save data models, core manager contracts, or event contracts.
+- Feature agents may consume Shared APIs but must not modify them. If a feature needs a Shared API change, stop and ask the user to route that change through an Architecture Agent.
 
 ## First Fix Priorities
 
@@ -147,6 +162,7 @@ Update examples:
 - New feature added -> update `docs/GAME_DESIGN_TARGET.md` and/or `docs/TECHNICAL_PLAN.md`.
 - Major gameplay bug fixed -> update `docs/CODEBASE_OVERVIEW.md` or `docs/TECHNICAL_PLAN.md` if the fix changes known risks or behavior.
 - Scene flow, UI navigation, shared prefab, or resource reuse change -> update `docs/SCENE_UI_ARCHITECTURE.md`.
+- Parallel work conflict discovered, or ownership boundaries change -> update `docs/OWNERSHIP.md`.
 - New art direction or generated asset workflow -> update `docs/PIXEL_ART_DIRECTION.md`.
 - App Store, privacy, signing, SDK, analytics, ads, or IAP change -> update `docs/IOS_APPSTORE_PLAN.md`.
 - New conventions for agents -> update this `AGENTS.md`.

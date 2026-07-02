@@ -64,6 +64,8 @@ Still planned for scene/UI:
 - phone/iPad visual verification and final responsive HUD tuning
 - additional data-driven levels beyond the first five
 
+Parallelization note: scene files (`Boot`, `Menu`, `Level Select`, and `Game.unity`) and the shared `RuntimeUiShell` / `SceneFlow` scripts are `Very High` conflict-risk domains. See `docs/OWNERSHIP.md` before running parallel sessions that touch scene flow or UI shell code.
+
 Settings, pause, win, lose, and tutorial should be overlay panels, not separate scenes. They need to open over gameplay or menu without destroying the current context.
 
 ## Scene Responsibilities
