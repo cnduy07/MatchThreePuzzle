@@ -38,8 +38,10 @@ Implemented first pass:
 - `Assets/Scenes/Boot.unity`, `Menu.unity`, `Level Select.unity`, and `Game.unity` are in build settings.
 - `Assets/Scenes/Level 1.unity` remains as a disabled legacy reference scene.
 - `SceneBootstrapper` runtime-builds the simple Menu and Level Select screens.
+- `SceneBootstrapper` now routes Menu and Level Select construction to `MenuSceneUiBuilder` and `LevelMapSceneUiBuilder`, keeping screen-specific layout code in separate files for parallel work.
 - `SceneFlow` owns selected level id and scene navigation.
 - `RuntimeUiShell` runtime-builds reusable start, pause, win, and lose overlays.
+- `GameSceneHudBuilder` owns the runtime gameplay HUD, threat preview, and booster bar layout while `RuntimeUiShell` retains shared overlays.
 - `SafeAreaRoot` constrains menu, level select, and runtime overlay content to `Screen.safeArea`.
 - `RuntimeUiShell` runtime-builds a shared settings overlay opened from both Menu and Pause.
 - `Assets/Data/Levels/Level_001.asset` is the first tuned data-driven version of the old scene's board setup.
@@ -64,7 +66,7 @@ Still planned for scene/UI:
 - phone/iPad visual verification and final responsive HUD tuning
 - additional data-driven levels beyond the first five
 
-Parallelization note: scene files (`Boot`, `Menu`, `Level Select`, and `Game.unity`) and the shared `RuntimeUiShell` / `SceneFlow` scripts are `Very High` conflict-risk domains. See `docs/OWNERSHIP.md` before running parallel sessions that touch scene flow or UI shell code.
+Parallelization note: scene files (`Boot`, `Menu`, `Level Select`, and `Game.unity`) and shared `RuntimeUiShell` / `SceneFlow` code remain `Very High` conflict-risk domains. Prefer assigning screen-focused work to `MenuSceneUiBuilder`, `LevelMapSceneUiBuilder`, or `GameSceneHudBuilder` after checking `docs/OWNERSHIP.md` and `WORKLOG.md`.
 
 Settings, pause, win, lose, and tutorial should be overlay panels, not separate scenes. They need to open over gameplay or menu without destroying the current context.
 

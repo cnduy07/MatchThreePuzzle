@@ -23,8 +23,11 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Scenes/Level 1.unity` - legacy reference gameplay scene, disabled in build settings.
 - `Assets/Concept/` - visual/UX references for menu, level map, and gameplay scene direction.
 - `Assets/Scripts/` - all custom C# gameplay and UI flow scripts.
-- `Assets/Scripts/Flow/` - scene names, scene navigation, and scene bootstrap UI.
+- `Assets/Scripts/Flow/` - scene names, scene navigation, scene bootstrap routing, and menu/level-map UI builders.
 - `Assets/Scripts/UI/` - reusable runtime UI shell, safe-area root, runtime settings state, and UI element factory.
+- `Assets/Scripts/Flow/MenuSceneUiBuilder.cs` - runtime-built Menu screen layout.
+- `Assets/Scripts/Flow/LevelMapSceneUiBuilder.cs` - runtime-built Level Select map layout.
+- `Assets/Scripts/UI/GameSceneHudBuilder.cs` - runtime-built gameplay HUD, threat preview, and booster bar layout.
 - `Assets/Scripts/Editor/Phase45UiPrefabBuilder.cs` - editor-only helper for building placeholder shared UI prefabs.
 - `Assets/Scripts/ParticleManager.cs`, `ParticlePlayer.cs` - particle effect helpers used by board clears, tile breaks, and bomb feedback.
 - `Assets/Scripts/PlayerProgress.cs` - local `PlayerPrefs` JSON save data for progression, best scores, stars, and settings.
@@ -242,16 +245,18 @@ Important risks:
 - Existing levels retain direct prefab overrides, so later cleanup can remove duplicated arrays level by level after validation.
 - Shared UI prefab slots are wired to placeholder prefabs under `Assets/Prefabs/UI/Shared/`; replace their art/sprites during the final pixel-art UI pass.
 
-### `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`
+### `SceneFlow.cs`, `SceneBootstrapper.cs`, `MenuSceneUiBuilder.cs`, `LevelMapSceneUiBuilder.cs`, `RuntimeUiShell.cs`, `GameSceneHudBuilder.cs`
 
 First pass of the reusable scene/UI foundation. Responsibilities include:
 
 - loading Menu, Level Select, and Game scenes
 - storing the selected level id for the current run
 - loading `LevelDatabase` from `Resources`
-- runtime-building the current simple menu and level-select UI
+- routing scene startup from `SceneBootstrapper` to screen-specific builders
+- runtime-building the current simple menu and level-select UI through separate menu and level-map builder files
 - showing locked/unlocked level-select state from `PlayerProgress`
 - showing completed stars and best score on level buttons
+- runtime-building the gameplay HUD, threat preview, and booster bar through `GameSceneHudBuilder`
 - runtime-building reusable modal and pause overlays for gameplay
 - runtime-building a shared settings overlay opened from both Menu and Pause
 - applying `SafeAreaRoot` to menu, level select, pause button, modal, pause, and settings overlay content
@@ -262,6 +267,7 @@ Important risks:
 - Final iPad/phone polish still needs device/aspect-ratio verification.
 - Save/progression is first-pass local data only, not cloud-backed.
 - Level-select layout is still runtime placeholder UI and needs final visual treatment.
+- Menu, level-map, and game-HUD runtime layout now live in separate builder files so parallel scene-focused sessions can work with fewer file conflicts.
 
 Related helpers:
 
@@ -380,6 +386,7 @@ Runtime UI:
 
 - Runtime start, pause, win, and lose overlays in the reusable Game scene.
 - Shared settings overlay opened from both Menu and Pause.
+- Scene-specific runtime UI layout is split across `MenuSceneUiBuilder`, `LevelMapSceneUiBuilder`, and `GameSceneHudBuilder` to support parallel screen-focused work.
 - Runtime menu and overlay controls now resolve semantic button/panel styles through `ThemeData`, using shared placeholder prefabs with generated-control fallback.
 - Menu runtime UI now follows the `Assets/Concept/menuscene.png` structure with placeholder resource counters, large logo, stacked action buttons, settings button, progress sign, and bottom navigation.
 - Level Select runtime UI now follows the `Assets/Concept/levelmapscene.png` structure with placeholder resource counters, region labels, path segments, level nodes, locked worlds, and bottom navigation.

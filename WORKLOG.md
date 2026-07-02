@@ -21,6 +21,17 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
+[DONE] Split runtime UI builders for parallel scene work
+
+Branch: codex/architecture-ui-split
+Domains touched (see docs/OWNERSHIP.md): Scene Flow & UI Shell, Documentation & Process
+Agent role: Architecture Agent
+Files/scenes expected to change: Assets/Scripts/Flow/SceneBootstrapper.cs, Assets/Scripts/Flow/MenuSceneUiBuilder.cs, Assets/Scripts/Flow/LevelMapSceneUiBuilder.cs, Assets/Scripts/UI/RuntimeUiShell.cs, Assets/Scripts/UI/GameSceneHudBuilder.cs, docs/CODEBASE_OVERVIEW.md, docs/SCENE_UI_ARCHITECTURE.md, docs/OWNERSHIP.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-02
+Closed: 2026-07-02
+Notes: Behavior-preserving split so later menuscene, levelmapscene, and gamescene branches can work in separate files.
+
 [DONE] (example) Add Level_002 data asset
 
 Branch: codex/example-level-002

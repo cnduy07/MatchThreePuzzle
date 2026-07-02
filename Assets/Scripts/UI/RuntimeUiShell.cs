@@ -81,43 +81,10 @@ public class RuntimeUiShell : MonoBehaviour
         ClearChildren(m_hudLayer);
         m_hudLayer.gameObject.SetActive(true);
 
-        RectTransform levelPanel = CreateCounterPanel(m_hudLayer, "Level Counter", "LEVEL", levelData != null ? levelData.levelId.ToString() : "1", new Color(0.25f, 0.13f, 0.06f, 0.94f));
-        RuntimeUiFactory.SetTopLeft(levelPanel, new Vector2(88f, -64f), new Vector2(144f, 104f));
-
-        RectTransform goalPanel = RuntimeUiFactory.CreatePanel(m_hudLayer, "Goal Panel", RuntimePanelStyle.Dialog);
-        goalPanel.anchorMin = new Vector2(0.5f, 1f);
-        goalPanel.anchorMax = new Vector2(0.5f, 1f);
-        goalPanel.pivot = new Vector2(0.5f, 0.5f);
-        goalPanel.anchoredPosition = new Vector2(0f, -66f);
-        goalPanel.sizeDelta = new Vector2(460f, 104f);
-        RuntimeUiFactory.CreateText(goalPanel, "Goal Title", "GOAL", 34, Color.white, TextAnchor.MiddleCenter);
-        RuntimeUiFactory.SetCenter(goalPanel.Find("Goal Title").GetComponent<RectTransform>(), new Vector2(0f, 28f), new Vector2(220f, 36f));
-        Text goalText = RuntimeUiFactory.CreateText(goalPanel, "Goal Text", "Score " + scoreGoal, 28, new Color(1f, 0.9f, 0.52f, 1f), TextAnchor.MiddleCenter);
-        RuntimeUiFactory.SetCenter(goalText.GetComponent<RectTransform>(), new Vector2(0f, -16f), new Vector2(390f, 48f));
-
-        RectTransform movesPanel = CreateCounterPanel(m_hudLayer, "Moves Counter", "MOVES", movesLeft.ToString(), new Color(0.55f, 0.08f, 0.07f, 0.96f));
-        movesPanel.anchorMin = new Vector2(1f, 1f);
-        movesPanel.anchorMax = new Vector2(1f, 1f);
-        movesPanel.pivot = new Vector2(0.5f, 0.5f);
-        movesPanel.anchoredPosition = new Vector2(-178f, -64f);
-        movesPanel.sizeDelta = new Vector2(144f, 104f);
-        m_runtimeMovesText = movesPanel.Find("Value").GetComponent<Text>();
-
-        Button pause = RuntimeUiFactory.CreateButton(m_hudLayer, "Pause Button", "||", RuntimeButtonStyle.Icon);
-        RectTransform pauseRect = pause.GetComponent<RectTransform>();
-        pauseRect.anchorMin = new Vector2(1f, 1f);
-        pauseRect.anchorMax = new Vector2(1f, 1f);
-        pauseRect.pivot = new Vector2(0.5f, 0.5f);
-        pauseRect.anchoredPosition = new Vector2(-58f, -64f);
-        pauseRect.sizeDelta = new Vector2(76f, 76f);
-        pause.onClick.AddListener(() => pauseAction?.Invoke());
-        m_pauseButtonObject = pause.gameObject;
-
-        CreateGameplayThreatPreview(m_hudLayer);
-        CreateBoosterBar(m_hudLayer);
-        RuntimeUiFactory.AddMotion(goalPanel, RuntimeUiMotionType.SlideFromTop, 26f, 1f, 0.3f);
-        RuntimeUiFactory.AddMotion(levelPanel, RuntimeUiMotionType.SlideFromTop, 22f, 1f, 0.28f);
-        RuntimeUiFactory.AddMotion(movesPanel, RuntimeUiMotionType.SlideFromTop, 24f, 1f, 0.32f);
+        GameSceneHudState hudState = GameSceneHudBuilder.Build(m_hudLayer, levelData, movesLeft, scoreGoal, pauseAction);
+        m_runtimeMovesText = hudState.MovesText;
+        m_runtimeScoreText = hudState.ScoreText;
+        m_pauseButtonObject = hudState.PauseButtonObject;
         UpdateGameplayMoves(movesLeft);
         UpdateGameplayScore(ScoreManager.Instance != null ? ScoreManager.Instance.CurrentScore : 0);
     }
@@ -152,68 +119,6 @@ public class RuntimeUiShell : MonoBehaviour
         RectTransform buttonRect = button.GetComponent<RectTransform>();
         RuntimeUiFactory.SetTopLeft(buttonRect, new Vector2(72f, -72f), new Vector2(92f, 92f));
         button.onClick.AddListener(() => onClick?.Invoke());
-    }
-
-    RectTransform CreateCounterPanel(Transform parent, string name, string title, string value, Color color)
-    {
-        RectTransform panel = RuntimeUiFactory.CreatePanel(parent, name, RuntimePanelStyle.Surface);
-        Image image = panel.GetComponent<Image>();
-        if (image != null)
-        {
-            image.color = color;
-        }
-
-        Text titleText = RuntimeUiFactory.CreateText(panel, "Title", title, 25, Color.white, TextAnchor.MiddleCenter);
-        RuntimeUiFactory.SetCenter(titleText.GetComponent<RectTransform>(), new Vector2(0f, 24f), new Vector2(124f, 32f));
-
-        Text valueText = RuntimeUiFactory.CreateText(panel, "Value", value, 46, Color.white, TextAnchor.MiddleCenter);
-        RuntimeUiFactory.SetCenter(valueText.GetComponent<RectTransform>(), new Vector2(0f, -16f), new Vector2(124f, 58f));
-        return panel;
-    }
-
-    void CreateGameplayThreatPreview(Transform parent)
-    {
-        ThemeData theme = RuntimeUiFactory.Theme;
-        RectTransform stage = CreateLoseThreatStage(theme);
-        stage.SetParent(parent, false);
-        stage.name = "Threat Preview";
-        stage.anchoredPosition = new Vector2(0f, -204f);
-        stage.sizeDelta = new Vector2(760f, 230f);
-        RuntimeUiFactory.AddMotion(stage, RuntimeUiMotionType.SlideFromTop, 30f, 1f, 0.35f);
-
-        RectTransform monster = CreateThreatActor(stage, "Monster Preview", theme != null ? theme.loseThreatMonsterSprite : null, theme != null ? theme.loseThreatMonsterColor : new Color(0.45f, 0.16f, 0.72f, 1f), "MONSTER");
-        RuntimeUiFactory.SetCenter(monster, new Vector2(-130f, -8f), new Vector2(180f, 126f));
-        RuntimeUiFactory.AddMotion(monster, RuntimeUiMotionType.Float, 4f, 0.4f);
-
-        RectTransform door = CreateThreatActor(stage, "Door Preview", theme != null ? theme.loseThreatDoorSprite : null, theme != null ? theme.loseThreatDoorColor : new Color(0.47f, 0.25f, 0.09f, 1f), "DOOR");
-        RuntimeUiFactory.SetCenter(door, new Vector2(240f, 0f), new Vector2(124f, 184f));
-
-        Text score = RuntimeUiFactory.CreateText(stage, "Score", "Score 0", 28, new Color(1f, 0.9f, 0.52f, 1f), TextAnchor.MiddleLeft);
-        RuntimeUiFactory.SetCenter(score.GetComponent<RectTransform>(), new Vector2(-326f, 78f), new Vector2(180f, 44f));
-        m_runtimeScoreText = score;
-    }
-
-    void CreateBoosterBar(Transform parent)
-    {
-        string[] labels = { "HAMMER\n3", "BOMB\n3", "COLOR\n3", "HAND\n3" };
-        float startX = -300f;
-        for (int i = 0; i < labels.Length; i++)
-        {
-            Button booster = RuntimeUiFactory.CreateButton(parent, "Booster " + (i + 1), labels[i], RuntimeButtonStyle.Secondary);
-            RectTransform rectTransform = booster.GetComponent<RectTransform>();
-            rectTransform.anchorMin = new Vector2(0.5f, 0f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0f);
-            rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            rectTransform.anchoredPosition = new Vector2(startX + i * 200f, 76f);
-            rectTransform.sizeDelta = new Vector2(150f, 108f);
-            booster.interactable = false;
-            Text label = booster.GetComponentInChildren<Text>();
-            if (label != null)
-            {
-                label.fontSize = 21;
-            }
-            RuntimeUiFactory.AddMotion(rectTransform, RuntimeUiMotionType.SlideFromBottom, 28f + i * 8f, 1f, 0.38f);
-        }
     }
 
     public void ShowModal(Sprite icon, string title, string body, string primaryLabel, Action primaryAction, string secondaryLabel = null, Action secondaryAction = null)
