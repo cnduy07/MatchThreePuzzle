@@ -43,7 +43,7 @@ Started: 2026-07-02
 Closed: 2026-07-02
 Notes: Level-map-only worktree. Runtime Level Select polish completed in LevelMapSceneUiBuilder.cs without editing shared scene flow, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or LevelData assets.
 
-[ACTIVE] Game scene HUD polish worktree
+[DONE] Game scene HUD polish worktree
 
 Branch: codex/gamescene
 Domains touched (see docs/OWNERSHIP.md): Game Scene HUD Builder
@@ -51,8 +51,8 @@ Agent role: Feature Agent
 Files/scenes expected to change: Assets/Scripts/UI/GameSceneHudBuilder.cs
 Shared API changes: no
 Started: 2026-07-02
-Closed: in progress
-Notes: Gameplay-HUD-only worktree. Do not edit RuntimeUiShell.cs, SceneFlow.cs, RuntimeUiFactory.cs, scenes, prefabs, Shared APIs, or gameplay rules from this branch.
+Closed: 2026-07-02
+Notes: Gameplay-HUD-only worktree. Completed runtime HUD polish in GameSceneHudBuilder.cs only. Unity batchmode verification is blocked by unrelated TextMesh Pro example compile errors in VertexZoom.cs and TMP_TextSelector_B.cs.
 
 [DONE] Split runtime UI builders for parallel scene work
 
