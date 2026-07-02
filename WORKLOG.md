@@ -21,7 +21,7 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
-[ACTIVE] Menu scene polish worktree
+[DONE] Menu scene polish worktree
 
 Branch: codex/menuscene
 Domains touched (see docs/OWNERSHIP.md): Menu Scene Builder
@@ -29,7 +29,7 @@ Agent role: Feature Agent
 Files/scenes expected to change: Assets/Scripts/Flow/MenuSceneUiBuilder.cs
 Shared API changes: no
 Started: 2026-07-02
-Closed: in progress
+Closed: 2026-07-02
 Notes: Menu-only worktree. Do not edit SceneFlow.cs, SceneBootstrapper.cs, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or level data from this branch.
 
 [ACTIVE] Level map scene polish worktree
