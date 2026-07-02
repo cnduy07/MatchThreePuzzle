@@ -21,10 +21,43 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
+[ACTIVE] Menu scene polish worktree
+
+Branch: codex/menuscene
+Domains touched (see docs/OWNERSHIP.md): Menu Scene Builder
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Flow/MenuSceneUiBuilder.cs
+Shared API changes: no
+Started: 2026-07-02
+Closed: in progress
+Notes: Menu-only worktree. Do not edit SceneFlow.cs, SceneBootstrapper.cs, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or level data from this branch.
+
+[ACTIVE] Level map scene polish worktree
+
+Branch: codex/levelmapscene
+Domains touched (see docs/OWNERSHIP.md): Level Map Scene Builder
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Flow/LevelMapSceneUiBuilder.cs
+Shared API changes: no
+Started: 2026-07-02
+Closed: in progress
+Notes: Level-map-only worktree. Do not edit SceneFlow.cs, SceneBootstrapper.cs, RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, or LevelData assets from this branch.
+
+[ACTIVE] Game scene HUD polish worktree
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Game Scene HUD Builder
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/UI/GameSceneHudBuilder.cs
+Shared API changes: no
+Started: 2026-07-02
+Closed: in progress
+Notes: Gameplay-HUD-only worktree. Do not edit RuntimeUiShell.cs, SceneFlow.cs, RuntimeUiFactory.cs, scenes, prefabs, Shared APIs, or gameplay rules from this branch.
+
 [DONE] Split runtime UI builders for parallel scene work
 
 Branch: codex/architecture-ui-split
-Domains touched (see docs/OWNERSHIP.md): Scene Flow & UI Shell, Documentation & Process
+Domains touched (see docs/OWNERSHIP.md): Shared Scene Flow & UI Shell, Documentation & Process
 Agent role: Architecture Agent
 Files/scenes expected to change: Assets/Scripts/Flow/SceneBootstrapper.cs, Assets/Scripts/Flow/MenuSceneUiBuilder.cs, Assets/Scripts/Flow/LevelMapSceneUiBuilder.cs, Assets/Scripts/UI/RuntimeUiShell.cs, Assets/Scripts/UI/GameSceneHudBuilder.cs, docs/CODEBASE_OVERVIEW.md, docs/SCENE_UI_ARCHITECTURE.md, docs/OWNERSHIP.md, WORKLOG.md
 Shared API changes: no
