@@ -23,6 +23,8 @@ public class LevelData : ScriptableObject
 {
     public int levelId = 1;
     public string displayName = "Level 1";
+    public ThemeData themeData;
+    public PieceSetData pieceSetData;
 
     [Min(1)]
     public int boardWidth = 7;

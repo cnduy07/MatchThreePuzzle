@@ -44,14 +44,23 @@ Implemented first pass:
 - `RuntimeUiShell` runtime-builds a shared settings overlay opened from both Menu and Pause.
 - `Assets/Data/Levels/Level_001.asset` is the first tuned data-driven version of the old scene's board setup.
 - `Assets/Data/Levels/Level_001.asset` through `Level_005.asset` are registered in `LevelDatabase`.
+- `PieceSetData`, `ThemeData`, and `GameResourceLibrary` provide the first shared resource/theme layer for current pieces, tiles, UI colors, and future UI prefab slots.
+- `Assets/Prefabs/UI/Shared/` contains placeholder shared UI prefabs already referenced by `ClassicTheme`.
+- `Assets/Concept/` contains menu, level-map, and gameplay visual references; gameplay includes a monster-door threat scene above the board.
 - `PlayerProgress` stores local progression and settings data through `PlayerPrefs`.
 - Level Select shows locked/unlocked state, completion stars, and best score.
 - Winning a level records the result and unlocks the next registered level.
 - Settings persist audio and haptics toggle state locally.
+- Menu, Level Select, and Game runtime UI now use concept-like placeholder layouts based on `Assets/Concept/`.
+- Game HUD includes placeholder top counters/objective, monster-door threat area, score, boosters, and pause control.
+- Runtime concept HUD owns gameplay counters while legacy scene HUD panels, text, and old score decoration are hidden to avoid duplicate UI.
+- Game board camera framing reserves more top presentation space so the board sits lower under the monster-door concept area.
+- Placeholder UI uses small runtime motion effects for hierarchy and feedback.
 
 Still planned for scene/UI:
 
-- final shared pixel-art UI prefabs for buttons, panels, level cards, and settings rows
+- final pixel-art replacement for shared UI prefab sprites and sliced panels
+- final concept-accurate sprite replacement for menu, level-map, gameplay HUD, resource counters, boosters, and bottom navigation
 - phone/iPad visual verification and final responsive HUD tuning
 - additional data-driven levels beyond the first five
 
@@ -95,8 +104,9 @@ Progression screen. Responsibilities:
 - show level objective preview
 - select a level and start game
 - return to menu
+- present levels as a concept-style map path with themed region placeholders
 
-Start with a simple scrollable level grid. A world map can be added later after the core flow is stable.
+The current implementation uses a placeholder world-map layout rather than the earlier simple grid. Final map art and node sprites still need approved assets.
 
 ### Game Scene
 
@@ -106,6 +116,7 @@ Reusable gameplay scene. Responsibilities:
 - load selected `ThemeData`
 - configure board, moves, goals, pieces, tiles, blockers, collectibles
 - show gameplay HUD
+- show concept-driven threat presentation above the board
 - open pause/settings/tutorial/win/lose overlays
 - report result to save/progression system
 
@@ -218,7 +229,7 @@ Should eventually define:
 
 ### ThemeData
 
-Should define reusable visual/audio style:
+Defines reusable visual/audio style. The first implementation exists and currently includes:
 
 - gameplay background
 - board tile sprites
@@ -232,6 +243,7 @@ Should define reusable visual/audio style:
 - music clips
 - UI sounds
 - palette notes
+- UI prefab slots for primary, secondary, icon button, panel frame, modal, top bar, currency counter, level card, objective item, toggle row, slider row, and loading overlay
 
 ThemeData allows worlds or seasons later without duplicating gameplay code.
 
@@ -243,8 +255,8 @@ Recommended:
 
 - one normal piece prefab pattern, configured by sprite and match value
 - one row bomb prefab pattern per match value only if current code requires separate prefabs
-- shared UI button prefab with different labels/icons
-- shared modal prefab for pause/win/lose variants
+- shared UI button prefab with different labels/icons through semantic `RuntimeButtonStyle`
+- shared modal prefab for pause/win/lose variants through semantic `RuntimePanelStyle`
 - shared background/theme references through ThemeData
 - sprite atlases grouped by gameplay, UI, and backgrounds
 

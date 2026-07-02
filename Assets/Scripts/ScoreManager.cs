@@ -36,9 +36,26 @@ public class ScoreManager : Singleton<ScoreManager>
 
     public void UpdateScoreText(int scoreValue)
     {
-        if (scoreText != null)
+        RuntimeUiShell shell = RuntimeUiShell.Active;
+        if (shell == null && scoreText != null)
         {
             scoreText.text = scoreValue.ToString();
+        }
+        else if (shell != null)
+        {
+            if (scoreText != null)
+            {
+                GameObject legacyScoreObject = scoreText.gameObject;
+                Transform parent = scoreText.transform.parent;
+                if (parent != null && parent.GetComponent<Canvas>() == null)
+                {
+                    legacyScoreObject = parent.gameObject;
+                }
+
+                legacyScoreObject.SetActive(false);
+            }
+
+            shell.UpdateGameplayScore(scoreValue);
         }
     }
 

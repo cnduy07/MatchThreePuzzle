@@ -21,14 +21,20 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Scenes/Level Select.unity` - runtime-built level grid.
 - `Assets/Scenes/Game.unity` - reusable gameplay scene driven by `LevelData`.
 - `Assets/Scenes/Level 1.unity` - legacy reference gameplay scene, disabled in build settings.
+- `Assets/Concept/` - visual/UX references for menu, level map, and gameplay scene direction.
 - `Assets/Scripts/` - all custom C# gameplay and UI flow scripts.
 - `Assets/Scripts/Flow/` - scene names, scene navigation, and scene bootstrap UI.
 - `Assets/Scripts/UI/` - reusable runtime UI shell, safe-area root, runtime settings state, and UI element factory.
 - `Assets/Scripts/PlayerProgress.cs` - local `PlayerPrefs` JSON save data for progression, best scores, stars, and settings.
 - `Assets/Scripts/LevelData.cs`, `LevelDatabase.cs`, `LevelLoader.cs` - first ScriptableObject level-data foundation.
+- `Assets/Scripts/ThemeData.cs`, `PieceSetData.cs`, `GameResourceLibrary.cs` - shared theme, piece-set, and resource registry foundation.
 - `Assets/Data/Levels/Level_001.asset` through `Level_005.asset` - first data-driven playable level set.
+- `Assets/Data/PieceSets/ClassicPieceSet.asset` - shared default references for current normal pieces, bombs, collectibles, and blockers.
+- `Assets/Data/Themes/ClassicTheme.asset` - shared default placeholder theme for tile, UI color, UI prefab, sprite, and palette references.
+- `Assets/Resources/GameResourceLibrary.asset` - runtime-loaded default theme and piece-set registry.
 - `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels used by level select, loading, and next-level flow.
 - `Assets/Prefabs/UI/RuntimeUiShell.prefab` - reusable shell prefab marker for shared modal/pause UI.
+- `Assets/Prefabs/UI/Shared/` - generated placeholder shared UI prefab library for buttons, panels, level cards, rows, counters, and loading overlay.
 - `Assets/Prefabs/Dots/` - normal match-piece prefabs.
 - `Assets/Prefabs/Bombs/` - row, column, adjacent, and color bomb prefabs.
 - `Assets/Prefabs/Tiles/` - normal, breakable, double-breakable, obstacle tile prefabs.
@@ -213,7 +219,24 @@ Important risks:
 
 - `Assets/Scenes/Game.unity` has a `LevelLoader` assigned to `Level_001`. `LevelLoader` also prefers the level selected through `SceneFlow`.
 - Levels 1-5 currently use score goals and matching score objective targets. Keep those values aligned until score objectives are resolved through a dedicated objective system.
+- Levels can now reference `ThemeData` and `PieceSetData`. Direct prefab arrays on `LevelData` still act as level-specific overrides and are intentionally preserved for compatibility.
 - Objective type and target count are stored but not yet resolved by game rules beyond the existing score goal.
+
+### `ThemeData.cs`, `PieceSetData.cs`, `GameResourceLibrary.cs`
+
+First pass of the shared resource/theme layer. Responsibilities include:
+
+- grouping normal pieces, bomb variants, collectibles, and blockers into reusable `PieceSetData`
+- grouping default piece set, tile references, UI sprites, UI prefab slots, UI colors, background, music, and palette notes into `ThemeData`
+- loading a default resource registry from `Assets/Resources/GameResourceLibrary.asset`
+- letting `Board.ApplyLevelData()` resolve missing level-specific prefab references through the selected theme/piece set
+- letting runtime menu/overlay UI use semantic button and panel styles that can later resolve to shared prefab art
+
+Important risks:
+
+- Current shared assets still point at placeholder/prototype prefabs and colors. They are a reuse foundation, not final art.
+- Existing levels retain direct prefab overrides, so later cleanup can remove duplicated arrays level by level after validation.
+- Shared UI prefab slots are wired to placeholder prefabs under `Assets/Prefabs/UI/Shared/`; replace their art/sprites during the final pixel-art UI pass.
 
 ### `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`
 
@@ -346,10 +369,17 @@ Runtime UI:
 
 - Runtime start, pause, win, and lose overlays in the reusable Game scene.
 - Shared settings overlay opened from both Menu and Pause.
+- Runtime menu and overlay controls now resolve semantic button/panel styles through `ThemeData`, using shared placeholder prefabs with generated-control fallback.
+- Menu runtime UI now follows the `Assets/Concept/menuscene.png` structure with placeholder resource counters, large logo, stacked action buttons, settings button, progress sign, and bottom navigation.
+- Level Select runtime UI now follows the `Assets/Concept/levelmapscene.png` structure with placeholder resource counters, region labels, path segments, level nodes, locked worlds, and bottom navigation.
+- Game runtime UI now follows the `Assets/Concept/gamescene.png` structure with placeholder level/goal/moves panels, monster-door threat area, score, bottom boosters, and pause control.
+- No-moves loss now plays a concept-inspired monster rush/door attack animation before the lose modal.
+- Legacy scene HUD panels/text and old score decoration are hidden when the runtime concept HUD is active, preventing duplicate old/new UI.
+- Major placeholder UI elements use lightweight runtime motion for slide-in, pulse, and floating feedback.
 - Persistent audio toggle through `AudioListener.volume`.
 - Persistent haptics toggle stub for a future haptics service.
 - First-pass safe-area-aware layout root for menu, level select, HUD controls, and overlays.
-- First-pass camera/board fit that uses safe-area aspect ratio and reserves top/bottom HUD room.
+- First-pass camera/board fit that uses safe-area aspect ratio and reserves extra top room so the board sits lower under the concept HUD/threat area.
 
 ## Missing / Not Release-Ready Features
 
@@ -359,7 +389,8 @@ Runtime UI:
 - Tutorial.
 - Real haptics service integration.
 - Additional objective rules beyond score-goal flow.
-- Shared `ThemeData`, `PieceSetData`, sprite atlas, and resource/theme structure.
+- Final art-filled UI prefab pass, sprite atlas grouping, and art-filled theme assets.
+- Final concept-accurate sprite/art replacement for menu, level map, gameplay HUD, boosters, and resource counters.
 - Pixel-art replacement pass.
 - App icon and launch screen.
 - App Store metadata and screenshots.

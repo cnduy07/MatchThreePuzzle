@@ -127,6 +127,23 @@ Minimum finished game:
 - level lose
 - credits/licenses
 
+## Concept Reference Direction
+
+Use `Assets/Concept/` as the current UI/UX visual target:
+
+- `menuscene.png` targets a full-screen illustrated home scene with resource counters, large logo, stacked primary actions, settings, and bottom navigation.
+- `levelmapscene.png` targets a world-map level select with themed regions, path-based level nodes, star ratings, locks, and bottom navigation.
+- `gamescene.png` targets a gameplay scene with top counters/objectives, a visible monster-and-door threat scene above the board, boosters below the board, and a pause button.
+
+The gameplay threat scene is part of the product fantasy: when the player runs out of moves, the monster should rush the door and attack before the lose overlay appears. Until approved monster/door sprites exist, implementation should use placeholder theme slots and shared prefabs rather than generated art.
+
+Current implementation status:
+
+- Menu uses a concept-style placeholder layout with top resources, large logo, stacked actions, settings, progress sign, and bottom nav.
+- Level Select uses a concept-style placeholder map with region labels, path segments, level nodes, locks, and bottom nav.
+- Gameplay uses a concept-style placeholder HUD with level/goal/moves counters, monster-door threat area, score, boosters, and pause.
+- Final approved art is still required for backgrounds, logo, icons, buttons, boosters, map regions, nodes, monster, and door.
+
 Optional later:
 
 - shop

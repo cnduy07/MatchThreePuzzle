@@ -87,7 +87,7 @@ Current status:
 - `SafeAreaRoot` constrains runtime menu, level select, and gameplay overlay content to `Screen.safeArea`.
 - Settings open from both Menu and Pause through the shared `RuntimeUiShell` settings overlay.
 - Settings persist audio on/off through `AudioListener.volume` and persist a haptics toggle stub for future haptics service work.
-- `Board.SettupCamera()` now uses safe-area aspect ratio, reserves top/bottom world-space margins for HUD/home-area UI, and uses a 9-world-unit minimum board fit height baseline.
+- `Board.SettupCamera()` now uses safe-area aspect ratio, reserves extra top world-space room for the concept HUD/threat area, keeps a smaller bottom margin, and uses a 9-world-unit minimum board fit height baseline.
 - The legacy `Level 1` scene remains disabled in build settings as a reference.
 - `GameManager` and `ScoreManager` are scene-local singleton subclasses so retry and level reloads create fresh gameplay state.
 
@@ -110,7 +110,7 @@ Remaining Phase 3 work:
 
 ## Camera And Board Fit Open Item
 
-Current code has an improved first-pass board-fit implementation in `Board.SettupCamera()`: it centers the camera on the board with a slight HUD/home-area offset, computes vertical and horizontal orthographic sizes from `width`, `height`, `borderSize`, reserved top/bottom world-space margins, and `Screen.safeArea` aspect ratio, then chooses the larger size. Smaller boards use a 9-world-unit minimum board fit height baseline so iPad-style layouts do not zoom too aggressively.
+Current code has an improved first-pass board-fit implementation in `Board.SettupCamera()`: it centers the camera on the board with a concept-HUD offset that leaves more visible space above the board, computes vertical and horizontal orthographic sizes from `width`, `height`, `borderSize`, reserved top/bottom world-space margins, and `Screen.safeArea` aspect ratio, then chooses the larger size. Smaller boards use a 9-world-unit minimum board fit height baseline so iPad-style layouts do not zoom too aggressively.
 
 Target approach to design during Phase 3:
 
@@ -149,6 +149,20 @@ Remaining Phase 4 tuning:
 
 ## Phase 4.5: Resource And Theme Reuse
 
+Current status:
+
+- Initial `PieceSetData`, `ThemeData`, and `GameResourceLibrary` ScriptableObject types exist.
+- `Assets/Data/PieceSets/ClassicPieceSet.asset` centralizes the current prototype normal pieces, bombs, collectibles, and blocker references.
+- `Assets/Data/Themes/ClassicTheme.asset` centralizes the current placeholder tile reference, UI colors, UI prefab slots, UI sprite slots, and palette notes.
+- `Assets/Resources/GameResourceLibrary.asset` provides runtime defaults for theme and piece-set resolution.
+- `Assets/Prefabs/UI/Shared/` contains placeholder shared prefabs for primary, secondary, and icon buttons, panel/modal surfaces, level card, objective item, toggle row, slider row, top bar, currency counter, and loading overlay.
+- `LevelData` can reference a theme and piece set while preserving direct prefab arrays as level-specific overrides.
+- `Board.ApplyLevelData()` resolves missing level prefab references from the selected shared theme/piece set before setup.
+- `RuntimeUiFactory`, `SceneBootstrapper`, and `RuntimeUiShell` now use semantic button/panel styles so future pixel-art UI prefabs can be swapped through `ThemeData`.
+- Runtime lose flow plays a themed monster-to-door attack animation before the lose modal, matching the `Assets/Concept/gamescene.png` direction with placeholder theme assets.
+- Runtime Menu, Level Select, and Game HUD now use concept-style placeholder layouts for top resources, map nodes, action buttons, boosters, pause/settings, and monster-door presentation.
+- Runtime concept HUD suppresses legacy scene HUD panels/text and old score decoration, and key placeholder UI elements have lightweight motion polish.
+
 Add reusable data and prefab structure before generating many levels or art variants:
 
 - `ThemeData` for background, tiles, pieces, UI sprites, music, and palette notes.
@@ -157,6 +171,14 @@ Add reusable data and prefab structure before generating many levels or art vari
 - sprite atlas grouping for gameplay, UI, and background assets.
 
 Use direct Unity references first. Consider Addressables only when asset count, downloadable content, or memory pressure makes it useful.
+
+Remaining Phase 4.5 work:
+
+- replace placeholder shared UI prefab visuals with approved pixel-art sprites/sliced panels
+- replace the concept-style placeholders with approved sprites, sliced panels, background art, node art, booster icons, and monster/door sprites
+- move level assets away from duplicated direct prefab arrays after shared references are verified in Unity
+- add sprite atlas grouping once approved gameplay/UI art exists
+- add additional theme assets only after one complete theme is validated
 
 ## Phase 5: Pixel-Art Asset Replacement
 

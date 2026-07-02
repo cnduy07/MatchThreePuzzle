@@ -14,6 +14,8 @@ MonoBehaviour:
   m_EditorClassIdentifier:
   levelId: 2
   displayName: Level 2
+  themeData: {fileID: 11400000, guid: 0a921b071ca54c9fbd852599a36c7740, type: 2}
+  pieceSetData: {fileID: 11400000, guid: 2e1bf786ee70442fb43afbd81d368334, type: 2}
   boardWidth: 7
   boardHeight: 9
   moveLimit: 28

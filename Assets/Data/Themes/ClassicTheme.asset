@@ -1,0 +1,58 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d6d2087a4698491286550f4643522e6b, type: 3}
+  m_Name: ClassicTheme
+  m_EditorClassIdentifier:
+  themeId: classic
+  displayName: Classic Theme
+  gameplayBackground: {fileID: 0}
+  loseThreatMonsterSprite: {fileID: 0}
+  loseThreatDoorSprite: {fileID: 0}
+  defaultPieceSet: {fileID: 11400000, guid: 2e1bf786ee70442fb43afbd81d368334, type: 2}
+  normalTilePrefab: {fileID: 897779726052984303, guid: d8a51aa769bcd482a9cec7b0053f0727, type: 3}
+  obstacleTilePrefabs: []
+  musicClip: {fileID: 0}
+  panelSprite: {fileID: 0}
+  primaryButtonSprite: {fileID: 0}
+  secondaryButtonSprite: {fileID: 0}
+  iconButtonSprite: {fileID: 0}
+  levelCardSprite: {fileID: 0}
+  objectiveBadgeSprite: {fileID: 0}
+  currencyCounterSprite: {fileID: 0}
+  toggleBackgroundSprite: {fileID: 0}
+  primaryButtonPrefab: {fileID: 6801005246732233141, guid: 273f031d479496144a892f13d86dc1df, type: 3}
+  secondaryButtonPrefab: {fileID: 5280266998984895985, guid: 9cbf0f7082bbb0c4cb05a8078d7781b8, type: 3}
+  iconButtonPrefab: {fileID: 1897192352505070100, guid: e5697a6ae69cd9b4cb412bda9a33d438, type: 3}
+  panelFramePrefab: {fileID: 6892476749751514794, guid: b3c4b1c983430784da2d632a39420933, type: 3}
+  modalWindowPrefab: {fileID: 6512365474153978131, guid: fb2ccb42e5755504e894a84903fe8b0c, type: 3}
+  topBarPrefab: {fileID: 935159262019973259, guid: 49913d0837d2fce49bc4c9e2c6a54ec2, type: 3}
+  currencyCounterPrefab: {fileID: 681997480912597299, guid: 56fab897ae1af87418539b862d18ea80, type: 3}
+  levelCardPrefab: {fileID: 1498385505041022265, guid: 65fbfdad356f6434482bd1e6f07d1ad2, type: 3}
+  objectiveItemPrefab: {fileID: 7518947196873485434, guid: a79b39e9f5cc6d0458f2ad62b790e46c, type: 3}
+  toggleRowPrefab: {fileID: 1407628904581777051, guid: 296deadea78fb6248a2fa7750f8a07c8, type: 3}
+  sliderRowPrefab: {fileID: 8279988891842845383, guid: 21853b509faea29459de7b61a7025a49, type: 3}
+  loadingOverlayPrefab: {fileID: 7133935519621038140, guid: 29539c78c575cb8499d76cb27ced1446, type: 3}
+  loseThreatStagePrefab: {fileID: 7142971264409921381, guid: 42db470122254a9bb8ea87429f6a6a6b, type: 3}
+  backgroundColor: {r: 0.06, g: 0.08, b: 0.1, a: 1}
+  dimmerColor: {r: 0, g: 0, b: 0, a: 0.62}
+  dialogColor: {r: 0.08, g: 0.09, b: 0.12, a: 0.97}
+  surfaceColor: {r: 0.24, g: 0.26, b: 0.31, a: 1}
+  primaryButtonColor: {r: 0.11, g: 0.49, b: 0.76, a: 1}
+  secondaryButtonColor: {r: 0.24, g: 0.26, b: 0.31, a: 1}
+  iconButtonColor: {r: 0.12, g: 0.12, b: 0.16, a: 0.82}
+  loseThreatMonsterColor: {r: 0.45, g: 0.16, b: 0.72, a: 1}
+  loseThreatDoorColor: {r: 0.47, g: 0.25, b: 0.09, a: 1}
+  loseThreatAlertColor: {r: 0.72, g: 0.08, b: 0.05, a: 0.38}
+  primaryTextColor: {r: 1, g: 1, b: 1, a: 1}
+  secondaryTextColor: {r: 0.86, g: 0.9, b: 0.95, a: 1}
+  paletteNotes: Existing placeholder runtime palette. Replace colors, sprites, and
+    prefab references during the approved pixel-art UI pass.

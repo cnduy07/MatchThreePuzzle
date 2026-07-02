@@ -52,10 +52,10 @@ public class GameManager : Singleton<GameManager>
         m_uiShell = RuntimeUiShell.CreateOrFind();
         if (m_uiShell != null)
         {
-            HideLegacyMessageWindow();
+            HideLegacyUi();
         }
 
-        if (levelNameText != null)
+        if (m_uiShell == null && levelNameText != null)
         {
             Scene scene = SceneManager.GetActiveScene();
             levelNameText.text = string.IsNullOrEmpty(m_levelDisplayName) ? scene.name : m_levelDisplayName;
@@ -67,6 +67,10 @@ public class GameManager : Singleton<GameManager>
         }
 
         UpdateMoves();
+        if (m_uiShell != null)
+        {
+            m_uiShell.CreateGameplayHud(m_activeLevelData, movesLeft, scoreGoal, PauseGame);
+        }
 
         StartCoroutine("ExecuteGameLoop");
     }
@@ -87,9 +91,14 @@ public class GameManager : Singleton<GameManager>
 
     public void UpdateMoves()
     {
-        if (movesLeftText != null)
+        if (m_uiShell == null && movesLeftText != null)
         {
             movesLeftText.text = movesLeft.ToString();
+        }
+
+        if (m_uiShell != null)
+        {
+            m_uiShell.UpdateGameplayMoves(movesLeft);
         }
     }
 
@@ -135,7 +144,7 @@ public class GameManager : Singleton<GameManager>
             m_board.SetupBoard();
             if (m_uiShell != null)
             {
-                m_uiShell.CreatePauseButton(PauseGame);
+                m_uiShell.UpdateGameplayMoves(movesLeft);
             }
         }
     }
@@ -236,6 +245,7 @@ public class GameManager : Singleton<GameManager>
             {
                 bool retrySelected = false;
                 bool levelSelectSelected = false;
+                yield return StartCoroutine(m_uiShell.PlayLoseThreatAnimation());
                 m_uiShell.ShowModal(loseIcon, "You lose", "No moves left", "Retry", () => retrySelected = true, "Levels", () => levelSelectSelected = true);
                 while (!retrySelected && !levelSelectSelected)
                 {
@@ -293,12 +303,32 @@ public class GameManager : Singleton<GameManager>
         return "Score: " + finalScore + "\n" + stars;
     }
 
-    void HideLegacyMessageWindow()
+    void HideLegacyUi()
     {
         if (messageWindow != null)
         {
             messageWindow.gameObject.SetActive(false);
         }
+
+        HideLegacyTextGroup(levelNameText);
+        HideLegacyTextGroup(movesLeftText);
+    }
+
+    void HideLegacyTextGroup(Text text)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        GameObject target = text.gameObject;
+        Transform parent = text.transform.parent;
+        if (parent != null && parent.GetComponent<Canvas>() == null)
+        {
+            target = parent.gameObject;
+        }
+
+        target.SetActive(false);
     }
 
     IEnumerator WaitForRuntimeModal(Sprite icon, string title, string body, string primaryLabel)

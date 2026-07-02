@@ -3,9 +3,93 @@ using UnityEngine.EventSystems;
 using UnityEngine.SceneManagement;
 using UnityEngine.UI;
 
+public enum RuntimeUiMotionType
+{
+    None,
+    Float,
+    Pulse,
+    SlideFromBottom,
+    SlideFromTop
+}
+
+public class RuntimeUiMotion : MonoBehaviour
+{
+    public RuntimeUiMotionType motionType = RuntimeUiMotionType.None;
+    public float amplitude = 8f;
+    public float frequency = 1f;
+    public float introDuration = 0.35f;
+
+    RectTransform m_rectTransform;
+    Vector2 m_basePosition;
+    Vector3 m_baseScale;
+    float m_startTime;
+
+    void Awake()
+    {
+        CaptureBaseState();
+    }
+
+    public void Configure(RuntimeUiMotionType type, float motionAmplitude, float motionFrequency, float motionIntroDuration)
+    {
+        motionType = type;
+        amplitude = motionAmplitude;
+        frequency = motionFrequency;
+        introDuration = motionIntroDuration;
+        CaptureBaseState();
+    }
+
+    void CaptureBaseState()
+    {
+        m_rectTransform = GetComponent<RectTransform>();
+        if (m_rectTransform == null)
+        {
+            enabled = false;
+            return;
+        }
+
+        m_basePosition = m_rectTransform.anchoredPosition;
+        m_baseScale = transform.localScale;
+        m_startTime = Time.unscaledTime;
+
+        if (motionType == RuntimeUiMotionType.SlideFromBottom)
+        {
+            m_rectTransform.anchoredPosition = m_basePosition + new Vector2(0f, -amplitude);
+        }
+        else if (motionType == RuntimeUiMotionType.SlideFromTop)
+        {
+            m_rectTransform.anchoredPosition = m_basePosition + new Vector2(0f, amplitude);
+        }
+    }
+
+    void Update()
+    {
+        float elapsed = Time.unscaledTime - m_startTime;
+        float introT = introDuration > 0f ? Mathf.Clamp01(elapsed / introDuration) : 1f;
+        float easedIntro = introT * introT * (3f - 2f * introT);
+
+        switch (motionType)
+        {
+            case RuntimeUiMotionType.Float:
+                m_rectTransform.anchoredPosition = m_basePosition + new Vector2(0f, Mathf.Sin(elapsed * frequency * Mathf.PI * 2f) * amplitude);
+                break;
+            case RuntimeUiMotionType.Pulse:
+                float pulse = 1f + Mathf.Sin(elapsed * frequency * Mathf.PI * 2f) * amplitude * 0.01f;
+                transform.localScale = m_baseScale * pulse;
+                break;
+            case RuntimeUiMotionType.SlideFromBottom:
+                m_rectTransform.anchoredPosition = Vector2.LerpUnclamped(m_basePosition + new Vector2(0f, -amplitude), m_basePosition, easedIntro);
+                break;
+            case RuntimeUiMotionType.SlideFromTop:
+                m_rectTransform.anchoredPosition = Vector2.LerpUnclamped(m_basePosition + new Vector2(0f, amplitude), m_basePosition, easedIntro);
+                break;
+        }
+    }
+}
+
 public static class RuntimeUiFactory
 {
     static Font s_defaultFont;
+    static ThemeData s_themeData;
 
     public static Font DefaultFont
     {
@@ -22,6 +106,23 @@ public static class RuntimeUiFactory
             }
 
             return s_defaultFont;
+        }
+    }
+
+    public static ThemeData Theme
+    {
+        get
+        {
+            if (s_themeData == null)
+            {
+                s_themeData = GameResourceLibrary.ResolveTheme(null);
+            }
+
+            return s_themeData;
+        }
+        set
+        {
+            s_themeData = value;
         }
     }
 
@@ -97,6 +198,50 @@ public static class RuntimeUiFactory
         return rectTransform;
     }
 
+    public static RectTransform CreatePanel(Transform parent, string name, RuntimePanelStyle style)
+    {
+        ThemeData theme = Theme;
+        GameObject panelPrefab = theme != null ? theme.GetPanelPrefab(style) : null;
+        Color color = theme != null ? theme.GetPanelColor(style) : GetFallbackPanelColor(style);
+        Sprite sprite = theme != null ? theme.GetPanelSprite(style) : null;
+
+        GameObject panelObject = null;
+        if (panelPrefab != null)
+        {
+            panelObject = Object.Instantiate(panelPrefab, parent, false);
+            panelObject.name = name;
+            if (panelObject.GetComponent<RectTransform>() == null)
+            {
+                Object.Destroy(panelObject);
+                panelObject = null;
+            }
+        }
+
+        if (panelObject == null)
+        {
+            panelObject = new GameObject(name, typeof(RectTransform), typeof(Image));
+            panelObject.transform.SetParent(parent, false);
+        }
+
+        RectTransform rectTransform = panelObject.GetComponent<RectTransform>();
+        Stretch(rectTransform);
+
+        Image image = panelObject.GetComponent<Image>();
+        if (image == null)
+        {
+            image = panelObject.AddComponent<Image>();
+        }
+
+        image.color = color;
+        if (sprite != null)
+        {
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+        }
+
+        return rectTransform;
+    }
+
     public static RectTransform CreateSafeAreaRoot(Transform parent, string name)
     {
         GameObject safeAreaObject = new GameObject(name, typeof(RectTransform), typeof(SafeAreaRoot));
@@ -150,6 +295,112 @@ public static class RuntimeUiFactory
         return button;
     }
 
+    public static Button CreateButton(Transform parent, string name, string label, RuntimeButtonStyle style)
+    {
+        ThemeData theme = Theme;
+        Color normalColor = theme != null ? theme.GetButtonColor(style) : GetFallbackButtonColor(style);
+        Color textColor = theme != null ? theme.primaryTextColor : Color.white;
+        Sprite sprite = theme != null ? theme.GetButtonSprite(style) : null;
+        GameObject buttonPrefab = theme != null ? theme.GetButtonPrefab(style) : null;
+
+        GameObject buttonObject = null;
+        if (buttonPrefab != null)
+        {
+            buttonObject = Object.Instantiate(buttonPrefab, parent, false);
+            buttonObject.name = name;
+            if (buttonObject.GetComponent<RectTransform>() == null)
+            {
+                Object.Destroy(buttonObject);
+                buttonObject = null;
+            }
+        }
+
+        if (buttonObject == null)
+        {
+            buttonObject = new GameObject(name, typeof(RectTransform), typeof(Image), typeof(Button));
+            buttonObject.transform.SetParent(parent, false);
+        }
+
+        Image image = buttonObject.GetComponent<Image>();
+        if (image == null)
+        {
+            image = buttonObject.AddComponent<Image>();
+        }
+
+        image.color = normalColor;
+        if (sprite != null)
+        {
+            image.sprite = sprite;
+            image.type = Image.Type.Sliced;
+        }
+
+        Button button = buttonObject.GetComponent<Button>();
+        if (button == null)
+        {
+            button = buttonObject.AddComponent<Button>();
+        }
+
+        ApplyButtonColors(button, normalColor);
+        SetButtonLabel(buttonObject.transform, label, textColor);
+
+        return button;
+    }
+
+    static void ApplyButtonColors(Button button, Color normalColor)
+    {
+        ColorBlock colors = button.colors;
+        colors.normalColor = normalColor;
+        colors.highlightedColor = Color.Lerp(normalColor, Color.white, 0.18f);
+        colors.pressedColor = Color.Lerp(normalColor, Color.black, 0.18f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.disabledColor = new Color(0.45f, 0.45f, 0.45f, 0.55f);
+        button.colors = colors;
+    }
+
+    static void SetButtonLabel(Transform buttonTransform, string label, Color textColor)
+    {
+        Text text = buttonTransform.GetComponentInChildren<Text>();
+        if (text == null)
+        {
+            text = CreateText(buttonTransform, "Label", label, 34, textColor, TextAnchor.MiddleCenter);
+            Stretch(text.GetComponent<RectTransform>(), 18f, 6f, 18f, 6f);
+            return;
+        }
+
+        text.font = DefaultFont;
+        text.text = label;
+        text.color = textColor;
+        text.alignment = TextAnchor.MiddleCenter;
+    }
+
+    static Color GetFallbackButtonColor(RuntimeButtonStyle style)
+    {
+        switch (style)
+        {
+            case RuntimeButtonStyle.Primary:
+                return new Color(0.11f, 0.49f, 0.76f, 1f);
+            case RuntimeButtonStyle.Icon:
+                return new Color(0.12f, 0.12f, 0.16f, 0.82f);
+            default:
+                return new Color(0.24f, 0.26f, 0.31f, 1f);
+        }
+    }
+
+    static Color GetFallbackPanelColor(RuntimePanelStyle style)
+    {
+        switch (style)
+        {
+            case RuntimePanelStyle.Background:
+                return new Color(0.06f, 0.08f, 0.1f, 1f);
+            case RuntimePanelStyle.Dimmer:
+                return new Color(0f, 0f, 0f, 0.62f);
+            case RuntimePanelStyle.Dialog:
+                return new Color(0.08f, 0.09f, 0.12f, 0.97f);
+            default:
+                return new Color(0.24f, 0.26f, 0.31f, 1f);
+        }
+    }
+
     public static void Stretch(RectTransform rectTransform, float left = 0f, float bottom = 0f, float right = 0f, float top = 0f)
     {
         rectTransform.anchorMin = Vector2.zero;
@@ -174,5 +425,17 @@ public static class RuntimeUiFactory
         rectTransform.pivot = new Vector2(0.5f, 0.5f);
         rectTransform.anchoredPosition = anchoredPosition;
         rectTransform.sizeDelta = size;
+    }
+
+    public static RuntimeUiMotion AddMotion(RectTransform rectTransform, RuntimeUiMotionType motionType, float amplitude, float frequency = 1f, float introDuration = 0.35f)
+    {
+        RuntimeUiMotion motion = rectTransform.GetComponent<RuntimeUiMotion>();
+        if (motion == null)
+        {
+            motion = rectTransform.gameObject.AddComponent<RuntimeUiMotion>();
+        }
+
+        motion.Configure(motionType, amplitude, frequency, introDuration);
+        return motion;
     }
 }

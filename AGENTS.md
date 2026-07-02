@@ -28,8 +28,10 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 - Build scene flow: `Assets/Scenes/Boot.unity` -> `Menu.unity` -> `Level Select.unity` -> `Game.unity`.
 - Reference legacy scene: `Assets/Scenes/Level 1.unity`.
 - Core gameplay scripts: `Assets/Scripts/Board.cs`, `GamePiece.cs`, `Tile.cs`, `Bomb.cs`, `Collectibles.cs`, `LevelData.cs`, `LevelDatabase.cs`.
+- Shared resource scripts: `ThemeData.cs`, `PieceSetData.cs`, `GameResourceLibrary.cs`.
 - Game flow scripts: `GameManager.cs`, `ScoreManager.cs`, `SoundManager.cs`, `LevelLoader.cs`, `SceneFlow.cs`, `SceneBootstrapper.cs`, `RuntimeUiShell.cs`, `PlayerProgress.cs`, `MessageWindow.cs`, `ScreenFader.cs`, `RectXformMove.cs`, `Singleton.cs`.
 - Existing gameplay: board fill, swap, match detection, cascades, score, move limit, row bombs, column bombs, adjacent bombs, color bombs, breakable tiles, obstacles, collectibles, basic particles, basic sounds, start/win/lose dialogs, first-pass local progression save.
+- Visual/UX concept references: `Assets/Concept/menuscene.png`, `levelmapscene.png`, and `gamescene.png`.
 - Target platforms: iPhone and iPad.
 - Target store: Apple App Store.
 - Target art direction: cohesive pixel-art match-3 puzzle game.
@@ -45,6 +47,7 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 - Prefer Unity built-ins already in the project before adding runtime packages.
 - Keep mobile performance and touch UX in mind for every gameplay, UI, and art decision.
 - Follow the scene/UI architecture in `docs/SCENE_UI_ARCHITECTURE.md`: small scene set, reusable overlay panels, data-driven levels, shared UI prefabs, and theme/resource reuse.
+- For UI/UX layout and product feel, refer to `Assets/Concept/` before changing menu, level select, gameplay HUD, boosters, win/lose presentation, or visual hierarchy.
 
 ## First Fix Priorities
 
@@ -58,7 +61,7 @@ Use this file as the durable project guide for Codex agents. Read the focused do
 
 1. Phone/iPad visual verification and final responsive HUD tuning.
 2. Final shared UI prefabs replacing runtime placeholder controls.
-3. Shared resource/theme structure and final UI prefab library.
+3. Final pixel-art UI prefab replacement and sprite atlas grouping on top of the new shared UI prefab / `ThemeData` / `PieceSetData` / `GameResourceLibrary` foundation.
 4. Additional LevelData tuning plus objective-rule expansion beyond score goals.
 5. Pixel-art replacement pass using approved assets from the separate artwork workflow.
 

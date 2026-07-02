@@ -7,8 +7,8 @@ using UnityEngine.UI;
 
 public class Board : MonoBehaviour
 {
-    const float TopHudWorldMargin = 1.35f;
-    const float BottomHudWorldMargin = 1.15f;
+    const float TopHudWorldMargin = 2.25f;
+    const float BottomHudWorldMargin = 0.85f;
     const float MinBoardFitHeight = 9f;
 
     public int width;
@@ -128,32 +128,74 @@ public class Board : MonoBehaviour
 
         width = Mathf.Max(1, levelData.boardWidth);
         height = Mathf.Max(1, levelData.boardHeight);
+        ThemeData themeData = GameResourceLibrary.ResolveTheme(levelData.themeData);
+        PieceSetData pieceSetData = GameResourceLibrary.ResolvePieceSet(themeData, levelData.pieceSetData);
 
         if (levelData.normalTilePrefab != null)
         {
             normalTilePrefab = levelData.normalTilePrefab;
         }
+        else if (themeData != null && themeData.normalTilePrefab != null)
+        {
+            normalTilePrefab = themeData.normalTilePrefab;
+        }
 
-        obstacleTilePrefabs = levelData.obstacleTilePrefabs ?? new GameObject[0];
-        rowBombPrefabs = levelData.rowBombPrefabs ?? new GameObject[0];
-        columnBombPrefabs = levelData.columnBombPrefabs ?? new GameObject[0];
-        adjacentBombPrefabs = levelData.adjacentBombPrefabs ?? new GameObject[0];
+        obstacleTilePrefabs = ResolvePrefabArray(
+            levelData.obstacleTilePrefabs,
+            themeData != null ? themeData.obstacleTilePrefabs : null);
+
+        rowBombPrefabs = ResolvePrefabArray(
+            levelData.rowBombPrefabs,
+            pieceSetData != null ? pieceSetData.rowBombPrefabs : null);
+
+        columnBombPrefabs = ResolvePrefabArray(
+            levelData.columnBombPrefabs,
+            pieceSetData != null ? pieceSetData.columnBombPrefabs : null);
+
+        adjacentBombPrefabs = ResolvePrefabArray(
+            levelData.adjacentBombPrefabs,
+            pieceSetData != null ? pieceSetData.adjacentBombPrefabs : null);
 
         if (levelData.colorBombPrefab != null)
         {
             colorBombPrefab = levelData.colorBombPrefab;
         }
+        else if (pieceSetData != null && pieceSetData.colorBombPrefab != null)
+        {
+            colorBombPrefab = pieceSetData.colorBombPrefab;
+        }
 
-        gamePiecePrefabs = levelData.gamePiecePrefabs ?? new GameObject[0];
+        gamePiecePrefabs = ResolvePrefabArray(
+            levelData.gamePiecePrefabs,
+            pieceSetData != null ? pieceSetData.normalPiecePrefabs : null);
+
         startingTiles = ConvertStartingObjects(levelData.startingTiles);
         startingPieces = ConvertStartingObjects(levelData.startingPieces);
         collectibleMax = Mathf.Max(0, levelData.collectibleMax);
         changeForCollectible = Mathf.Clamp01(levelData.chanceForCollectible);
-        collectiblePrefabs = levelData.collectiblePrefabs ?? new GameObject[0];
+        collectiblePrefabs = ResolvePrefabArray(
+            levelData.collectiblePrefabs,
+            pieceSetData != null ? pieceSetData.collectiblePrefabs : null);
+
         collectibleCount = 0;
 
         m_allTiles = new Tile[width, height];
         m_allGamePieces = new GamePiece[width, height];
+    }
+
+    GameObject[] ResolvePrefabArray(GameObject[] levelPrefabs, GameObject[] sharedPrefabs)
+    {
+        if (PieceSetData.HasConfiguredPrefab(levelPrefabs))
+        {
+            return levelPrefabs;
+        }
+
+        if (PieceSetData.HasConfiguredPrefab(sharedPrefabs))
+        {
+            return sharedPrefabs;
+        }
+
+        return new GameObject[0];
     }
 
     StartingGameObject[] ConvertStartingObjects(LevelStartingObject[] levelObjects)
