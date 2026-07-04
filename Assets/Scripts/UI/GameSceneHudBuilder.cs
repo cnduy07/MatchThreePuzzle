@@ -474,23 +474,22 @@ class GameSceneHudResponsiveLayout : MonoBehaviour
         }
 
         m_lastSize = size;
-        float widthT = Mathf.InverseLerp(900f, 1080f, size.x);
-        float compactT = Mathf.Clamp01(widthT);
-        float topScale = Mathf.Lerp(0.86f, 1f, compactT);
-        float levelX = Mathf.Lerp(74f, 88f, compactT);
-        float topY = Mathf.Lerp(-66f, -76f, compactT);
+        float runtimeWidth = Screen.width > 0 ? Screen.width : size.x;
+        float compactT = Mathf.Clamp01(Mathf.InverseLerp(900f, 1080f, Mathf.Min(size.x, runtimeWidth)));
+        float topScale = Mathf.Min(Mathf.Clamp(size.x / 1080f, 0.45f, 1f), Mathf.Clamp(runtimeWidth / 1600f, 0.35f, 1f));
+        float levelX = Mathf.Lerp(56f, 88f, compactT);
+        float topY = Mathf.Lerp(-54f, -76f, compactT);
 
         ApplyTopCounter(m_levelPanel, new Vector2(levelX, topY), new Vector2(150f, 126f), topScale);
 
         if (m_goalPanel != null)
         {
-            float goalWidth = Mathf.Clamp(size.x - 400f, 500f, 520f);
             m_goalPanel.anchorMin = new Vector2(0.5f, 1f);
             m_goalPanel.anchorMax = new Vector2(0.5f, 1f);
             m_goalPanel.pivot = new Vector2(0.5f, 0.5f);
-            m_goalPanel.anchoredPosition = new Vector2(Mathf.Lerp(0f, -12f, compactT), topY);
-            m_goalPanel.sizeDelta = new Vector2(goalWidth, 122f);
-            m_goalPanel.localScale = Vector3.one;
+            m_goalPanel.anchoredPosition = new Vector2(Mathf.Lerp(-170f, -12f, compactT), topY);
+            m_goalPanel.sizeDelta = new Vector2(520f, 122f);
+            m_goalPanel.localScale = Vector3.one * topScale;
         }
 
         if (m_movesPanel != null)
@@ -498,18 +497,18 @@ class GameSceneHudResponsiveLayout : MonoBehaviour
             m_movesPanel.anchorMin = new Vector2(1f, 1f);
             m_movesPanel.anchorMax = new Vector2(1f, 1f);
             m_movesPanel.pivot = new Vector2(0.5f, 0.5f);
-            m_movesPanel.anchoredPosition = new Vector2(Mathf.Lerp(-92f, -178f, compactT), Mathf.Lerp(-68f, -78f, compactT));
+            m_movesPanel.anchoredPosition = new Vector2(-levelX, topY);
             m_movesPanel.sizeDelta = new Vector2(148f, 138f);
             m_movesPanel.localScale = Vector3.one * topScale;
         }
 
         if (m_threatStage != null)
         {
-            float stageScale = Mathf.Clamp(size.x / 980f, 0.78f, 1f);
+            float stageScale = Mathf.Min(Mathf.Clamp(size.x / 860f, 0.45f, 1f), Mathf.Clamp(runtimeWidth / 1500f, 0.35f, 1f));
             m_threatStage.anchorMin = new Vector2(0.5f, 1f);
             m_threatStage.anchorMax = new Vector2(0.5f, 1f);
             m_threatStage.pivot = new Vector2(0.5f, 1f);
-            m_threatStage.anchoredPosition = new Vector2(0f, Mathf.Lerp(-190f, -206f, compactT));
+            m_threatStage.anchoredPosition = new Vector2(Mathf.Lerp(-140f, 0f, compactT), Mathf.Lerp(-142f, -206f, compactT));
             m_threatStage.sizeDelta = new Vector2(820f, 300f);
             m_threatStage.localScale = Vector3.one * stageScale;
         }
@@ -539,9 +538,9 @@ class GameSceneHudResponsiveLayout : MonoBehaviour
 
     void ApplyBottomControls(Vector2 size, float compactT)
     {
-        float pauseSize = Mathf.Lerp(96f, 112f, compactT);
-        float pauseRight = Mathf.Lerp(54f, 94f, compactT);
-        float bottomY = Mathf.Lerp(74f, 84f, compactT);
+        float pauseSize = Mathf.Lerp(70f, 112f, compactT);
+        float pauseRight = Mathf.Lerp(42f, 94f, compactT);
+        float bottomY = Mathf.Lerp(54f, 84f, compactT);
 
         if (m_pauseButton != null)
         {
@@ -559,9 +558,9 @@ class GameSceneHudResponsiveLayout : MonoBehaviour
         }
 
         float naturalWidth = 700f;
-        float availableWidth = size.x - pauseRight - pauseSize - 72f;
-        float scale = Mathf.Clamp(availableWidth / naturalWidth, 0.76f, 1f);
-        float rootRight = size.x * 0.5f - pauseRight - pauseSize * 0.5f - 24f;
+        float availableWidth = size.x - pauseRight - pauseSize - 44f;
+        float scale = Mathf.Clamp(availableWidth / naturalWidth, 0.32f, 1f);
+        float rootRight = size.x * 0.5f - pauseRight - pauseSize * 0.5f - 14f;
         float barX = rootRight - naturalWidth * scale * 0.5f;
 
         m_boosterBar.anchorMin = new Vector2(0.5f, 0f);

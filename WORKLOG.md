@@ -21,6 +21,17 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
+[DONE] Game scene compact HUD scale fix
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Game Scene HUD Builder; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/UI/GameSceneHudBuilder.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Fixed HUD clipping seen in runtime player capture at compact phone-like window sizes by scaling and shifting top HUD, threat preview, boosters, and pause control more aggressively. Unity batchmode compile succeeded. No RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, ProjectSettings, Packages, or assets were changed.
+
 [DONE] Game scene HUD text fit guardrails
 
 Branch: codex/gamescene
