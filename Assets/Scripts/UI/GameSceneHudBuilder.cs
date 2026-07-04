@@ -24,9 +24,10 @@ static class GameSceneHudBuilder
         RectTransform goalPanel = CreateGoalPanel(parent, levelData, scoreGoal);
         RectTransform movesPanel = CreateMovesPanel(parent, movesLeft);
         Text scoreText = CreateGameplayThreatPreview(parent, scoreGoal);
-        CreateBoosterBar(parent);
+        RectTransform boosterBar = CreateBoosterBar(parent);
 
         Button pause = CreatePauseButton(parent, pauseAction);
+        ConfigureResponsiveLayout(parent, levelPanel, goalPanel, movesPanel, scoreText, boosterBar, pause.GetComponent<RectTransform>());
         RuntimeUiFactory.AddMotion(goalPanel, RuntimeUiMotionType.SlideFromTop, 26f, 1f, 0.3f);
         RuntimeUiFactory.AddMotion(levelPanel, RuntimeUiMotionType.SlideFromTop, 22f, 1f, 0.28f);
         RuntimeUiFactory.AddMotion(movesPanel, RuntimeUiMotionType.SlideFromTop, 24f, 1f, 0.32f);
@@ -143,7 +144,7 @@ static class GameSceneHudBuilder
         return score;
     }
 
-    static void CreateBoosterBar(Transform parent)
+    static RectTransform CreateBoosterBar(Transform parent)
     {
         string[] names = { "HAMMER", "BOMB", "COLOR", "HAND" };
         string[] icons = { "M", "B", "C", "H" };
@@ -155,15 +156,24 @@ static class GameSceneHudBuilder
             new Color(1f, 0.72f, 0.15f, 1f)
         };
 
-        float startX = -294f;
+        GameObject barObject = new GameObject("Booster Bar", typeof(RectTransform));
+        barObject.transform.SetParent(parent, false);
+        RectTransform bar = barObject.GetComponent<RectTransform>();
+        bar.anchorMin = new Vector2(0.5f, 0f);
+        bar.anchorMax = new Vector2(0.5f, 0f);
+        bar.pivot = new Vector2(0.5f, 0.5f);
+        bar.anchoredPosition = new Vector2(-12f, 84f);
+        bar.sizeDelta = new Vector2(700f, 122f);
+
+        float startX = -282f;
         for (int i = 0; i < names.Length; i++)
         {
-            RectTransform rectTransform = RuntimeUiFactory.CreatePanel(parent, "Booster " + (i + 1), RuntimePanelStyle.Surface);
+            RectTransform rectTransform = RuntimeUiFactory.CreatePanel(bar, "Booster " + (i + 1), RuntimePanelStyle.Surface);
             SetPanelImage(rectTransform, WoodMid, true);
-            rectTransform.anchorMin = new Vector2(0.5f, 0f);
-            rectTransform.anchorMax = new Vector2(0.5f, 0f);
+            rectTransform.anchorMin = new Vector2(0.5f, 0.5f);
+            rectTransform.anchorMax = new Vector2(0.5f, 0.5f);
             rectTransform.pivot = new Vector2(0.5f, 0.5f);
-            rectTransform.anchoredPosition = new Vector2(startX + i * 188f, 84f);
+            rectTransform.anchoredPosition = new Vector2(startX + i * 188f, 0f);
             rectTransform.sizeDelta = new Vector2(128f, 112f);
 
             RectTransform inset = CreateSolidImage(rectTransform, "Inset", new Color(0.16f, 0.085f, 0.045f, 0.82f));
@@ -175,6 +185,8 @@ static class GameSceneHudBuilder
             CreateBadge(rectTransform, "3");
             RuntimeUiFactory.AddMotion(rectTransform, RuntimeUiMotionType.SlideFromBottom, 28f + i * 8f, 1f, 0.38f);
         }
+
+        return bar;
     }
 
     static Button CreatePauseButton(Transform parent, Action pauseAction)
@@ -352,6 +364,199 @@ static class GameSceneHudBuilder
                 return "MIX";
             default:
                 return "PTS";
+        }
+    }
+
+    static void ConfigureResponsiveLayout(Transform parent, RectTransform levelPanel, RectTransform goalPanel, RectTransform movesPanel, Text scoreText, RectTransform boosterBar, RectTransform pauseButton)
+    {
+        RectTransform root = parent as RectTransform;
+        if (root == null)
+        {
+            return;
+        }
+
+        GameSceneHudResponsiveLayout layout = root.GetComponent<GameSceneHudResponsiveLayout>();
+        if (layout == null)
+        {
+            layout = root.gameObject.AddComponent<GameSceneHudResponsiveLayout>();
+        }
+
+        RectTransform threatStage = null;
+        if (scoreText != null)
+        {
+            threatStage = scoreText.transform as RectTransform;
+            while (threatStage != null && threatStage.name != "Threat Preview")
+            {
+                threatStage = threatStage.parent as RectTransform;
+            }
+        }
+
+        layout.Configure(root, levelPanel, goalPanel, movesPanel, threatStage, boosterBar, pauseButton);
+    }
+}
+
+class GameSceneHudResponsiveLayout : MonoBehaviour
+{
+    RectTransform m_root;
+    RectTransform m_levelPanel;
+    RectTransform m_goalPanel;
+    RectTransform m_movesPanel;
+    RectTransform m_threatStage;
+    RectTransform m_boosterBar;
+    RectTransform m_pauseButton;
+    Vector2 m_lastSize;
+
+    public void Configure(RectTransform root, RectTransform levelPanel, RectTransform goalPanel, RectTransform movesPanel, RectTransform threatStage, RectTransform boosterBar, RectTransform pauseButton)
+    {
+        m_root = root;
+        m_levelPanel = levelPanel;
+        m_goalPanel = goalPanel;
+        m_movesPanel = movesPanel;
+        m_threatStage = threatStage;
+        m_boosterBar = boosterBar;
+        m_pauseButton = pauseButton;
+        m_lastSize = Vector2.zero;
+        Apply();
+    }
+
+    void OnEnable()
+    {
+        m_lastSize = Vector2.zero;
+    }
+
+    void LateUpdate()
+    {
+        Apply();
+    }
+
+    void Apply()
+    {
+        if (m_root == null)
+        {
+            return;
+        }
+
+        Vector2 size = m_root.rect.size;
+        if (size.x <= 0f || size.y <= 0f)
+        {
+            return;
+        }
+
+        if (Mathf.Abs(size.x - m_lastSize.x) < 0.5f && Mathf.Abs(size.y - m_lastSize.y) < 0.5f)
+        {
+            return;
+        }
+
+        m_lastSize = size;
+        float widthT = Mathf.InverseLerp(900f, 1080f, size.x);
+        float compactT = Mathf.Clamp01(widthT);
+        float topScale = Mathf.Lerp(0.86f, 1f, compactT);
+        float levelX = Mathf.Lerp(74f, 88f, compactT);
+        float topY = Mathf.Lerp(-66f, -76f, compactT);
+
+        ApplyTopCounter(m_levelPanel, new Vector2(levelX, topY), new Vector2(150f, 126f), topScale);
+
+        if (m_goalPanel != null)
+        {
+            float goalWidth = Mathf.Clamp(size.x - 400f, 500f, 520f);
+            m_goalPanel.anchorMin = new Vector2(0.5f, 1f);
+            m_goalPanel.anchorMax = new Vector2(0.5f, 1f);
+            m_goalPanel.pivot = new Vector2(0.5f, 0.5f);
+            m_goalPanel.anchoredPosition = new Vector2(Mathf.Lerp(0f, -12f, compactT), topY);
+            m_goalPanel.sizeDelta = new Vector2(goalWidth, 122f);
+            m_goalPanel.localScale = Vector3.one;
+        }
+
+        if (m_movesPanel != null)
+        {
+            m_movesPanel.anchorMin = new Vector2(1f, 1f);
+            m_movesPanel.anchorMax = new Vector2(1f, 1f);
+            m_movesPanel.pivot = new Vector2(0.5f, 0.5f);
+            m_movesPanel.anchoredPosition = new Vector2(Mathf.Lerp(-92f, -178f, compactT), Mathf.Lerp(-68f, -78f, compactT));
+            m_movesPanel.sizeDelta = new Vector2(148f, 138f);
+            m_movesPanel.localScale = Vector3.one * topScale;
+        }
+
+        if (m_threatStage != null)
+        {
+            float stageScale = Mathf.Clamp(size.x / 980f, 0.78f, 1f);
+            m_threatStage.anchorMin = new Vector2(0.5f, 1f);
+            m_threatStage.anchorMax = new Vector2(0.5f, 1f);
+            m_threatStage.pivot = new Vector2(0.5f, 1f);
+            m_threatStage.anchoredPosition = new Vector2(0f, Mathf.Lerp(-190f, -206f, compactT));
+            m_threatStage.sizeDelta = new Vector2(820f, 300f);
+            m_threatStage.localScale = Vector3.one * stageScale;
+        }
+
+        ApplyBottomControls(size, compactT);
+        RebaseMotion(m_levelPanel);
+        RebaseMotion(m_goalPanel);
+        RebaseMotion(m_movesPanel);
+        RebaseMotion(m_threatStage);
+        RebaseMotion(m_pauseButton);
+    }
+
+    void ApplyTopCounter(RectTransform panel, Vector2 position, Vector2 size, float scale)
+    {
+        if (panel == null)
+        {
+            return;
+        }
+
+        panel.anchorMin = new Vector2(0f, 1f);
+        panel.anchorMax = new Vector2(0f, 1f);
+        panel.pivot = new Vector2(0.5f, 0.5f);
+        panel.anchoredPosition = position;
+        panel.sizeDelta = size;
+        panel.localScale = Vector3.one * scale;
+    }
+
+    void ApplyBottomControls(Vector2 size, float compactT)
+    {
+        float pauseSize = Mathf.Lerp(96f, 112f, compactT);
+        float pauseRight = Mathf.Lerp(54f, 94f, compactT);
+        float bottomY = Mathf.Lerp(74f, 84f, compactT);
+
+        if (m_pauseButton != null)
+        {
+            m_pauseButton.anchorMin = new Vector2(1f, 0f);
+            m_pauseButton.anchorMax = new Vector2(1f, 0f);
+            m_pauseButton.pivot = new Vector2(0.5f, 0.5f);
+            m_pauseButton.anchoredPosition = new Vector2(-pauseRight, bottomY);
+            m_pauseButton.sizeDelta = new Vector2(pauseSize, pauseSize);
+            m_pauseButton.localScale = Vector3.one;
+        }
+
+        if (m_boosterBar == null)
+        {
+            return;
+        }
+
+        float naturalWidth = 700f;
+        float availableWidth = size.x - pauseRight - pauseSize - 72f;
+        float scale = Mathf.Clamp(availableWidth / naturalWidth, 0.76f, 1f);
+        float rootRight = size.x * 0.5f - pauseRight - pauseSize * 0.5f - 24f;
+        float barX = rootRight - naturalWidth * scale * 0.5f;
+
+        m_boosterBar.anchorMin = new Vector2(0.5f, 0f);
+        m_boosterBar.anchorMax = new Vector2(0.5f, 0f);
+        m_boosterBar.pivot = new Vector2(0.5f, 0.5f);
+        m_boosterBar.anchoredPosition = new Vector2(barX, bottomY);
+        m_boosterBar.sizeDelta = new Vector2(naturalWidth, 122f);
+        m_boosterBar.localScale = Vector3.one * scale;
+    }
+
+    void RebaseMotion(RectTransform rectTransform)
+    {
+        if (rectTransform == null)
+        {
+            return;
+        }
+
+        RuntimeUiMotion motion = rectTransform.GetComponent<RuntimeUiMotion>();
+        if (motion != null)
+        {
+            motion.Configure(motion.motionType, motion.amplitude, motion.frequency, motion.introDuration);
         }
     }
 }

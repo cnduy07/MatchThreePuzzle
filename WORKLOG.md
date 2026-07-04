@@ -21,6 +21,17 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
+[DONE] Game scene responsive HUD tuning
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Game Scene HUD Builder; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/UI/GameSceneHudBuilder.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Added file-scoped responsive runtime HUD layout so top counters, threat preview, boosters, and pause control adapt better across phone/iPad safe-area widths. Unity batchmode compile succeeded. No RuntimeUiFactory.cs, RuntimeUiShell.cs, scenes, prefabs, Shared APIs, ProjectSettings, Packages, or assets were changed.
+
 [DONE] Game scene board list guardrails
 
 Branch: codex/gamescene
