@@ -54,7 +54,10 @@ Implemented first pass:
 - Winning a level records the result and unlocks the next registered level.
 - Settings persist audio and haptics toggle state locally.
 - Menu, Level Select, and Game runtime UI now use concept-like placeholder layouts based on `Assets/Concept/`.
+- The Menu action stack now supports theme-assigned pixel-art sprites for Play, Levels, Daily Reward, Events, and Shop, and `ClassicTheme` references the current `Assets/Sprites/menu_*_btn.png` cutouts.
 - Game HUD includes placeholder top counters/objective, monster-door threat area, score, boosters, and pause control.
+- Game HUD now asks `RuntimeUiShell` to render the theme-assigned gameplay background as a world-space `SpriteRenderer` behind the board, not as an overlay-canvas image.
+- Game booster and pause controls support theme-assigned sprite art with text fallback.
 - Runtime concept HUD owns gameplay counters while legacy scene HUD panels, text, and old score decoration are hidden to avoid duplicate UI.
 - Game board camera framing reserves more top presentation space so the board sits lower under the monster-door concept area.
 - Placeholder UI uses small runtime motion effects for hierarchy and feedback.
@@ -62,7 +65,8 @@ Implemented first pass:
 Still planned for scene/UI:
 
 - final pixel-art replacement for shared UI prefab sprites and sliced panels
-- final concept-accurate sprite replacement for menu, level-map, gameplay HUD, resource counters, boosters, and bottom navigation
+- replace remaining menu placeholders around the new action button sprites, including background, logo, counters, settings, bottom nav, and progress sign
+- final concept-accurate sprite replacement for menu, level-map, gameplay HUD, resource counters, boosters, pause/settings controls, and bottom navigation
 - phone/iPad visual verification and final responsive HUD tuning
 - additional data-driven levels beyond the first five
 
@@ -250,6 +254,13 @@ Defines reusable visual/audio style. The first implementation exists and current
 - UI prefab slots for primary, secondary, icon button, panel frame, modal, top bar, currency counter, level card, objective item, toggle row, slider row, and loading overlay
 
 ThemeData allows worlds or seasons later without duplicating gameplay code.
+
+Current runtime gameplay background behavior:
+
+- `RuntimeUiShell` creates a world-space `Gameplay World Background` sprite behind the board and fits it to `Camera.main`.
+- Do not put gameplay backgrounds in the overlay canvas; overlay canvas imagery renders in front of the world board and can hide tiles/pieces.
+- Safe-area constraints still apply to HUD controls, pause, settings, win, and lose overlays.
+- `ClassicTheme.gameplayBackground` currently points at `Assets/Sprites/sky_night.png`.
 
 ## Resource Reuse Strategy
 

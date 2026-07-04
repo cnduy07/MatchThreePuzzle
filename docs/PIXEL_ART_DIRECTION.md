@@ -166,6 +166,67 @@ PixelLab test sprite:
 
 This historical test asset is not final art direction by itself. Do not use it as permission to call PixelLab or generate more artwork in ordinary implementation tasks.
 
+## Current Generated Candidate Set
+
+User-approved PixelLab MCP generation was run in this thread on 2026-07-03 for the first gameplay-readability pass. The generated sprites are candidates for review, not automatically final release art.
+
+Generated candidate folder:
+
+- `Assets/Sprites/PixelArt/Generated/`
+
+Generated sprites wired into gameplay prefabs:
+
+- `piece_red_ruby.png`
+- `piece_blue_drop.png`
+- `piece_yellow_star.png`
+- `piece_green_leaf.png`
+- `piece_purple_moon.png`
+- `piece_orange_shell.png`
+- `piece_color_bomb_prism.png`
+- `special_row_bomb_arrow.png`
+- `special_column_bomb_rocket.png`
+- `special_adjacent_bomb.png`
+- `blocker_dark_stone.png`
+- `collectible_golden_key.png`
+- `ui_coin.png`
+- `tile_normal_stone.png`
+- `tile_breakable_cracked.png`
+- `tile_obstacle_dark_stone.png`
+- `ui_booster_hammer.png`
+- `ui_booster_bomb.png`
+- `ui_booster_color.png`
+- `ui_booster_hand.png`
+- `ui_pause_icon.png`
+
+Import settings applied to this folder:
+
+- Texture Type: Sprite
+- Sprite Mode: Single
+- Filter Mode: Point
+- Mipmaps: disabled
+- PPU: 128
+- Texture compression: uncompressed in the generated metas
+
+Wiring status:
+
+- `Dot 1` through `Dot 6` use the six normal generated piece sprites.
+- Row, column, and adjacent bomb prefabs use generated normal piece roots plus generated special overlay sprites.
+- `ColorBomb`, `Collectible`, `Blocker`, breakable tiles, and obstacle tiles use generated sprite candidates.
+- Normal board cells intentionally use the existing full-cell `Assets/Sprites/squareFilled.png` sprite with a visible dark blue tint because the generated `tile_normal_stone.png` read as broken chunks behind gameplay pieces.
+- Breakable tile state `0` resolves to the clean full-cell tile backing; cracked states resolve to `tile_breakable_cracked.png`.
+- Board tile prefabs render on the board layer, while generated piece and bomb marker sprites render above the board tiles.
+- `ClassicTheme` assigns `sky_night.png` as the gameplay background, displayed through a world-space background sprite behind the board.
+- `ClassicTheme` assigns generated booster and pause icon sprites for the gameplay HUD. The generated `ui_booster_button_frame.png` is not assigned because it read poorly at gameplay size; booster cards currently use constructed runtime panels until better approved button art exists.
+- `Assets/Scripts/Editor/GeneratedSpritePrefabWireUp.cs` can reapply the generated sprite import settings and prefab wiring.
+
+Review notes:
+
+- The six normal pieces are the most coherent part of the set and should be tested at actual board size first.
+- The row, column, and adjacent bomb sprites are generic special-piece candidates. They may need color-specific variants or overlays before replacing all current bomb prefabs.
+- The generated normal tile candidate should remain unused unless it is replaced by a full-cell tile that does not compete with pieces.
+- The breakable, obstacle, and gameplay HUD icons are first-pass candidates and should be checked in the `Game` scene.
+- These sprites are wired into gameplay prefabs, but they are still candidate art until reviewed in actual phone/iPad gameplay layouts.
+
 ## Approval Workflow
 
 1. Identify the next needed asset or logical asset set.

@@ -41,6 +41,21 @@ public class ThemeData : ScriptableObject
     public Sprite currencyCounterSprite;
     public Sprite toggleBackgroundSprite;
 
+    [Header("Menu Sprites")]
+    public Sprite menuPlayButtonSprite;
+    public Sprite menuLevelsButtonSprite;
+    public Sprite menuDailyRewardButtonSprite;
+    public Sprite menuEventsButtonSprite;
+    public Sprite menuShopButtonSprite;
+
+    [Header("Gameplay HUD Sprites")]
+    public Sprite boosterButtonSprite;
+    public Sprite boosterHammerIconSprite;
+    public Sprite boosterBombIconSprite;
+    public Sprite boosterColorIconSprite;
+    public Sprite boosterHandIconSprite;
+    public Sprite pauseIconSprite;
+
     [Header("UI Prefabs")]
     public GameObject primaryButtonPrefab;
     public GameObject secondaryButtonPrefab;

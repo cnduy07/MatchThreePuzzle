@@ -11,10 +11,10 @@ MonoBehaviour:
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: d6d2087a4698491286550f4643522e6b, type: 3}
   m_Name: ClassicTheme
-  m_EditorClassIdentifier:
+  m_EditorClassIdentifier: 
   themeId: classic
   displayName: Classic Theme
-  gameplayBackground: {fileID: 0}
+  gameplayBackground: {fileID: 21300000, guid: 07a38b99ab05a4754b40e829872207f5, type: 3}
   loseThreatMonsterSprite: {fileID: 0}
   loseThreatDoorSprite: {fileID: 0}
   defaultPieceSet: {fileID: 11400000, guid: 2e1bf786ee70442fb43afbd81d368334, type: 2}
@@ -29,6 +29,17 @@ MonoBehaviour:
   objectiveBadgeSprite: {fileID: 0}
   currencyCounterSprite: {fileID: 0}
   toggleBackgroundSprite: {fileID: 0}
+  menuPlayButtonSprite: {fileID: -7934650582764584653, guid: d05bd30f6e73f714e937410a40254213, type: 3}
+  menuLevelsButtonSprite: {fileID: -9055773736853730639, guid: 5e2ab3dd01fe08448b38466748c29f28, type: 3}
+  menuDailyRewardButtonSprite: {fileID: -3423773125142020781, guid: 8f6a64750c21f734cadc5bacef48b990, type: 3}
+  menuEventsButtonSprite: {fileID: -2658630527647672144, guid: 8877878c3da260f4f93cf4ffd550f983, type: 3}
+  menuShopButtonSprite: {fileID: 2721116409337023231, guid: ad1f8b9ce717df54cac6cd22ffc52989, type: 3}
+  boosterButtonSprite: {fileID: 0}
+  boosterHammerIconSprite: {fileID: 21300000, guid: 0c970a8cda6159d428082dcee7002d5a, type: 3}
+  boosterBombIconSprite: {fileID: 21300000, guid: 94f57e0313b236849b372aa403ef917e, type: 3}
+  boosterColorIconSprite: {fileID: 21300000, guid: fb1caa42e0e475d4aac867dcde8c3a50, type: 3}
+  boosterHandIconSprite: {fileID: 21300000, guid: 72cd3188d4d7f9246886e2a911f72961, type: 3}
+  pauseIconSprite: {fileID: 21300000, guid: 1f5edbb159402d2438c61473d1dc9787, type: 3}
   primaryButtonPrefab: {fileID: 6801005246732233141, guid: 273f031d479496144a892f13d86dc1df, type: 3}
   secondaryButtonPrefab: {fileID: 5280266998984895985, guid: 9cbf0f7082bbb0c4cb05a8078d7781b8, type: 3}
   iconButtonPrefab: {fileID: 1897192352505070100, guid: e5697a6ae69cd9b4cb412bda9a33d438, type: 3}

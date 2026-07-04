@@ -21,6 +21,61 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
+[DONE] Restore visible board tile layer
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Prefabs, Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Editor/GeneratedSpritePrefabWireUp.cs, Assets/Prefabs/Tiles/*.prefab, docs/PIXEL_ART_DIRECTION.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: Restored generated tile visibility by moving tile SpriteRenderers back to the visible board layer with full opacity while keeping pieces and bomb markers above them. Avoided scene edits.
+
+[DONE] Fix generated gameplay sprite readability
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Prefabs, Game Scene HUD Builder, Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Editor/GeneratedSpritePrefabWireUp.cs, Assets/Scripts/UI/GameSceneHudBuilder.cs, Assets/Prefabs/Dots/*.prefab, Assets/Prefabs/Bombs/**/*.prefab, Assets/Prefabs/Collectibles/*.prefab, Assets/Prefabs/Tiles/*.prefab, docs/PIXEL_ART_DIRECTION.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: Fixed screenshot-reported Game scene readability problems by moving generated tile SpriteRenderers behind pieces, moving pieces/bomb markers above tiles, reducing tile opacity, and tightening the runtime gameplay HUD/threat/booster layout. Avoided scene edits.
+
+[DONE] Wire generated gameplay sprites into prefabs
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Prefabs, Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Prefabs/Dots/*.prefab, Assets/Prefabs/Bombs/**/*.prefab, Assets/Prefabs/Collectibles/*.prefab, Assets/Prefabs/Tiles/*.prefab, Assets/Data/PieceSets/ClassicPieceSet.asset, Assets/Data/Themes/ClassicTheme.asset, docs/CODEBASE_OVERVIEW.md, docs/PIXEL_ART_DIRECTION.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: Wired generated PixelArt/Generated sprites into existing dot, bomb, collectible, blocker, and tile prefab renderers. Added editor utility to normalize generated sprite imports and reapply prefab wiring. Avoided scene edits.
+
+[DONE] Generate core pixel-art gameplay sprites
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Sprites/PixelArt/Generated/*, generated sprite .meta files if Unity creates them, docs/PIXEL_ART_DIRECTION.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: User explicitly requested PixelLab MCP generation in this thread. Generated 16 candidate sprites under Assets/Sprites/PixelArt/Generated/ and normalized their import metas. Wiring into prefabs/theme should be a later resource pass after visual review.
+
+[DONE] Wire menu button sprites
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Shared APIs, Menu Scene Builder, Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Architecture Agent
+Files/scenes expected to change: Assets/Scripts/ThemeData.cs, Assets/Scripts/Flow/MenuSceneUiBuilder.cs, Assets/Data/Themes/ClassicTheme.asset, docs/CODEBASE_OVERVIEW.md, docs/SCENE_UI_ARCHITECTURE.md, WORKLOG.md
+Shared API changes: yes; adds menu-specific sprite slots to ThemeData
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: Wired user-provided Assets/Sprites/menu_*_btn.png sprites into the runtime-built Menu screen through ThemeData and ClassicTheme. PixelLab/image generation remains disabled for this thread per AGENTS.md and docs/PIXEL_ART_DIRECTION.md.
+
 [DONE] Menu scene polish worktree
 
 Branch: codex/menuscene
@@ -75,3 +130,23 @@ Shared API changes: no
 Started: 2026-01-01
 Closed: 2026-01-01
 Notes: Example only; not a real completed task.
+[DONE] Game scene sprite UI and backdrop polish
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Shared APIs, Shared Scene Flow & UI Shell, Game Scene HUD Builder, Prefabs, Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Architecture Agent
+Files/scenes expected to change: Assets/Scripts/ThemeData.cs, Assets/Scripts/UI/RuntimeUiShell.cs, Assets/Scripts/UI/GameSceneHudBuilder.cs, Assets/Scripts/Editor/GeneratedSpritePrefabWireUp.cs, Assets/Prefabs/Tiles/*.prefab, Assets/Data/Themes/ClassicTheme.asset, Assets/Sprites/PixelArt/Generated/*, docs/CODEBASE_OVERVIEW.md, docs/PIXEL_ART_DIRECTION.md, docs/SCENE_UI_ARCHITECTURE.md, WORKLOG.md
+Shared API changes: yes; adds gameplay HUD sprite slots to ThemeData
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: Fixed screenshot-reported weird tile backing by using a clean full-cell board tile, added a full-canvas gameplay background layer, and wired generated booster/pause HUD sprites through ClassicTheme. Avoided scene YAML edits.
+[DONE] Rebuild game scene visual hierarchy
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Shared Scene Flow & UI Shell, Game Scene HUD Builder, Prefabs, Art, Sprites & Theme Resources, Documentation & Process
+Agent role: Architecture Agent
+Files/scenes expected to change: Assets/Scripts/UI/RuntimeUiShell.cs, Assets/Scripts/UI/GameSceneHudBuilder.cs, Assets/Scripts/Editor/GeneratedSpritePrefabWireUp.cs, Assets/Prefabs/Tiles/*.prefab, Assets/Data/Themes/ClassicTheme.asset, docs/CODEBASE_OVERVIEW.md, docs/PIXEL_ART_DIRECTION.md, docs/SCENE_UI_ARCHITECTURE.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-03
+Closed: 2026-07-03
+Notes: Removed overlay-canvas gameplay background that hid the world board, replaced it with a world-space background sprite behind the board, rebuilt bottom boosters as larger readable cards, cleared the bad cropped booster-frame sprite, and made normal tile backing visibly opaque. Avoided scene YAML edits. Batchmode verification was blocked because the Unity editor was open on this project.

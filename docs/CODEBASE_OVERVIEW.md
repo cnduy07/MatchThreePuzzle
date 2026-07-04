@@ -35,7 +35,8 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Scripts/ThemeData.cs`, `PieceSetData.cs`, `GameResourceLibrary.cs` - shared theme, piece-set, and resource registry foundation.
 - `Assets/Data/Levels/Level_001.asset` through `Level_005.asset` - first data-driven playable level set.
 - `Assets/Data/PieceSets/ClassicPieceSet.asset` - shared default references for current normal pieces, bombs, collectibles, and blockers.
-- `Assets/Data/Themes/ClassicTheme.asset` - shared default placeholder theme for tile, UI color, UI prefab, sprite, and palette references.
+- `Assets/Data/Themes/ClassicTheme.asset` - shared default placeholder theme for tile, gameplay background, UI color, UI prefab, sprite, gameplay HUD sprite, and palette references.
+- `Assets/Sprites/menu_*_btn.png` - user-provided pixel-art menu action button cutouts wired through `ClassicTheme`.
 - `Assets/Resources/GameResourceLibrary.asset` - runtime-loaded default theme and piece-set registry.
 - `Assets/Resources/LevelDatabase.asset` - runtime-loaded list of playable levels used by level select, loading, and next-level flow.
 - `Assets/Prefabs/UI/RuntimeUiShell.prefab` - reusable shell prefab marker for shared modal/pause UI.
@@ -48,6 +49,7 @@ Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use 
 - `Assets/Prefabs/Collectibles/` - collectible and blocker prefabs.
 - `Assets/Sprites/GameAssets/` - current piece and bomb sprites.
 - `Assets/Sprites/PixelArt/` - generated/test pixel-art assets.
+- `Assets/Sprites/PixelArt/Generated/` - generated gameplay sprite candidates wired into the current dot, bomb, collectible, blocker, breakable/obstacle tile, booster, and pause HUD references for review.
 - `Assets/Particles/Prefab/` - existing clear/break/bomb visual effects.
 - `Assets/Sounds/` - music, win/lose sounds, and FX.
 - `Packages/manifest.json` - Unity packages.
@@ -242,6 +244,9 @@ First pass of the shared resource/theme layer. Responsibilities include:
 Important risks:
 
 - Current shared assets still point at placeholder/prototype prefabs and colors. They are a reuse foundation, not final art.
+- The main Menu action buttons now use the first user-provided pixel-art cutouts through menu-specific `ThemeData` sprite slots. Other screen/UI art is still placeholder.
+- Gameplay HUD booster and pause controls now have theme-specific sprite slots; `ClassicTheme` points them at the first generated icon/button candidates.
+- `ClassicTheme.gameplayBackground` points at the current `sky_night.png` gameplay background, which the runtime shell displays as a world-space sprite behind the board.
 - Existing levels retain direct prefab overrides, so later cleanup can remove duplicated arrays level by level after validation.
 - Shared UI prefab slots are wired to placeholder prefabs under `Assets/Prefabs/UI/Shared/`; replace their art/sprites during the final pixel-art UI pass.
 
@@ -389,8 +394,11 @@ Runtime UI:
 - Scene-specific runtime UI layout is split across `MenuSceneUiBuilder`, `LevelMapSceneUiBuilder`, and `GameSceneHudBuilder` to support parallel screen-focused work.
 - Runtime menu and overlay controls now resolve semantic button/panel styles through `ThemeData`, using shared placeholder prefabs with generated-control fallback.
 - Menu runtime UI now follows the `Assets/Concept/menuscene.png` structure with placeholder resource counters, large logo, stacked action buttons, settings button, progress sign, and bottom navigation.
+- Menu action buttons can use theme-assigned pixel-art sprites for Play, Levels, Daily Reward, Events, and Shop.
+- Game runtime UI uses a themed world-space gameplay background behind the board; HUD and overlays remain on the safe-area canvas.
 - Level Select runtime UI now follows the `Assets/Concept/levelmapscene.png` structure with placeholder resource counters, region labels, path segments, level nodes, locked worlds, and bottom navigation.
 - Game runtime UI now follows the `Assets/Concept/gamescene.png` structure with placeholder level/goal/moves panels, monster-door threat area, score, bottom boosters, and pause control.
+- Game booster and pause controls now use theme-assigned sprite art with text fallbacks when sprites are missing.
 - No-moves loss now plays a concept-inspired monster rush/door attack animation before the lose modal.
 - Legacy scene HUD panels/text and old score decoration are hidden when the runtime concept HUD is active, preventing duplicate old/new UI.
 - Major placeholder UI elements use lightweight runtime motion for slide-in, pulse, and floating feedback.
@@ -398,6 +406,7 @@ Runtime UI:
 - Persistent haptics toggle stub for a future haptics service.
 - First-pass safe-area-aware layout root for menu, level select, HUD controls, and overlays.
 - First-pass camera/board fit that uses safe-area aspect ratio and reserves extra top room so the board sits lower under the concept HUD/threat area.
+- Generated gameplay sprites have first-pass render ordering: visible clean board tile backing on the board layer, piece roots above tiles, special-piece markers above their base piece, and world background behind all board sprites.
 
 ## Missing / Not Release-Ready Features
 

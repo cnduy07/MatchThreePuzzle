@@ -3,8 +3,10 @@ using UnityEngine.UI;
 
 static class MenuSceneUiBuilder
 {
-    const float PhoneButtonWidth = 560f;
-    const float TabletButtonWidth = 620f;
+    const float PhoneButtonWidth = 424f;
+    const float PhoneButtonHeight = 115f;
+    const float TabletButtonWidth = 500f;
+    const float TabletButtonHeight = 136f;
 
     struct MenuLayout
     {
@@ -52,16 +54,17 @@ static class MenuSceneUiBuilder
 
         int highestUnlockedLevel = PlayerProgress.Data.highestUnlockedLevelId;
         string playLabel = highestUnlockedLevel > 1 ? "PLAY  CONTINUE " + highestUnlockedLevel : "PLAY";
-        Button play = CreateMenuAction(contentRoot, "Play Button", playLabel, new Vector2(0f, layout.ButtonStartY), RuntimeButtonStyle.Primary, layout);
+        ThemeData theme = RuntimeUiFactory.Theme;
+        Button play = CreateMenuAction(contentRoot, "Play Button", playLabel, new Vector2(0f, layout.ButtonStartY), RuntimeButtonStyle.Primary, layout, theme != null ? theme.menuPlayButtonSprite : null);
         RuntimeUiFactory.AddMotion(play.GetComponent<RectTransform>(), RuntimeUiMotionType.Pulse, 2f, 0.55f);
         play.onClick.AddListener(SceneFlow.ContinueFromHighestUnlockedLevel);
 
-        Button levels = CreateMenuAction(contentRoot, "Levels Button", "MAP  LEVELS", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap), RuntimeButtonStyle.Primary, layout);
+        Button levels = CreateMenuAction(contentRoot, "Levels Button", "MAP  LEVELS", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap), RuntimeButtonStyle.Primary, layout, theme != null ? theme.menuLevelsButtonSprite : null);
         levels.onClick.AddListener(SceneFlow.LoadLevelSelect);
 
-        CreateMenuAction(contentRoot, "Daily Button", "CHEST  DAILY REWARD", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap * 2f), RuntimeButtonStyle.Secondary, layout).interactable = false;
-        CreateMenuAction(contentRoot, "Events Button", "TROPHY  EVENTS", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap * 3f), RuntimeButtonStyle.Secondary, layout).interactable = false;
-        CreateMenuAction(contentRoot, "Shop Button", "SHOP", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap * 4f), RuntimeButtonStyle.Secondary, layout).interactable = false;
+        CreateMenuAction(contentRoot, "Daily Button", "CHEST  DAILY REWARD", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap * 2f), RuntimeButtonStyle.Secondary, layout, theme != null ? theme.menuDailyRewardButtonSprite : null).interactable = false;
+        CreateMenuAction(contentRoot, "Events Button", "TROPHY  EVENTS", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap * 3f), RuntimeButtonStyle.Secondary, layout, theme != null ? theme.menuEventsButtonSprite : null).interactable = false;
+        CreateMenuAction(contentRoot, "Shop Button", "SHOP", new Vector2(0f, layout.ButtonStartY - layout.ButtonGap * 4f), RuntimeButtonStyle.Secondary, layout, theme != null ? theme.menuShopButtonSprite : null).interactable = false;
 
         RectTransform progressSign = RuntimeUiFactory.CreatePanel(contentRoot, "Progress Sign", RuntimePanelStyle.Surface);
         Image progressImage = progressSign.GetComponent<Image>();
@@ -102,10 +105,10 @@ static class MenuSceneUiBuilder
             IsTablet = isTablet,
             LogoY = isTablet ? 326f : 318f,
             SubtitleY = isTablet ? 168f : 166f,
-            ButtonStartY = isTablet ? -10f : 2f,
-            ButtonGap = isTablet ? 122f : 126f,
+            ButtonStartY = isTablet ? -18f : 0f,
+            ButtonGap = isTablet ? 148f : 130f,
             ButtonWidth = isTablet ? TabletButtonWidth : PhoneButtonWidth,
-            ButtonHeight = isTablet ? 92f : 96f,
+            ButtonHeight = isTablet ? TabletButtonHeight : PhoneButtonHeight,
             ProgressX = isTablet ? 386f : 356f,
             ProgressY = isTablet ? -458f : -470f,
             NavStartX = isTablet ? -300f : -255f,
@@ -205,19 +208,52 @@ static class MenuSceneUiBuilder
         RuntimeUiFactory.Stretch(plus.GetComponent<RectTransform>(), 0f, 0f, 0f, 4f);
     }
 
-    static Button CreateMenuAction(Transform parent, string name, string label, Vector2 position, RuntimeButtonStyle style, MenuLayout layout)
+    static Button CreateMenuAction(Transform parent, string name, string label, Vector2 position, RuntimeButtonStyle style, MenuLayout layout, Sprite menuSprite)
     {
         Button button = RuntimeUiFactory.CreateButton(parent, name, label, style);
         RuntimeUiFactory.SetCenter(button.GetComponent<RectTransform>(), position, new Vector2(layout.ButtonWidth, layout.ButtonHeight));
-        Text text = button.GetComponentInChildren<Text>();
-        if (text != null)
+        if (menuSprite != null)
         {
-            text.fontSize = 32;
-            text.fontStyle = FontStyle.Bold;
+            ApplyMenuActionSprite(button, menuSprite);
+        }
+        else
+        {
+            Text text = button.GetComponentInChildren<Text>();
+            if (text != null)
+            {
+                text.fontSize = 32;
+                text.fontStyle = FontStyle.Bold;
+            }
         }
 
         RuntimeUiFactory.AddMotion(button.GetComponent<RectTransform>(), RuntimeUiMotionType.SlideFromBottom, 20f, 1f, 0.34f);
         return button;
+    }
+
+    static void ApplyMenuActionSprite(Button button, Sprite menuSprite)
+    {
+        Image image = button.GetComponent<Image>();
+        if (image != null)
+        {
+            image.sprite = menuSprite;
+            image.type = Image.Type.Simple;
+            image.preserveAspect = false;
+            image.color = Color.white;
+        }
+
+        Text text = button.GetComponentInChildren<Text>();
+        if (text != null)
+        {
+            text.gameObject.SetActive(false);
+        }
+
+        ColorBlock colors = button.colors;
+        colors.normalColor = Color.white;
+        colors.highlightedColor = new Color(1f, 1f, 1f, 0.94f);
+        colors.pressedColor = new Color(0.82f, 0.82f, 0.82f, 1f);
+        colors.selectedColor = colors.highlightedColor;
+        colors.disabledColor = new Color(0.58f, 0.58f, 0.58f, 0.82f);
+        button.colors = colors;
     }
 
     static void CreateBottomNav(Transform parent, MenuLayout layout)

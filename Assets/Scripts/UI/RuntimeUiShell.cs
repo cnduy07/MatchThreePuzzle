@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class RuntimeUiShell : MonoBehaviour
 {
     const int OverlaySortingOrder = 100;
+    const int GameplayBackgroundSortingOrder = -1000;
 
     public static RuntimeUiShell Active { get; private set; }
 
@@ -21,6 +22,8 @@ public class RuntimeUiShell : MonoBehaviour
     GameObject m_pauseButtonObject;
     Text m_runtimeMovesText;
     Text m_runtimeScoreText;
+    GameObject m_gameplayBackgroundObject;
+    SpriteRenderer m_gameplayBackgroundRenderer;
 
     public static RuntimeUiShell CreateOrFind()
     {
@@ -78,6 +81,8 @@ public class RuntimeUiShell : MonoBehaviour
     public void CreateGameplayHud(LevelData levelData, int movesLeft, int scoreGoal, Action pauseAction)
     {
         EnsureCanvas();
+        CreateOrUpdateGameplayWorldBackground();
+
         ClearChildren(m_hudLayer);
         m_hudLayer.gameObject.SetActive(true);
 
@@ -103,6 +108,11 @@ public class RuntimeUiShell : MonoBehaviour
         {
             m_runtimeScoreText.text = "Score " + score;
         }
+    }
+
+    void LateUpdate()
+    {
+        FitGameplayWorldBackground();
     }
 
     public void CreatePauseButton(Action onClick)
@@ -301,6 +311,60 @@ public class RuntimeUiShell : MonoBehaviour
         RectTransform rectTransform = layerObject.GetComponent<RectTransform>();
         RuntimeUiFactory.Stretch(rectTransform);
         return rectTransform;
+    }
+
+    void CreateOrUpdateGameplayWorldBackground()
+    {
+        ThemeData theme = RuntimeUiFactory.Theme;
+        Sprite backgroundSprite = theme != null ? theme.gameplayBackground : null;
+        if (backgroundSprite == null)
+        {
+            if (m_gameplayBackgroundObject != null)
+            {
+                m_gameplayBackgroundObject.SetActive(false);
+            }
+
+            return;
+        }
+
+        if (m_gameplayBackgroundObject == null)
+        {
+            m_gameplayBackgroundObject = new GameObject("Gameplay World Background", typeof(SpriteRenderer));
+            m_gameplayBackgroundRenderer = m_gameplayBackgroundObject.GetComponent<SpriteRenderer>();
+        }
+
+        m_gameplayBackgroundObject.SetActive(true);
+        m_gameplayBackgroundRenderer.sprite = backgroundSprite;
+        m_gameplayBackgroundRenderer.color = Color.white;
+        m_gameplayBackgroundRenderer.sortingOrder = GameplayBackgroundSortingOrder;
+        FitGameplayWorldBackground();
+    }
+
+    void FitGameplayWorldBackground()
+    {
+        if (m_gameplayBackgroundObject == null || m_gameplayBackgroundRenderer == null || !m_gameplayBackgroundObject.activeSelf)
+        {
+            return;
+        }
+
+        Camera camera = Camera.main;
+        Sprite sprite = m_gameplayBackgroundRenderer.sprite;
+        if (camera == null || sprite == null)
+        {
+            return;
+        }
+
+        float height = camera.orthographicSize * 2f;
+        float width = height * camera.aspect;
+        Vector2 spriteSize = sprite.bounds.size;
+        if (spriteSize.x <= 0f || spriteSize.y <= 0f)
+        {
+            return;
+        }
+
+        float scale = Mathf.Max(width / spriteSize.x, height / spriteSize.y);
+        m_gameplayBackgroundObject.transform.position = new Vector3(camera.transform.position.x, camera.transform.position.y, 1f);
+        m_gameplayBackgroundObject.transform.localScale = new Vector3(scale, scale, 1f);
     }
 
     RectTransform CreateLoseThreatStage(ThemeData theme)
