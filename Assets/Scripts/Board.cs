@@ -103,14 +103,15 @@ public class Board : MonoBehaviour
             return;
         }
 
-        List<GamePiece> foundCollectible = FindAllCollectibles();
-        collectibleCount = foundCollectible.Count;
-
+        SetPlayerInputEnabled(false);
+        isRefilling = true;
         SettupTile();
         SettupStartingPiece();
+        collectibleCount = FindAllCollectibles().Count;
         SettupCamera();
         FillBoard(fillYOffset, fillMoveTime);
         m_isBoardSetup = true;
+        StartCoroutine(EnableInputAfterInitialFill());
     }
 
     public void ApplyLevelData(LevelData levelData)
@@ -595,7 +596,7 @@ public class Board : MonoBehaviour
     {
         foreach(StartingGameObject startingPiece in startingPieces)
         {
-            if (startingPiece != null)
+            if (startingPiece != null && startingPiece.prefab != null && IsWithinBounds(startingPiece.x, startingPiece.y))
             {
                 GameObject gamePiecePrefab = Instantiate(startingPiece.prefab, new Vector3(startingPiece.x, startingPiece.y, 0), Quaternion.identity) as GameObject;
                 MakeNewPiece(gamePiecePrefab, startingPiece.x, startingPiece.y, fillYOffset, fillMoveTime);
@@ -607,17 +608,36 @@ public class Board : MonoBehaviour
     {
         if (gamePiecePrefab != null && IsWithinBounds(x, y))
         {
-            gamePiecePrefab.GetComponent<GamePiece>().Init(this);
+            GamePiece gamePiece = gamePiecePrefab.GetComponent<GamePiece>();
+            if (gamePiece == null)
+            {
+                Debug.LogWarning("BOARD: Piece prefab does not contain a GamePiece component");
+                Destroy(gamePiecePrefab);
+                return;
+            }
+
+            gamePiece.Init(this);
             gamePiecePrefab.transform.parent = transform;
 
-            PlaceGamePiece(gamePiecePrefab.GetComponent<GamePiece>(), x, y);
+            PlaceGamePiece(gamePiece, x, y);
 
             if (yOffset != 0)
             {
                 gamePiecePrefab.transform.position = new Vector3(x, y + yOffset, 0);
-                gamePiecePrefab.GetComponent<GamePiece>().Move(x, y, moveTime);
+                gamePiece.Move(x, y, moveTime);
             }
         }
+    }
+
+    IEnumerator EnableInputAfterInitialFill()
+    {
+        if (fillMoveTime > 0f)
+        {
+            yield return new WaitForSeconds(fillMoveTime);
+        }
+
+        isRefilling = false;
+        SetPlayerInputEnabled(true);
     }
 
     GameObject MakeNewBomb(GameObject bombPrefab, int x, int y)
@@ -625,8 +645,16 @@ public class Board : MonoBehaviour
         if (bombPrefab != null && IsWithinBounds(x, y))
         {
             GameObject bomb = Instantiate(bombPrefab, new Vector3(x, y, 0), Quaternion.identity) as GameObject;
-            bomb.GetComponent<Bomb>().Init(this);
-            bomb.GetComponent<Bomb>().SetCoord(x, y);
+            Bomb bombComponent = bomb.GetComponent<Bomb>();
+            if (bombComponent == null)
+            {
+                Debug.LogWarning("BOARD: Bomb prefab does not contain a Bomb component");
+                Destroy(bomb);
+                return null;
+            }
+
+            bombComponent.Init(this);
+            bombComponent.SetCoord(x, y);
             bomb.transform.parent = transform;
 
             return bomb;
@@ -694,6 +722,7 @@ public class Board : MonoBehaviour
 
     IEnumerator SwitchTilesRoutine(Tile clickedTile, Tile targetTile)
     {
+        SetPlayerInputEnabled(false);
         GamePiece clickedPiece = m_allGamePieces[clickedTile.xIndex, clickedTile.yIndex];
         GamePiece targetPiece = m_allGamePieces[targetTile.xIndex, targetTile.yIndex];
 
@@ -735,6 +764,8 @@ public class Board : MonoBehaviour
             {
                 clickedPiece.Move(clickedTile.xIndex, clickedTile.yIndex, swapTime);
                 targetPiece.Move(targetTile.xIndex, targetTile.yIndex, swapTime);
+                yield return new WaitForSeconds(swapTime);
+                SetPlayerInputEnabled(true);
             } else
             {
                 yield return new WaitForSeconds(swapTime);
@@ -759,6 +790,10 @@ public class Board : MonoBehaviour
 
                 ClearAndRefillBoard(clickedPieceMatches.Union(targetPieceMatches).ToList().Union(colorMatches).ToList());
             }
+        }
+        else
+        {
+            SetPlayerInputEnabled(true);
         }
     }
 
@@ -944,10 +979,15 @@ public class Board : MonoBehaviour
 
     void ClearPieces(List<GamePiece> gamePieces)
     {
-        if (gamePieces.Count > 0)
+        if (gamePieces != null && gamePieces.Count > 0)
         {
             foreach (GamePiece piece in gamePieces)
             {
+                if (piece == null)
+                {
+                    continue;
+                }
+
                 ClearPieceAt(piece.xIndex, piece.yIndex);
             }
         }
@@ -977,10 +1017,15 @@ public class Board : MonoBehaviour
     {
         List<GamePiece> matchPieces = new List<GamePiece>();
 
-        if (gamePieces.Count > 0)
+        if (gamePieces != null && gamePieces.Count > 0)
         {
             foreach (GamePiece piece in gamePieces)
             {
+                if (piece == null)
+                {
+                    continue;
+                }
+
                 matchPieces = matchPieces.Union(FindMatchesAt(piece.xIndex, piece.yIndex)).ToList();
             }
         }
@@ -1054,7 +1099,7 @@ public class Board : MonoBehaviour
     List<GamePiece> CollapseColumn(List<int> columns)
     {
         List<GamePiece> movingPieces = new();
-        if (columns.Count > 0)
+        if (columns != null && columns.Count > 0)
         {
             foreach (int column in columns)
             {
@@ -1068,6 +1113,11 @@ public class Board : MonoBehaviour
     List<int> GetColumns(List<GamePiece> gamePieces)
     {
         List<int> columns = new();
+
+        if (gamePieces == null)
+        {
+            return columns;
+        }
 
         foreach (GamePiece piece in gamePieces)
         {
@@ -1310,10 +1360,11 @@ public class Board : MonoBehaviour
     GameObject DropBomb(List<GamePiece> gamePieces, int x, int y, Vector2 direction)
     {
         GameObject bomb = null;
+        int matchCount = gamePieces != null ? gamePieces.Count : 0;
 
         MatchValue matchValue = FindMatchValue(gamePieces);
 
-        if (gamePieces.Count >= 5 && matchValue != MatchValue.None)
+        if (matchCount >= 5 && matchValue != MatchValue.None)
         {
             if (IsCornerMatches(gamePieces, x, y))
             {
@@ -1329,7 +1380,7 @@ public class Board : MonoBehaviour
                 bomb = MakeNewBomb(colorBombPrefab, x, y);
             }
         }
-        else if (gamePieces.Count == 4 && matchValue != MatchValue.None)
+        else if (matchCount == 4 && matchValue != MatchValue.None)
         {
             if (direction.x != 0)
             {
@@ -1480,6 +1531,11 @@ public class Board : MonoBehaviour
 
     List<GamePiece> RemoveCollectible(List<GamePiece> bombPieces)
     {
+        if (bombPieces == null || bombPieces.Count == 0)
+        {
+            return new List<GamePiece>();
+        }
+
         List<GamePiece> allCollectiblePieces = FindAllCollectibles();
         List<GamePiece> piecesToRemove = new();
 

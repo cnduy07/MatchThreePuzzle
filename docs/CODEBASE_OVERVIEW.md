@@ -98,6 +98,11 @@ Important existing behavior:
 - Matches are detected by comparing `GamePiece.matchValue`.
 - Bombs are `GamePiece` objects with an extra `Bomb` component.
 - `SetupBoard()` is guarded so accidental repeated calls do not duplicate board contents.
+- Initial board fill marks the board as refilling and disables player input until the fill animation has completed.
+- Swap resolution disables player input until an invalid swap has fully rolled back or a valid swap has handed off to the refill loop.
+- Board helper methods used by bomb, collectible, cascade, and refill paths tolerate null or sparse clear lists, so color-bomb and sparse-board clears do not dereference empty cells during cascade resolution.
+- Starting collectible count is measured after starting pieces are created, so collectible spawn caps account for pre-placed collectibles.
+- Piece and bomb creation now guard missing `GamePiece` / `Bomb` components and skip invalid prefabs with warnings instead of throwing during setup or special-piece creation.
 - Board-owned mouse/touch input maps screen position to board grid coordinates and calls `ClickedTile`, `DragToTile`, and `ReleaseTile`.
 - `ApplyLevelData()` can configure board dimensions, piece/tile prefab references, starting layout, and collectible settings before setup.
 - `SettupCamera()` reserves top/bottom world-space room for HUD/home-area UI, uses `Screen.safeArea` aspect ratio, and keeps smaller boards from exceeding a 9-world-unit fit height baseline.
@@ -139,7 +144,7 @@ Board tile component. Responsibilities include:
 Important risks:
 
 - Tile no longer owns pointer input; `Board` maps mouse and touch positions to board grid coordinates for selection.
-- `BreakTileRoutine` uses `breakableValue` as an array index. Guard sprite bounds when changing breakable states.
+- Breakable sprite updates guard null sprite arrays and out-of-range `breakableValue` indexes.
 
 ### `Bomb.cs`
 
@@ -280,10 +285,10 @@ Related helpers:
 
 Tracks current score and animates score text upward.
 
-Important risk:
+Important behavior:
 
 - `ScoreManager` is intentionally scene-local even though it inherits from `Singleton<T>`, so score and HUD references reset when the reusable `Game` scene reloads.
-- Multiple score coroutines can overlap when cascades score quickly.
+- Score display animation uses a single counter coroutine and flushes the final displayed value to `CurrentScore` so runtime HUD score feedback does not lag behind the true score.
 
 ### `SoundManager.cs`
 

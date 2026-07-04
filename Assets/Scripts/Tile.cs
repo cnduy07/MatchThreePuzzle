@@ -42,10 +42,7 @@ public class Tile : MonoBehaviour
 
         if (tileType == TileType.Breakable)
         {
-            if (breakableSprites[breakableValue] != null)
-            {
-                m_spriteRenderer.sprite = breakableSprites[breakableValue];
-            }
+            ApplyBreakableSprite();
         }
     }
 
@@ -61,19 +58,30 @@ public class Tile : MonoBehaviour
 
     IEnumerator BreakTileRoutine()
     {
-        breakableValue = Mathf.Clamp(--breakableValue, 0, breakableValue);
+        breakableValue = Mathf.Max(0, breakableValue - 1);
 
         yield return new WaitForSeconds(0.25f);
 
-        if (breakableSprites[breakableValue] != null)
-        {
-            m_spriteRenderer.sprite = breakableSprites[breakableValue];
-        }
+        ApplyBreakableSprite();
 
         if (breakableValue <= 0)
         {
             tileType = TileType.Normal;
             m_spriteRenderer.color = normalColor;
+        }
+    }
+
+    void ApplyBreakableSprite()
+    {
+        if (m_spriteRenderer == null || breakableSprites == null || breakableValue < 0 || breakableValue >= breakableSprites.Length)
+        {
+            return;
+        }
+
+        Sprite sprite = breakableSprites[breakableValue];
+        if (sprite != null)
+        {
+            m_spriteRenderer.sprite = sprite;
         }
     }
 }

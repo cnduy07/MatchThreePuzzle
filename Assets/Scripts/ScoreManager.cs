@@ -25,6 +25,7 @@ public class ScoreManager : Singleton<ScoreManager>
 
     int m_counterValue = 0;
     int m_increment = 5;
+    Coroutine m_countScoreRoutine;
 
     public Text scoreText;
 
@@ -62,21 +63,31 @@ public class ScoreManager : Singleton<ScoreManager>
     public void AddScore(int scoreValue)
     {
         m_currentScore += scoreValue;
-        StartCoroutine(CountScoreRoutine());
+        if (m_countScoreRoutine == null)
+        {
+            m_countScoreRoutine = StartCoroutine(CountScoreRoutine());
+        }
     }
 
     IEnumerator CountScoreRoutine()
     {
-        int interations = 0;
+        int iterations = 0;
 
-        while (interations < 100000 && m_counterValue < m_currentScore)
+        while (iterations < 100000 && m_counterValue < m_currentScore)
         {
             m_counterValue += m_increment;
+            if (m_counterValue > m_currentScore)
+            {
+                m_counterValue = m_currentScore;
+            }
+
             UpdateScoreText(m_counterValue);
-            interations += 1;
+            iterations += 1;
             yield return null;
         }
 
         m_counterValue = m_currentScore;
+        UpdateScoreText(m_counterValue);
+        m_countScoreRoutine = null;
     }
 }

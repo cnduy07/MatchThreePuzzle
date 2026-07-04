@@ -267,7 +267,7 @@ Potential optimizations:
 - Scene and prefab references can break if YAML is edited carelessly.
 - Existing sprite import settings are mixed.
 - Current sound manager does not manage looping music robustly.
-- Score counting coroutine can overlap.
+- Score display now uses one counter coroutine and flushes to the true score, but score animation timing still needs feel tuning after cascade timing is finalized.
 - App Store readiness is not just a build setting; privacy and metadata must match actual SDK usage.
 - Scene flow can become messy if settings, end screens, and tutorials are implemented as separate one-off scenes instead of reusable overlays.
 - Asset duplication can grow quickly if levels, themes, buttons, and pieces do not use shared data/prefab patterns.

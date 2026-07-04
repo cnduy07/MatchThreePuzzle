@@ -21,6 +21,105 @@ Notes: <anything another session should know, e.g. "will modify LevelDatabase.as
 
 ## Entries
 
+[DONE] Game scene board list guardrails
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Gameplay Core; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Board.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Made board helper methods tolerate null/sparse clear lists during bomb, collectible, cascade, and refill paths. Unity batchmode compile succeeded after the fix. No scene, prefab, Shared API, UI, or level data changes were made.
+
+[DONE] Game scene color bomb null guard
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Gameplay Core; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Board.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Prevented color-bomb and mixed match clear lists from dereferencing null board cells during cascade/refill matching. Unity batchmode compile succeeded after the fix. No scene, prefab, Shared API, UI, or level data changes were made.
+
+[DONE] Game scene swap input guard
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Gameplay Core; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Board.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Prevented overlapping swaps while pieces are moving so Game scene input cannot corrupt board state. Unity batchmode compile succeeded after the fix. No scene, prefab, Shared API, UI, or level data changes were made.
+
+[DONE] Game scene fix documentation sync
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: docs/CODEBASE_OVERVIEW.md, docs/TECHNICAL_PLAN.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Synced docs for Game scene compile, score, tile, and board guardrail fixes. No source, scene, prefab, Shared API, or asset changes were made in this documentation slice.
+
+[DONE] Game scene bomb prefab guardrails
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Gameplay Core; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Board.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Added special-piece creation guardrail so invalid bomb prefab references do not crash match resolution. Unity batchmode compile succeeded after the fix. No scene, prefab, Shared API, UI, or level data changes were made.
+
+[DONE] Game scene initial board input guard
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Gameplay Core; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Board.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Prevented gameplay input during initial board fill animation and added narrow prefab component guardrails. Unity batchmode compile succeeded after the fix. No scene, prefab, Shared API, UI, or level data changes were made.
+
+[DONE] Game scene breakable tile guardrails
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Gameplay Core; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/Tile.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Added breakable tile sprite bounds/null handling so Game scene breakable-tile gameplay cannot throw from invalid sprite state. Unity batchmode compile succeeded after the fix. No scene, prefab, Board.cs, Shared API, or UI changes were made.
+
+[DONE] Game scene score display correctness
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Game Loop & Scoring; Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: Assets/Scripts/ScoreManager.cs, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Fixed score counting so the runtime HUD always reaches the true current score and overlapping score gains share one counter coroutine. Unity batchmode compile succeeded after the fix. No scene, prefab, menu/level-map builder, shared UI API, or gameplay rule changes were made.
+
+[DONE] Game scene compile unblock
+
+Branch: codex/gamescene
+Domains touched (see docs/OWNERSHIP.md): Documentation & Process; third-party example script cleanup
+Agent role: Feature Agent
+Files/scenes expected to change: WORKLOG.md, Assets/TextMesh Pro/Examples & Extras/Scripts/VertexZoom.cs, Assets/TextMesh Pro/Examples & Extras/Scripts/TMP_TextSelector_B.cs
+Shared API changes: no
+Started: 2026-07-04
+Closed: 2026-07-04
+Notes: Fixed imported TextMesh Pro example compile errors that blocked Unity verification of Game scene features. Unity batchmode now reports no C# compiler errors after this patch. No menu/level-map builder, scene, prefab, ProjectSettings, package, gameplay API, or shared UI API changes were made.
+
 [ACTIVE] Menu scene polish worktree
 
 Branch: codex/menuscene
