@@ -98,11 +98,13 @@ static class GameSceneHudBuilder
 
         Text titleText = RuntimeUiFactory.CreateText(panel, "Title", title, 24, Cream, TextAnchor.MiddleCenter);
         titleText.raycastTarget = false;
+        ConfigureTextFit(titleText, 16, 24);
         RuntimeUiFactory.SetCenter(titleText.GetComponent<RectTransform>(), new Vector2(0f, 27f), new Vector2(124f, 30f));
 
         Text valueText = RuntimeUiFactory.CreateText(panel, "Value", value, 52, Color.white, TextAnchor.MiddleCenter);
         valueText.raycastTarget = false;
         valueText.fontStyle = FontStyle.Bold;
+        ConfigureTextFit(valueText, 28, 52);
         RuntimeUiFactory.SetCenter(valueText.GetComponent<RectTransform>(), new Vector2(0f, -19f), new Vector2(124f, 64f));
         return panel;
     }
@@ -136,10 +138,12 @@ static class GameSceneHudBuilder
         Text score = RuntimeUiFactory.CreateText(scorePlaque, "Score", "Score 0", 25, Gold, TextAnchor.MiddleCenter);
         score.fontStyle = FontStyle.Bold;
         score.raycastTarget = false;
+        ConfigureTextFit(score, 15, 25);
         RuntimeUiFactory.Stretch(score.GetComponent<RectTransform>(), 10f, 4f, 10f, 4f);
 
         Text scoreGoalText = RuntimeUiFactory.CreateText(stage, "Score Goal Hint", "Goal " + scoreGoal, 19, Cream, TextAnchor.MiddleCenter);
         scoreGoalText.raycastTarget = false;
+        ConfigureTextFit(scoreGoalText, 13, 19);
         RuntimeUiFactory.SetCenter(scoreGoalText.GetComponent<RectTransform>(), new Vector2(-304f, 54f), new Vector2(178f, 28f));
         return score;
     }
@@ -181,7 +185,9 @@ static class GameSceneHudBuilder
 
             Text icon = AddText(rectTransform, "Icon", icons[i], 45, iconColors[i], TextAnchor.MiddleCenter, new Vector2(0f, 15f), new Vector2(82f, 58f));
             icon.fontStyle = FontStyle.Bold;
-            AddText(rectTransform, "Name", names[i], 14, Cream, TextAnchor.MiddleCenter, new Vector2(0f, -32f), new Vector2(100f, 22f));
+            ConfigureTextFit(icon, 26, 45);
+            Text boosterName = AddText(rectTransform, "Name", names[i], 14, Cream, TextAnchor.MiddleCenter, new Vector2(0f, -32f), new Vector2(100f, 22f));
+            ConfigureTextFit(boosterName, 10, 14);
             CreateBadge(rectTransform, "3");
             RuntimeUiFactory.AddMotion(rectTransform, RuntimeUiMotionType.SlideFromBottom, 28f + i * 8f, 1f, 0.38f);
         }
@@ -207,6 +213,7 @@ static class GameSceneHudBuilder
             label.fontStyle = FontStyle.Bold;
             label.color = Cream;
             label.raycastTarget = false;
+            ConfigureTextFit(label, 28, 44);
         }
 
         pause.onClick.AddListener(() => pauseAction?.Invoke());
@@ -264,6 +271,7 @@ static class GameSceneHudBuilder
             Text label = RuntimeUiFactory.CreateText(actorObject.transform, "Label", fallbackLabel, 26, Color.white, TextAnchor.MiddleCenter);
             label.raycastTarget = false;
             label.fontStyle = FontStyle.Bold;
+            ConfigureTextFit(label, 16, 26);
             RuntimeUiFactory.Stretch(label.GetComponent<RectTransform>(), 8f, 4f, 8f, 4f);
         }
 
@@ -277,10 +285,12 @@ static class GameSceneHudBuilder
 
         RectTransform icon = CreateSolidImage(chip, "Icon", iconColor);
         RuntimeUiFactory.SetCenter(icon, new Vector2(-68f, 0f), new Vector2(54f, 46f));
-        AddText(icon, "Icon Label", iconLabel, iconLabel.Length > 3 ? 15 : 21, Color.white, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(48f, 40f));
+        Text iconText = AddText(icon, "Icon Label", iconLabel, iconLabel.Length > 3 ? 15 : 21, Color.white, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(48f, 40f));
+        ConfigureTextFit(iconText, 10, iconLabel.Length > 3 ? 15 : 21);
 
         Text valueText = AddText(chip, "Value", value, 26, Color.white, TextAnchor.MiddleLeft, new Vector2(30f, 0f), new Vector2(128f, 42f));
         valueText.fontStyle = FontStyle.Bold;
+        ConfigureTextFit(valueText, 15, 26);
     }
 
     static void CreateDecorativeWindow(Transform parent)
@@ -300,6 +310,7 @@ static class GameSceneHudBuilder
         RuntimeUiFactory.SetCenter(badge, new Vector2(46f, -38f), new Vector2(42f, 42f));
         Text text = AddText(badge, "Value", value, 26, Color.white, TextAnchor.MiddleCenter, Vector2.zero, new Vector2(36f, 34f));
         text.fontStyle = FontStyle.Bold;
+        ConfigureTextFit(text, 16, 26);
     }
 
     static RectTransform CreateSolidImage(Transform parent, string name, Color color)
@@ -317,8 +328,23 @@ static class GameSceneHudBuilder
     {
         Text text = RuntimeUiFactory.CreateText(parent, name, value, size, color, alignment);
         text.raycastTarget = false;
+        ConfigureTextFit(text, Mathf.Max(9, Mathf.RoundToInt(size * 0.58f)), size);
         RuntimeUiFactory.SetCenter(text.GetComponent<RectTransform>(), position, rectSize);
         return text;
+    }
+
+    static void ConfigureTextFit(Text text, int minSize, int maxSize)
+    {
+        if (text == null)
+        {
+            return;
+        }
+
+        text.resizeTextForBestFit = true;
+        text.resizeTextMinSize = Mathf.Max(1, minSize);
+        text.resizeTextMaxSize = Mathf.Max(text.resizeTextMinSize, maxSize);
+        text.horizontalOverflow = HorizontalWrapMode.Wrap;
+        text.verticalOverflow = VerticalWrapMode.Truncate;
     }
 
     static void SetPanelImage(RectTransform rectTransform, Color color, bool disableRaycast)
