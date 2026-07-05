@@ -40,7 +40,9 @@ Do not change these rules casually. If rules change, update tests and player-fac
 
 ## Level Goals
 
-The current prototype uses score goal and moves left. The finished game should support multiple level objective types:
+The current playable rules use score goal and moves left. `LevelData` already stores objective type and target count for future levels, but non-score objective rules are not implemented in win/loss resolution yet.
+
+The finished game should support multiple level objective types:
 
 - reach score
 - collect target items
@@ -142,7 +144,9 @@ Current implementation status:
 - Menu uses a concept-style placeholder layout with top resources, large logo, stacked actions, settings, progress sign, and bottom nav.
 - Level Select uses a concept-style placeholder map with region labels, path segments, level nodes, locks, and bottom nav.
 - Gameplay uses a concept-style placeholder HUD with level/goal/moves counters, monster-door threat area, score, boosters, and pause.
-- Final approved art is still required for backgrounds, logo, icons, buttons, boosters, map regions, nodes, monster, and door.
+- Gameplay background currently renders behind the world board; HUD and overlays render on the safe-area UI canvas.
+- Bottom booster controls are visual placeholders only. They show candidate icons and counts, but do not spend inventory or trigger board effects.
+- Final approved art is still required for logo, icons, buttons, boosters, map regions, nodes, monster, door, and release-quality backgrounds.
 
 Optional later:
 
@@ -183,7 +187,7 @@ High-value additions:
 - world/level progression
 - star rating per level
 - richer objective types
-- boosters
+- functional boosters connected to inventory, board effects, and economy
 - daily challenge with fixed seed
 - combo meter for cascades
 - coins earned from wins

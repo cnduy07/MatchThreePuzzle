@@ -104,9 +104,9 @@ Technical requirements:
 
 Remaining Phase 3 work:
 
-- final shared UI prefabs instead of runtime-only placeholder controls
-- phone and iPad visual verification
-- final responsive HUD tuning after device/aspect-ratio screenshots
+- verify Game scene screenshots on iPhone portrait, tall/notched iPhone, and iPad before further art work
+- tune board/HUD spacing only from those screenshots, with board visibility taking priority over decoration
+- replace runtime-only placeholder controls with shared UI prefabs after the target layout is stable
 
 ## Camera And Board Fit Open Item
 
@@ -119,6 +119,7 @@ Target approach to design during Phase 3:
 - Keep the full board visible on small, notched, large iPhone, and iPad layouts.
 - Tune the 9-world-unit board fit baseline after device screenshots.
 - Keep the board centered in the available safe gameplay area, not necessarily the full physical screen.
+- Keep gameplay background rendering behind world-space board sprites. Do not move gameplay backgrounds into overlay canvas layers.
 
 This remains an open tuning item. Do not claim the game has final responsive board fitting until the camera/layout system is verified on target iPhone and iPad aspect ratios.
 
@@ -162,6 +163,10 @@ Current status:
 - Runtime lose flow plays a themed monster-to-door attack animation before the lose modal, matching the `Assets/Concept/gamescene.png` direction with placeholder theme assets.
 - Runtime Menu, Level Select, and Game HUD now use concept-style placeholder layouts for top resources, map nodes, action buttons, boosters, pause/settings, and monster-door presentation.
 - Runtime concept HUD suppresses legacy scene HUD panels/text and old score decoration, and key placeholder UI elements have lightweight motion polish.
+- `ClassicTheme` currently references generated gameplay sprite candidates for pieces, special pieces, collectibles, blockers, some HUD icons, and generated tile candidates where they remained readable.
+- Normal board cells intentionally use a clean full-cell tile backing instead of the generated normal tile candidate.
+- Gameplay background is a world-space sprite behind the board; HUD and overlays remain on the UI canvas.
+- Bottom booster controls are visual placeholders only. Gameplay booster effects, inventory use, and economy integration are not implemented.
 
 Add reusable data and prefab structure before generating many levels or art variants:
 
@@ -174,6 +179,7 @@ Use direct Unity references first. Consider Addressables only when asset count, 
 
 Remaining Phase 4.5 work:
 
+- verify the current generated sprite candidates in actual Game scene screenshots and reject weak assets before producing more art
 - replace placeholder shared UI prefab visuals with approved pixel-art sprites/sliced panels
 - replace the concept-style placeholders with approved sprites, sliced panels, background art, node art, booster icons, and monster/door sprites
 - move level assets away from duplicated direct prefab arrays after shared references are verified in Unity
@@ -181,6 +187,13 @@ Remaining Phase 4.5 work:
 - add additional theme assets only after one complete theme is validated
 
 ## Phase 5: Pixel-Art Asset Replacement
+
+Current status:
+
+- A first generated candidate set exists under `Assets/Sprites/PixelArt/Generated/`.
+- The candidate set is wired for gameplay readability review, not approved for release.
+- The generated normal tile and generated booster button frame are known weak assets and should not drive final visual direction.
+- PixelLab generation remains outside normal implementation workflow unless the user explicitly requests a dedicated artwork pass.
 
 Replace assets in controlled groups:
 
@@ -264,6 +277,8 @@ Potential optimizations:
 - `Board.cs` is a poor candidate for simultaneous parallel edits because of its size and shared responsibilities. Treat the board model / match resolver / level loader / board view split above as a prerequisite, single-session task before multiple sessions attempt concurrent gameplay-core features.
 - Current input is Board-owned screen-to-grid mapping with selective UI blocking for interactable `Selectable` controls; validate drag behavior, edge-cell selection, and future overlay controls as panels are added.
 - LevelData stores objective type and target count before all objective rules exist, so avoid treating non-score objectives as complete until the resolver/game rules are added.
+- Game HUD boosters are visual placeholders. Do not document them as functional until a booster data model, inventory/count consumption, input handlers, and board effects exist.
+- Gameplay background must stay behind world-space board sprites; overlay canvas backgrounds can hide the board.
 - Scene and prefab references can break if YAML is edited carelessly.
 - Existing sprite import settings are mixed.
 - Current sound manager does not manage looping music robustly.

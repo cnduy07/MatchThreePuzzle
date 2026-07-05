@@ -57,17 +57,17 @@ Implemented first pass:
 - The Menu action stack now supports theme-assigned pixel-art sprites for Play, Levels, Daily Reward, Events, and Shop, and `ClassicTheme` references the current `Assets/Sprites/menu_*_btn.png` cutouts.
 - Game HUD includes placeholder top counters/objective, monster-door threat area, score, boosters, and pause control.
 - Game HUD now asks `RuntimeUiShell` to render the theme-assigned gameplay background as a world-space `SpriteRenderer` behind the board, not as an overlay-canvas image.
-- Game booster and pause controls support theme-assigned sprite art with text fallback.
+- Game booster and pause controls support theme-assigned sprite art with text fallback. Booster controls are currently visual placeholders, not functional board tools.
 - Runtime concept HUD owns gameplay counters while legacy scene HUD panels, text, and old score decoration are hidden to avoid duplicate UI.
 - Game board camera framing reserves more top presentation space so the board sits lower under the monster-door concept area.
 - Placeholder UI uses small runtime motion effects for hierarchy and feedback.
 
 Still planned for scene/UI:
 
+- Game scene visual verification on target phone/iPad aspect ratios, with board visibility and touch targets checked before adding more UI art
 - final pixel-art replacement for shared UI prefab sprites and sliced panels
 - replace remaining menu placeholders around the new action button sprites, including background, logo, counters, settings, bottom nav, and progress sign
 - final concept-accurate sprite replacement for menu, level-map, gameplay HUD, resource counters, boosters, pause/settings controls, and bottom navigation
-- phone/iPad visual verification and final responsive HUD tuning
 - additional data-driven levels beyond the first five
 
 Parallelization note: scene files (`Boot`, `Menu`, `Level Select`, and `Game.unity`) and shared `RuntimeUiShell` / `SceneFlow` code remain `Very High` conflict-risk domains. Prefer assigning screen-focused work to `MenuSceneUiBuilder`, `LevelMapSceneUiBuilder`, or `GameSceneHudBuilder` after checking `docs/OWNERSHIP.md` and `WORKLOG.md`.
@@ -194,10 +194,17 @@ Gameplay HUD should be stable across levels:
 
 - top: level number/name, objective, moves, score
 - center: board
-- bottom: boosters or future powerups
+- bottom: boosters or future powerups; current controls are visual only until booster gameplay exists
 - edge: pause button and optional settings shortcut
 
 Board readability is the priority. Decorative UI must not compete with pieces.
+
+World/canvas layering rule:
+
+- World-space board pieces, board tiles, and gameplay background render through `Camera.main`.
+- Gameplay background must render behind board sprites.
+- HUD, pause, settings, win, lose, and modal overlays render on the runtime UI canvas.
+- Do not add opaque full-screen gameplay images to the overlay canvas; that can hide the board and block readability.
 
 ## Data Assets
 

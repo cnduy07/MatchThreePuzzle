@@ -150,3 +150,13 @@ Shared API changes: no
 Started: 2026-07-03
 Closed: 2026-07-03
 Notes: Removed overlay-canvas gameplay background that hid the world board, replaced it with a world-space background sprite behind the board, rebuilt bottom boosters as larger readable cards, cleared the bad cropped booster-frame sprite, and made normal tile backing visibly opaque. Avoided scene YAML edits. Batchmode verification was blocked because the Unity editor was open on this project.
+[DONE] Review remaining issues and synchronize docs
+
+Branch: main
+Domains touched (see docs/OWNERSHIP.md): Documentation & Process
+Agent role: Feature Agent
+Files/scenes expected to change: docs/CODEBASE_OVERVIEW.md, docs/TECHNICAL_PLAN.md, docs/GAME_DESIGN_TARGET.md, docs/SCENE_UI_ARCHITECTURE.md, docs/PIXEL_ART_DIRECTION.md, WORKLOG.md
+Shared API changes: no
+Started: 2026-07-05
+Closed: 2026-07-05
+Notes: Synchronized docs around current remaining issues: Game scene visual QA, candidate art status, visual-only boosters, score-only objective resolution, and world-space background layering. Avoided scenes, prefabs, Shared APIs, and unrelated dirty project settings.

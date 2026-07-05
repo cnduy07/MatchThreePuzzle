@@ -224,8 +224,15 @@ Review notes:
 - The six normal pieces are the most coherent part of the set and should be tested at actual board size first.
 - The row, column, and adjacent bomb sprites are generic special-piece candidates. They may need color-specific variants or overlays before replacing all current bomb prefabs.
 - The generated normal tile candidate should remain unused unless it is replaced by a full-cell tile that does not compete with pieces.
+- The generated booster button frame should remain unused; it read as a broken strip when scaled down in the gameplay HUD.
 - The breakable, obstacle, and gameplay HUD icons are first-pass candidates and should be checked in the `Game` scene.
 - These sprites are wired into gameplay prefabs, but they are still candidate art until reviewed in actual phone/iPad gameplay layouts.
+
+Next art decision:
+
+- Do not generate more art until a Game scene screenshot confirms board visibility, piece readability, tile readability, and bottom control scale.
+- If the screenshot still looks weak, fix layout and asset selection before expanding the sprite set.
+- Treat weak generated assets as disposable; do not preserve them just because they are already imported.
 
 ## Approval Workflow
 

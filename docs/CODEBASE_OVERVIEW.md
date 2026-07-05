@@ -14,6 +14,16 @@ Use this file for the current state of the project:
 
 Use `docs/TECHNICAL_PLAN.md` for the roadmap and next engineering sequence. Use `docs/SCENE_UI_ARCHITECTURE.md` for scene/UI structure and overlay conventions.
 
+## Current Focus
+
+The current project state is a playable first pass, not a release-ready build. The most important remaining problem is visual/UI clarity on real target aspect ratios:
+
+- Game scene layering must keep the world board visible: gameplay background stays behind board sprites, HUD and overlays stay on the safe-area canvas.
+- Generated gameplay sprites and menu button sprites are review candidates, not final approved art.
+- Bottom booster controls are currently visual placeholders. They do not trigger gameplay booster effects yet.
+- `LevelData.objectiveType` and `objectiveTargetCount` exist, but win/loss rules still resolve only score-goal completion.
+- Phone/iPad screenshots are required before claiming the Game HUD, board fit, or generated art pass is done.
+
 ## Important Paths
 
 - `Assets/Scenes/Boot.unity` - first enabled scene; routes into the menu.
@@ -245,7 +255,7 @@ Important risks:
 
 - Current shared assets still point at placeholder/prototype prefabs and colors. They are a reuse foundation, not final art.
 - The main Menu action buttons now use the first user-provided pixel-art cutouts through menu-specific `ThemeData` sprite slots. Other screen/UI art is still placeholder.
-- Gameplay HUD booster and pause controls now have theme-specific sprite slots; `ClassicTheme` points them at the first generated icon/button candidates.
+- Gameplay HUD booster and pause controls now have theme-specific sprite slots; `ClassicTheme` points them at first generated icon candidates, while booster button frames remain constructed runtime panels until better approved art exists.
 - `ClassicTheme.gameplayBackground` points at the current `sky_night.png` gameplay background, which the runtime shell displays as a world-space sprite behind the board.
 - Existing levels retain direct prefab overrides, so later cleanup can remove duplicated arrays level by level after validation.
 - Shared UI prefab slots are wired to placeholder prefabs under `Assets/Prefabs/UI/Shared/`; replace their art/sprites during the final pixel-art UI pass.
@@ -398,7 +408,7 @@ Runtime UI:
 - Game runtime UI uses a themed world-space gameplay background behind the board; HUD and overlays remain on the safe-area canvas.
 - Level Select runtime UI now follows the `Assets/Concept/levelmapscene.png` structure with placeholder resource counters, region labels, path segments, level nodes, locked worlds, and bottom navigation.
 - Game runtime UI now follows the `Assets/Concept/gamescene.png` structure with placeholder level/goal/moves panels, monster-door threat area, score, bottom boosters, and pause control.
-- Game booster and pause controls now use theme-assigned sprite art with text fallbacks when sprites are missing.
+- Game booster and pause controls now use theme-assigned sprite art with text fallbacks when sprites are missing; booster effects are not implemented.
 - No-moves loss now plays a concept-inspired monster rush/door attack animation before the lose modal.
 - Legacy scene HUD panels/text and old score decoration are hidden when the runtime concept HUD is active, preventing duplicate old/new UI.
 - Major placeholder UI elements use lightweight runtime motion for slide-in, pulse, and floating feedback.
@@ -410,15 +420,13 @@ Runtime UI:
 
 ## Missing / Not Release-Ready Features
 
-- More level data beyond the first five levels, with real tuning and varied layouts.
+- Target-device visual QA for Game scene board visibility, tile readability, booster scale, and safe areas.
 - Final shared pixel-art UI prefabs replacing runtime placeholder controls.
-- Final phone/iPad visual verification and responsive HUD tuning.
-- Tutorial.
-- Real haptics service integration.
+- Functional boosters; current bottom booster controls are visual only.
 - Additional objective rules beyond score-goal flow.
-- Final art-filled UI prefab pass, sprite atlas grouping, and art-filled theme assets.
-- Final concept-accurate sprite/art replacement for menu, level map, gameplay HUD, boosters, and resource counters.
-- Pixel-art replacement pass.
-- App icon and launch screen.
-- App Store metadata and screenshots.
-- Release QA checklist.
+- More level data beyond the first five levels, with real tuning and varied layouts.
+- Tutorial and first-run guidance.
+- Real haptics service integration.
+- Final concept-accurate art for menu, level map, gameplay HUD, monster/door, boosters, resource counters, app icon, and launch screen.
+- Sprite atlas grouping, texture compression pass, and release build asset cleanup.
+- App Store metadata, screenshots, privacy review, and release QA checklist.
